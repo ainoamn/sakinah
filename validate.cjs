@@ -8,3 +8,7 @@ assert.equal(new Set(c.entries.map(x=>x.id)).size,c.entries.length);assert.equal
 c.entries.forEach(d=>{assert.ok(d.reference);assert.ok(d.repeat>=1);if(d.qref){const [s,a,b]=d.qref;assert.ok(q[s-1]);assert.ok(a>=1&&b>=a&&b<=q[s-1].ayahs.length)}else assert.ok(d.text)});
 for(const f of ['index.html','style.css','app.js','data.js','icon.svg','QURAN-LICENSE.txt'])assert.ok(fs.statSync('dist/'+f).size>0);
 console.log(`PASS: ${q.length} surahs, ${globalNumber} ordered verses, ${c.entries.length} referenced entries, ${c.names.length} names, all ranges and assets valid.`);
+
+assert.deepEqual([...new Set(q.flatMap(s=>s.ayahs.map(a=>a.page)))],Array.from({length:604},(_,i)=>i+1));
+for(const f of ['qaboos.jpg','ameen.jpg','nizwa.jpg','sakinah-emblem.png','CREDITS.txt'])assert.ok(fs.statSync('dist/assets/'+f).size>100);
+console.log('PASS: all 604 page ranges present and identity assets available.');

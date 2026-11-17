@@ -1,0 +1,21 @@
+# Asset credits
+
+Sultan Qaboos Grand Mosque: Riyadh Al Balushi, CC BY 2.0.
+https://commons.wikimedia.org/wiki/File:Sultan_Qaboos_Grand_Mosque_(20517260391).jpg
+https://creativecommons.org/licenses/by/2.0/
+
+Mohammed Al Ameen Mosque: Muiad123, CC BY-SA 4.0. Composite photograph showing successive moon positions.
+https://commons.wikimedia.org/wiki/File:Mohammed_Al_Ameen_Mosque.jpg
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Al Qala'a Mosque in Nizwa: Christoph Strassler, CC BY-SA 2.0 as licensed on the Commons file page (the original EXIF additionally names CC BY-SA 4.0).
+https://commons.wikimedia.org/wiki/File:Al_Qala%27a_Mosque_in_Nizwa,_Oman.jpg
+https://creativecommons.org/licenses/by-sa/2.0/
+
+The downloaded thumbnails remain unedited; CSS may crop their display. Any adaptation of a share-alike image remains under its named license. Attribution and license links are available in each gallery caption.
+
+Mushaf page images: remote on-demand images from King Saud University Ayat project, which credits King Fahd Quran Printing Complex as its image source. Not included or relicensed in this bundle. Local text fallback is available on every page.
+https://quran.ksu.edu.sa/
+https://quran.ksu.edu.sa/ayat/safahat1/1.png
+
+Sakinah emblem: original project-bound image generated with the built-in image generator, 2026-11-17. Prompt: one premium transparent emblem combining an Omani mihrab arch, open Quran and tiny eight-point star; precise gold and forest-green; no text, no national emblem. See logo-prompt.txt for exact prompt.
