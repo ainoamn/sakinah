@@ -19,3 +19,10 @@ https://quran.ksu.edu.sa/
 https://quran.ksu.edu.sa/ayat/safahat1/1.png
 
 Sakinah emblem: original project-bound image generated with the built-in image generator, 2026-11-17. Prompt: one premium transparent emblem combining an Omani mihrab arch, open Quran and tiny eight-point star; precise gold and forest-green; no text, no national emblem. See logo-prompt.txt for exact prompt.
+
+Quran reader editions (2026-11-17 update):
+- Hafs / Madinah page images: King Saud University Ayat, /ayat/safahat1/{page}.png.
+- Color-coded Tajweed page images: King Saud University Ayat, /tajweed_png/{page}.png. Loaded from the original provider; not redistributed in this bundle. Page-start metadata was checked against the current Quran text for all 604 pages; numbering matches.
+- Commentary: Al-Muyassar (ar.muyassar) via the Al Quran Cloud public page endpoint, requested on demand. Attribution appears in the commentary panel. Quran text and commentary are displayed separately; neither is generated or rewritten.
+https://quran.ksu.edu.sa/
+https://alquran.cloud/
