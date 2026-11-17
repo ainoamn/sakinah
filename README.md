@@ -65,3 +65,5 @@
 - Reference reviewed: Golden Quran’s App Store listing, https://apps.apple.com/jo/app/golden-quran-المصحف-الذهبي/id852497554 (font enlargement through two-finger zoom). No app artwork or code was copied.
 
 V7 cache correction: versioned frontend script/style URLs, public shell fetched with reload during service-worker installation, network revalidation and ignore-search offline matching. Cleared detached placeholder-image callbacks and percent-encoded the SVG placeholder to prevent late image errors.
+
+V8 continuous reader: all initial and lazily appended pages use one QPC page component and matching paper surface. Placeholder image callbacks are detached before replacement; an automatic image failure cannot open the Unicode text fallback alongside a rendered page. Page text remains an explicit expandable option. Final source is synchronized to the user-requested GitHub repository after publishing.
