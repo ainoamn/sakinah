@@ -43,3 +43,12 @@
 تحسين الخطوط وأحجام اللمس والقوائم للهواتف واللوحيات والمكاتب. قارئ مصحف المدينة ومصحف التجويد الملوّن من آيات، مع التفسير الميسر بجانب الصفحة أو تحت صفحات التمرير الطولي. لم تتغير نصوص القرآن أو علامات القراءة. راجع ترقيم بيانات آيات وتطابق 604 صفحة قبل اعتماد خرائط مصحف التجويد.
 
 وضع التركيز يشغل كامل مساحة العرض بأزرار مختصرة، ويطلب Fullscreen API من إجراء المستخدم مباشرة حين يدعمه المتصفح. عند عدم دعم ملء الشاشة الأصلي يعمل ملء مساحة المتصفح. عرض الورقة يحافظ على نسبتها ولا يمدد الحروف. مصدر التفسير Al Quran Cloud، إصدار ar.muyassar، عند الطلب مع معالجة تعذر الاتصال.
+
+
+### Quran reader v5
+- Replaces low-resolution raster scans with resolution-independent QPC V2 and COLRv1 V4 Tajweed page fonts from the documented Quran Foundation CDN. Fonts load before the SVG text appears; glyph shapes are never stretched.
+- Local `quran-layout.json` contains QUL line/glyph ordering for both 604-page editions, including all 114 surah headings and all 6,236 verse references. QUL asset snapshot obtained via the NedaaDevs asset release. Rejected an incomplete third-party API export during preparation.
+- Normal book view and focus view both fit the visual viewport. Continuous scroll remains an explicit option in reading settings. Bookmarks, reading completion, text fallback, and page navigation remain available.
+- Commentary uses complete verse/commentary text, paginated to the available panel height. Phones switch between the page and commentary rather than stacking tall panels.
+- Browser QA: 1280×720, 1440×900, 768×1024, 390×844, 320×740, and 844×390; ordinary book view document height matched viewport height. Tested color Tajweed, final page 604, long verse 2:282, bookmarks, options, focus, and English direction. Native fullscreen is unavailable in the in-app preview; its CSS fallback was verified.
+- Page fonts and commentary need internet access. A font failure offers retry and the bundled Unicode Quran text.

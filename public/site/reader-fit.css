@@ -112,3 +112,7 @@ body.reading-mode .tafsir-panel{height:100%;min-height:0;flex:1}
  .reader-main .tafsir-heading{padding:3px 10px}
  .reader-main .tafsir-heading h2{font-size:21px}
 }
+
+.tafsir-sheet .tafsir-ayah{margin-bottom:16px;color:var(--ink)}
+.tafsir-sheet .tafsir-text{color:var(--ink)}
+@media(max-width:1023px){body.book-view .header-greeting{display:none}}
