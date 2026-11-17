@@ -26,3 +26,6 @@ Quran reader editions (2026-11-17 update):
 - Commentary: Al-Muyassar (ar.muyassar) via the Al Quran Cloud public page endpoint, requested on demand. Attribution appears in the commentary panel. Quran text and commentary are displayed separately; neither is generated or rewritten.
 https://quran.ksu.edu.sa/
 https://alquran.cloud/
+
+Quran reader v5: Resolution-independent QPC V2 and V4 Tajweed fonts served from the Quran Foundation CDN; https://api-docs.quran.com/docs/tutorials/fonts/font-rendering/
+QUL page/line/word mapping, https://qul.tarteel.ai/resources/mushaf-layout . Data downloaded through the QUL asset mirror at https://github.com/NedaaDevs/quran-image-generator/releases/tag/assets . Original calligraphy: King Fahd Quran Printing Complex. Local layout preserves every glyph and original line ordering; no scripture is AI-generated.

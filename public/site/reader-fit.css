@@ -1,0 +1,114 @@
+/* Every book view, including the ordinary view, is bounded by the visible viewport. */
+body.book-view{overflow:hidden;overscroll-behavior:none}
+body.book-view #shell{height:var(--reader-vh,100dvh);display:flex;flex-direction:column;overflow:hidden}
+body.book-view #shell>header{min-height:54px;height:54px;flex:none;padding:5px 20px}
+body.book-view #shell>footer{display:none}
+body.book-view #main.reader-main{display:flex;flex-direction:column;flex:1;min-height:0;height:auto;width:100%;max-width:none;margin:0;padding:8px 16px;gap:7px;overflow:hidden}
+.reader-main>.page-heading,.reader-main>.reader-info,.reader-main>.page-slider,.reader-main>.saved-page{display:none}
+.reader-main .reader-editions{margin:0;min-height:39px;flex:none;padding:3px;gap:4px}
+.reader-main .edition-tab{min-height:33px;padding:4px 14px;font-size:13px;line-height:1.4}
+.reader-main .edition-tab>span:first-child{font-size:18px}
+.reader-main .book-toolbar{margin:0;padding:0;gap:7px;min-height:36px;flex:none;flex-wrap:nowrap}
+.reader-main .book-toolbar label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.reader-main .book-toolbar select{width:220px;max-width:35%;min-width:0;min-height:36px;height:36px;font-size:15px;padding:3px 9px}
+.reader-main .book-toolbar input{width:63px;height:36px;min-height:36px;font-size:16px;padding:3px 5px}
+.reader-main .book-toolbar .chip{min-height:36px;height:36px;margin:0;padding:4px 12px;font-size:13px;white-space:nowrap}
+.reader-main #reader-more{margin-inline-start:auto;font-size:25px;line-height:1;padding:0 14px}
+.reader-main .book-stage{flex:1;min-height:0;height:auto;width:100%;margin:0;padding:9px;display:flex;align-items:center;justify-content:center;position:relative;top:auto;border-radius:12px;overflow:hidden}
+.reader-main .book{max-width:100%;margin:0;flex:none;border-width:3px}
+.reader-main .paper-leaf{height:100%;min-height:0;padding:5px 8px;display:flex;flex-direction:column;overflow:hidden}
+.reader-main .leaf-heading{min-height:23px;height:23px;flex:none;font-size:11px;line-height:1.4;padding:0 0 3px;overflow:hidden}
+.reader-main .leaf-heading span:first-child{font-size:11px}
+.reader-main .scan-wrap{flex:1;min-height:0;width:100%;height:auto;aspect-ratio:auto;margin:2px 0;overflow:hidden}
+.vector-page{position:relative;display:flex;align-items:center;justify-content:center;background:#fffef8;color:#173f35;min-width:0;min-height:0}
+.qpc-svg{display:block;width:100%;height:100%;max-width:100%;max-height:100%;overflow:visible;font-synthesis:none;font-weight:400!important;letter-spacing:normal}
+.vector-loading,.vector-error{padding:15px;text-align:center;font:14px/1.8 'Readex Pro',sans-serif}
+.vector-error .chip{display:block;margin:10px auto}
+.reader-main .leaf-foot{height:27px;min-height:27px;flex:none;margin:0;padding:2px 0;display:flex;align-items:center;justify-content:space-between;gap:4px;flex-wrap:nowrap}
+.reader-main .leaf-foot button{font-size:10px;min-height:24px;padding:0 3px;white-space:nowrap;border:0;background:transparent;color:var(--green)}
+.reader-main .page-medallion{font-size:15px;line-height:1;height:22px;width:30px;padding:2px}
+.reader-main .book-navigation{margin:0;flex:none;display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;gap:12px;min-height:36px;padding:0}
+.reader-main .book-navigation .btn,.reader-main .book-navigation .chip{height:36px;min-height:36px;font-size:12px;padding:3px 13px;white-space:nowrap}
+.reader-main .book-navigation>span{font-size:19px;line-height:1.3;white-space:nowrap}
+.reader-main .book-navigation #mark-page-read{width:auto;order:0}
+.reader-main .book-navigation #book-status small{font-size:11px}
+.reader-main .tafsir-workspace{flex:1;min-height:0;height:auto;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);gap:10px;overflow:hidden}
+.reader-main .tafsir-workspace .book-stage{height:100%;min-height:0}
+.reader-main .tafsir-panel{height:100%;max-height:none;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.reader-main .tafsir-heading{padding:9px 14px;flex:none}
+.reader-main .tafsir-heading h2{font-size:25px;margin:0}
+.reader-main .tafsir-heading span{display:none}
+.reader-main .tafsir-body{flex:1;min-height:0;overflow:hidden;padding:12px 18px}
+.tafsir-sheet{height:100%;overflow:hidden}
+.tafsir-sheet h3{font:13px/1.8 'Readex Pro';color:var(--gold);margin:0 0 12px}
+.tafsir-sheet .arabic-text{font-size:26px;line-height:2;margin:0}
+.tafsir-pagination{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 15px;border-top:1px solid var(--line);font-size:12px;flex:none}
+.tafsir-pagination .chip{height:32px;min-height:32px;padding:0 15px}
+.reader-main .tafsir-credit{font-size:10px;line-height:1.6;padding:6px 13px;flex:none;margin:0}
+.tafsir-toggle{display:none}
+#reader-dialog{width:720px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:20px;overflow:auto}
+#reader-dialog .dialog-top{position:sticky;top:-20px;z-index:2;background:var(--paper);margin:0 0 12px}
+#reader-dialog h2{font-size:25px;margin:0}
+.reader-extra{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.reader-extra p{width:100%}
+.reader-extra select{font-size:16px}
+.reader-text-content{font-size:30px;line-height:2.2}
+.vector-zoom-tools{display:flex;gap:15px;font-size:13px;align-items:center}
+.vector-zoom-scroll{max-height:70dvh;overflow:auto;direction:rtl;margin-top:12px}
+.vector-zoom-page{width:100%;aspect-ratio:1000/1480;flex:none;max-width:none}
+.vector-zoom-page .qpc-svg{min-width:100%;max-width:none}
+.vertical-vector{width:100%;aspect-ratio:1000/1480}
+body.reading-mode #main.reader-main{height:100%;padding:6px;gap:6px}
+body.reading-mode .focus-bar{min-height:40px;height:40px;flex:none}
+body.reading-mode .tafsir-workspace{grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr)}
+body.reading-mode .tafsir-workspace .book-stage{height:100%;min-height:0;flex:1}
+body.reading-mode .tafsir-panel{height:100%;min-height:0;flex:1}
+@media(max-width:760px){
+ body.book-view #shell>header{min-height:49px;height:49px;padding:4px 10px}
+ body.book-view .header-actions{gap:6px}
+ body.book-view #main.reader-main{padding:5px 7px;gap:5px}
+ .reader-main .reader-editions{min-height:36px}
+ .reader-main .edition-tab{font-size:11px;padding:3px 5px;min-height:30px;gap:4px}
+ .reader-main .book-toolbar{gap:4px;min-height:34px}
+ .reader-main .book-toolbar select{flex:1;width:100px;max-width:none;font-size:13px;height:34px;min-height:34px;padding:2px 4px}
+ .reader-main .book-toolbar input{width:47px;min-width:47px;height:34px;min-height:34px}
+ .reader-main .book-toolbar .chip{height:34px;min-height:34px;min-width:32px;padding:2px 7px}
+ .reader-main #book-focus span{display:none}
+ .reader-main #reader-more{padding:0 8px;min-width:33px}
+ .reader-main .book-stage{padding:5px;border-radius:7px}
+ .reader-main .paper-leaf{padding:4px 5px}
+ .reader-main .leaf-heading,.reader-main .leaf-heading span:first-child{font-size:10px}
+ .reader-main .book-navigation{gap:5px;min-height:34px}
+ .reader-main .book-navigation .btn{font-size:0;width:45px;min-width:45px;min-height:34px;height:34px;padding:0}
+ .reader-main #book-prev:before{content:'→';font-size:22px}
+ .reader-main #book-next:before{content:'←';font-size:22px}
+ .reader-main .book-navigation>span{font-size:16px}
+ .reader-main .book-navigation .chip{padding:2px 7px;min-height:34px;height:34px;font-size:13px}
+ .reader-main #mark-page-read span{display:none}
+ .reader-main .tafsir-workspace,body.reading-mode .tafsir-workspace{display:flex;flex-direction:row;gap:0;overflow:hidden}
+ .reader-main .tafsir-workspace .book-stage,body.reading-mode .tafsir-workspace .book-stage{display:flex;height:100%;min-height:0;flex:1}
+ .reader-main .tafsir-workspace .tafsir-panel{display:none;width:100%;height:100%;min-height:0;flex:1}
+ .reader-main .tafsir-workspace.show-tafsir .book-stage{display:none}
+ .reader-main .tafsir-workspace.show-tafsir .tafsir-panel{display:flex}
+ .tafsir-toggle,body.reading-mode .tafsir-toggle{display:block}
+ .tafsir-sheet .arabic-text{font-size:25px;line-height:2}
+ body.reading-mode .focus-bar{gap:5px;padding:2px 4px;min-height:38px;height:38px}
+ body.reading-mode .focus-bar .chip{padding:2px 7px;min-height:32px;height:32px}
+ body.reading-mode .focus-bar .icon-button{height:30px;min-width:30px;width:30px}
+ body.reading-mode .focus-bar>span{font-size:10px}
+ body.reading-mode .focus-exit{margin-inline-start:auto}
+ #reader-dialog{padding:15px}
+}
+@media(max-height:500px){
+ body.book-view #shell>header{height:40px;min-height:40px}
+ body.book-view #main.reader-main{gap:3px;padding-top:3px;padding-bottom:3px}
+ .reader-main .reader-editions{min-height:29px;padding:1px}
+ .reader-main .edition-tab{min-height:26px;font-size:11px;padding:2px 10px}
+ .reader-main .book-toolbar,.reader-main .book-toolbar select,.reader-main .book-toolbar input,.reader-main .book-toolbar .chip{height:29px;min-height:29px}
+ .reader-main .book-navigation,.reader-main .book-navigation .btn,.reader-main .book-navigation .chip{height:29px;min-height:29px}
+ .reader-main .leaf-heading{height:18px;min-height:18px;font-size:9px}
+ .reader-main .leaf-foot{height:21px;min-height:21px}
+ .tafsir-sheet .arabic-text{font-size:21px;line-height:1.8}
+ .reader-main .tafsir-heading{padding:3px 10px}
+ .reader-main .tafsir-heading h2{font-size:21px}
+}
