@@ -4,7 +4,7 @@ const vm=require('node:vm');
 const path=require('node:path');
 const root=path.join(__dirname,'../public/site');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.webmanifest'),'utf8'));
-assert.equal(manifest.scope,'./');assert.equal(manifest.display,'standalone');
+assert.equal(manifest.scope,'./');assert(manifest.start_url.includes('launch=app'));assert.equal(manifest.id,'./');assert.equal(manifest.display,'standalone');
 for(const icon of manifest.icons){assert(fs.existsSync(path.join(root,icon.src)));assert(icon.purpose.includes('maskable'))}
 const handlers={},stored=[];
 let failNetwork=false,failCache=false;
@@ -19,6 +19,7 @@ async function request(url,{method='GET',mode='cors'}={}){let promise;handlers.f
  assert.equal(await request('https://unrelated.test/user.json'),null);
  failNetwork=true;assert.equal(await(await request('https://example.test/site/',{mode:'navigate'})).text(),'cached public shell');
  failNetwork=false;failCache=true;assert.equal(await(await request('https://example.test/site/data.js')).text(),'online');
+ const beforePdf=stored.length;failCache=false;await request('https://example.test/site/books/test.pdf',{mode:'navigate'});assert.equal(stored.length,beforePdf,'PDF navigation must not replace the app shell');
  assert(!stored.some(key=>key.includes('/api/')));
  console.log('PASS: manifest, icons and complete offline shell; private APIs excluded; offline navigation works; quota failure preserves online reading.');
 })().catch(error=>{console.error(error);process.exitCode=1});

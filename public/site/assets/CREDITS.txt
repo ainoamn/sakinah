@@ -31,3 +31,5 @@ Quran reader v5: Resolution-independent QPC V2 and V4 Tajweed fonts served from 
 QUL page/line/word mapping, https://qul.tarteel.ai/resources/mushaf-layout . Data downloaded through the QUL asset mirror at https://github.com/NedaaDevs/quran-image-generator/releases/tag/assets . Original calligraphy: King Fahd Quran Printing Complex. Local layout preserves every glyph and original line ordering; no scripture is AI-generated.
 
 BHD company endorsement and original logo: Bin Hamood Development, https://www.bhd-om.com/company ; asset https://www.bhd-om.com/brand/bhd-logo.svg ; palette and UI typography from https://www.bhd-om.com/downloads/BHD-Visual-Identity-Guidelines.pdf . Added at the company owner’s request. App icons are resized derivatives of the existing Sakinah emblem.
+
+Offline text font: Uthmanic Hafs Ver18 from the documented Quran Foundation font CDN, original King Fahd Quran Printing Complex. Local Al-Muyassar commentary imported verbatim from https://api.alquran.cloud/v1/quran/ar.muyassar ; 114 surahs and 6236 numbered verses validated.
