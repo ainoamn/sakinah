@@ -1,0 +1,3 @@
+import { sqliteTable, text, integer, index, uniqueIndex } from "drizzle-orm/sqlite-core";
+export const profiles=sqliteTable('profiles',{userId:text('user_id').primaryKey(),settings:text('settings').notNull().default('{}'),updatedAt:integer('updated_at').notNull().default(0)});
+export const activities=sqliteTable('activities',{id:integer('id').primaryKey({autoIncrement:true}),userId:text('user_id').notNull(),eventId:text('event_id').notNull(),kind:text('kind').notNull(),payload:text('payload').notNull().default('{}'),createdAt:integer('created_at').notNull()},t=>[uniqueIndex('activity_user_event').on(t.userId,t.eventId),index('activity_user_time').on(t.userId,t.createdAt)]);

@@ -1,0 +1,1012 @@
+[
+  {
+    "id": "comprehensive",
+    "title": "دعاء شامل",
+    "titleEn": "Comprehensive Supplications",
+    "description": "دعاء جامع في الحمد والتوبة والهداية والرزق والأهل والوالدين.",
+    "sourceLabel": "المصدر: ملف دعاء شامل الذي أضافه صاحب الموقع.",
+    "pdf": "books/comprehensive.pdf",
+    "pageCount": 12,
+    "slides": [
+      {
+        "title": "دعاء شامل - الصفحة 1",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-001.webp",
+        "sourcePage": 1,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 2",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-002.webp",
+        "sourcePage": 2,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 3",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-003.webp",
+        "sourcePage": 3,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 4",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-004.webp",
+        "sourcePage": 4,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 5",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-005.webp",
+        "sourcePage": 5,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 6",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-006.webp",
+        "sourcePage": 6,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 7",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-007.webp",
+        "sourcePage": 7,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 8",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-008.webp",
+        "sourcePage": 8,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 9",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-009.webp",
+        "sourcePage": 9,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 10",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-010.webp",
+        "sourcePage": 10,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 11",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-011.webp",
+        "sourcePage": 11,
+        "imageOnly": true
+      },
+      {
+        "title": "دعاء شامل - الصفحة 12",
+        "text": "صفحة أصلية مصوّرة من دعاء شامل؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/comprehensive/page-012.webp",
+        "sourcePage": 12,
+        "imageOnly": true
+      }
+    ],
+    "note": "المادة من ملف مرفوع؛ تتضمن صيغ دعاء عامة ونصوصًا منقولة. لم يُجرَ تخريج مستقل. الأعداد الاختيارية في الرقية ليست حكمًا بأن لها فضلًا ثابتًا.",
+    "noteEn": "Arabic original supplied by the site owner. Original pages and visible credits are preserved; Sakinah does not claim authorship or independent religious authentication."
+  },
+  {
+    "id": "ruqyah",
+    "title": "الرقية الشرعية",
+    "titleEn": "Ruqyah Reading Collection",
+    "description": "آيات وأدعية للرقية، مع إيضاح المصدر أن بعض التكرارات اختيارات تنظيمية وليست أعدادًا ثابتة.",
+    "sourceLabel": "المصدر: ملف الرقية الشرعية بعد تعديل التكرار الذي أضافه صاحب الموقع.",
+    "pdf": "books/ruqyah.pdf",
+    "pageCount": 7,
+    "slides": [
+      {
+        "title": "الرقية الشرعية - الصفحة 1",
+        "text": "صفحة أصلية مصوّرة من الرقية الشرعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/ruqyah/page-001.webp",
+        "sourcePage": 1,
+        "imageOnly": true
+      },
+      {
+        "title": "الرقية الشرعية - الصفحة 2",
+        "text": "صفحة أصلية مصوّرة من الرقية الشرعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/ruqyah/page-002.webp",
+        "sourcePage": 2,
+        "imageOnly": true
+      },
+      {
+        "title": "الرقية الشرعية - الصفحة 3",
+        "text": "صفحة أصلية مصوّرة من الرقية الشرعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/ruqyah/page-003.webp",
+        "sourcePage": 3,
+        "imageOnly": true
+      },
+      {
+        "title": "الرقية الشرعية - الصفحة 4",
+        "text": "صفحة أصلية مصوّرة من الرقية الشرعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/ruqyah/page-004.webp",
+        "sourcePage": 4,
+        "imageOnly": true
+      },
+      {
+        "title": "الرقية الشرعية - الصفحة 5",
+        "text": "صفحة أصلية مصوّرة من الرقية الشرعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/ruqyah/page-005.webp",
+        "sourcePage": 5,
+        "imageOnly": true
+      },
+      {
+        "title": "الرقية الشرعية - الصفحة 6",
+        "text": "صفحة أصلية مصوّرة من الرقية الشرعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/ruqyah/page-006.webp",
+        "sourcePage": 6,
+        "imageOnly": true
+      },
+      {
+        "title": "الرقية الشرعية - الصفحة 7",
+        "text": "صفحة أصلية مصوّرة من الرقية الشرعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/ruqyah/page-007.webp",
+        "sourcePage": 7,
+        "imageOnly": true
+      }
+    ],
+    "note": "المادة من ملف مرفوع؛ تتضمن صيغ دعاء عامة ونصوصًا منقولة. لم يُجرَ تخريج مستقل. الأعداد الاختيارية في الرقية ليست حكمًا بأن لها فضلًا ثابتًا.",
+    "noteEn": "Arabic original supplied by the site owner. Original pages and visible credits are preserved; Sakinah does not claim authorship or independent religious authentication."
+  },
+  {
+    "id": "qadr",
+    "title": "أدعية ليلة القدر",
+    "titleEn": "Laylat al-Qadr Supplications",
+    "description": "مجموعة أدعية من الملف المرفوع لليلة القدر؛ تعرض الصفحات الأصلية كما وردت.",
+    "sourceLabel": "المصدر: ملف أدعية ليلة القدر الذي أضافه صاحب الموقع؛ لم يذكر غلافه مؤلفًا.",
+    "pdf": "books/qadr.pdf",
+    "pageCount": 13,
+    "slides": [
+      {
+        "title": "أدعية ليلة القدر - الصفحة 1",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-001.webp",
+        "sourcePage": 1,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 2",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-002.webp",
+        "sourcePage": 2,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 3",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-003.webp",
+        "sourcePage": 3,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 4",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-004.webp",
+        "sourcePage": 4,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 5",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-005.webp",
+        "sourcePage": 5,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 6",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-006.webp",
+        "sourcePage": 6,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 7",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-007.webp",
+        "sourcePage": 7,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 8",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-008.webp",
+        "sourcePage": 8,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 9",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-009.webp",
+        "sourcePage": 9,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 10",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-010.webp",
+        "sourcePage": 10,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 11",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-011.webp",
+        "sourcePage": 11,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 12",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-012.webp",
+        "sourcePage": 12,
+        "imageOnly": true
+      },
+      {
+        "title": "أدعية ليلة القدر - الصفحة 13",
+        "text": "صفحة أصلية مصوّرة من أدعية ليلة القدر؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/qadr/page-013.webp",
+        "sourcePage": 13,
+        "imageOnly": true
+      }
+    ],
+    "note": "المادة من ملف مرفوع؛ تتضمن صيغ دعاء عامة ونصوصًا منقولة. لم يُجرَ تخريج مستقل. الأعداد الاختيارية في الرقية ليست حكمًا بأن لها فضلًا ثابتًا.",
+    "noteEn": "Arabic original supplied by the site owner. Original pages and visible credits are preserved; Sakinah does not claim authorship or independent religious authentication."
+  },
+  {
+    "id": "supplications",
+    "title": "كتيب الأدعية",
+    "titleEn": "Supplications Booklet",
+    "description": "كتيب مصوّر يضم أبوابًا متنوعة من الدعاء في تسع وسبعين صفحة أصلية.",
+    "sourceLabel": "المصدر: ملف كتيب الأدعية الذي أضافه صاحب الموقع. حُفظت نسبته وعلاماته الظاهرة.",
+    "pdf": "books/supplications.pdf",
+    "pageCount": 79,
+    "slides": [
+      {
+        "title": "كتيب الأدعية - الصفحة 1",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-001.webp",
+        "sourcePage": 1,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 2",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-002.webp",
+        "sourcePage": 2,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 3",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-003.webp",
+        "sourcePage": 3,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 4",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-004.webp",
+        "sourcePage": 4,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 5",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-005.webp",
+        "sourcePage": 5,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 6",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-006.webp",
+        "sourcePage": 6,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 7",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-007.webp",
+        "sourcePage": 7,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 8",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-008.webp",
+        "sourcePage": 8,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 9",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-009.webp",
+        "sourcePage": 9,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 10",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-010.webp",
+        "sourcePage": 10,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 11",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-011.webp",
+        "sourcePage": 11,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 12",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-012.webp",
+        "sourcePage": 12,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 13",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-013.webp",
+        "sourcePage": 13,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 14",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-014.webp",
+        "sourcePage": 14,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 15",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-015.webp",
+        "sourcePage": 15,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 16",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-016.webp",
+        "sourcePage": 16,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 17",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-017.webp",
+        "sourcePage": 17,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 18",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-018.webp",
+        "sourcePage": 18,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 19",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-019.webp",
+        "sourcePage": 19,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 20",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-020.webp",
+        "sourcePage": 20,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 21",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-021.webp",
+        "sourcePage": 21,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 22",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-022.webp",
+        "sourcePage": 22,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 23",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-023.webp",
+        "sourcePage": 23,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 24",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-024.webp",
+        "sourcePage": 24,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 25",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-025.webp",
+        "sourcePage": 25,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 26",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-026.webp",
+        "sourcePage": 26,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 27",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-027.webp",
+        "sourcePage": 27,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 28",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-028.webp",
+        "sourcePage": 28,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 29",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-029.webp",
+        "sourcePage": 29,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 30",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-030.webp",
+        "sourcePage": 30,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 31",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-031.webp",
+        "sourcePage": 31,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 32",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-032.webp",
+        "sourcePage": 32,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 33",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-033.webp",
+        "sourcePage": 33,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 34",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-034.webp",
+        "sourcePage": 34,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 35",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-035.webp",
+        "sourcePage": 35,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 36",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-036.webp",
+        "sourcePage": 36,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 37",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-037.webp",
+        "sourcePage": 37,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 38",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-038.webp",
+        "sourcePage": 38,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 39",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-039.webp",
+        "sourcePage": 39,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 40",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-040.webp",
+        "sourcePage": 40,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 41",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-041.webp",
+        "sourcePage": 41,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 42",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-042.webp",
+        "sourcePage": 42,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 43",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-043.webp",
+        "sourcePage": 43,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 44",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-044.webp",
+        "sourcePage": 44,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 45",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-045.webp",
+        "sourcePage": 45,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 46",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-046.webp",
+        "sourcePage": 46,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 47",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-047.webp",
+        "sourcePage": 47,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 48",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-048.webp",
+        "sourcePage": 48,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 49",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-049.webp",
+        "sourcePage": 49,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 50",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-050.webp",
+        "sourcePage": 50,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 51",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-051.webp",
+        "sourcePage": 51,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 52",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-052.webp",
+        "sourcePage": 52,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 53",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-053.webp",
+        "sourcePage": 53,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 54",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-054.webp",
+        "sourcePage": 54,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 55",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-055.webp",
+        "sourcePage": 55,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 56",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-056.webp",
+        "sourcePage": 56,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 57",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-057.webp",
+        "sourcePage": 57,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 58",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-058.webp",
+        "sourcePage": 58,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 59",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-059.webp",
+        "sourcePage": 59,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 60",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-060.webp",
+        "sourcePage": 60,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 61",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-061.webp",
+        "sourcePage": 61,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 62",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-062.webp",
+        "sourcePage": 62,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 63",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-063.webp",
+        "sourcePage": 63,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 64",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-064.webp",
+        "sourcePage": 64,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 65",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-065.webp",
+        "sourcePage": 65,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 66",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-066.webp",
+        "sourcePage": 66,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 67",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-067.webp",
+        "sourcePage": 67,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 68",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-068.webp",
+        "sourcePage": 68,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 69",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-069.webp",
+        "sourcePage": 69,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 70",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-070.webp",
+        "sourcePage": 70,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 71",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-071.webp",
+        "sourcePage": 71,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 72",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-072.webp",
+        "sourcePage": 72,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 73",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-073.webp",
+        "sourcePage": 73,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 74",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-074.webp",
+        "sourcePage": 74,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 75",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-075.webp",
+        "sourcePage": 75,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 76",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-076.webp",
+        "sourcePage": 76,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 77",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-077.webp",
+        "sourcePage": 77,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 78",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-078.webp",
+        "sourcePage": 78,
+        "imageOnly": true
+      },
+      {
+        "title": "كتيب الأدعية - الصفحة 79",
+        "text": "صفحة أصلية مصوّرة من كتيب الأدعية؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/supplications/page-079.webp",
+        "sourcePage": 79,
+        "imageOnly": true
+      }
+    ],
+    "note": "المادة من ملف مرفوع؛ تتضمن صيغ دعاء عامة ونصوصًا منقولة. لم يُجرَ تخريج مستقل. الأعداد الاختيارية في الرقية ليست حكمًا بأن لها فضلًا ثابتًا.",
+    "noteEn": "Arabic original supplied by the site owner. Original pages and visible credits are preserved; Sakinah does not claim authorship or independent religious authentication."
+  },
+  {
+    "id": "retreat",
+    "title": "خلوة مع الله",
+    "titleEn": "A Quiet Retreat with Allah",
+    "description": "صفحات في الدعاء والذكر والخلوة، مع إبقاء علامة المصدر الظاهرة في الأصل.",
+    "sourceLabel": "المصدر: ملف خلوة مع الله الذي أضافه صاحب الموقع؛ يحمل علامة «صلاة عذبة».",
+    "pdf": "books/retreat.pdf",
+    "pageCount": 24,
+    "slides": [
+      {
+        "title": "خلوة مع الله - الصفحة 1",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-001.webp",
+        "sourcePage": 1,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 2",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-002.webp",
+        "sourcePage": 2,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 3",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-003.webp",
+        "sourcePage": 3,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 4",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-004.webp",
+        "sourcePage": 4,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 5",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-005.webp",
+        "sourcePage": 5,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 6",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-006.webp",
+        "sourcePage": 6,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 7",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-007.webp",
+        "sourcePage": 7,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 8",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-008.webp",
+        "sourcePage": 8,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 9",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-009.webp",
+        "sourcePage": 9,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 10",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-010.webp",
+        "sourcePage": 10,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 11",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-011.webp",
+        "sourcePage": 11,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 12",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-012.webp",
+        "sourcePage": 12,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 13",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-013.webp",
+        "sourcePage": 13,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 14",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-014.webp",
+        "sourcePage": 14,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 15",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-015.webp",
+        "sourcePage": 15,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 16",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-016.webp",
+        "sourcePage": 16,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 17",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-017.webp",
+        "sourcePage": 17,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 18",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-018.webp",
+        "sourcePage": 18,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 19",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-019.webp",
+        "sourcePage": 19,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 20",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-020.webp",
+        "sourcePage": 20,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 21",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-021.webp",
+        "sourcePage": 21,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 22",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-022.webp",
+        "sourcePage": 22,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 23",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-023.webp",
+        "sourcePage": 23,
+        "imageOnly": true
+      },
+      {
+        "title": "خلوة مع الله - الصفحة 24",
+        "text": "صفحة أصلية مصوّرة من خلوة مع الله؛ يُقرأ نصها من الصورة، ويمكن مشاركة الملف أو الصفحة.",
+        "image": "books/retreat/page-024.webp",
+        "sourcePage": 24,
+        "imageOnly": true
+      }
+    ],
+    "note": "المادة من ملف مرفوع؛ تتضمن صيغ دعاء عامة ونصوصًا منقولة. لم يُجرَ تخريج مستقل. الأعداد الاختيارية في الرقية ليست حكمًا بأن لها فضلًا ثابتًا.",
+    "noteEn": "Arabic original supplied by the site owner. Original pages and visible credits are preserved; Sakinah does not claim authorship or independent religious authentication."
+  }
+]
