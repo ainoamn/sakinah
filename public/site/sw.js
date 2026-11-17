@@ -1,6 +1,6 @@
 /* Public reading resources only. Account APIs and user activity are never cached. */
-const VERSION='sakinah-v8-20261117',SHELL=VERSION+'-shell',MEDIA=VERSION+'-media';
-const SHELL_FILES=['./','index.html','style.css','reader-fit.css','experience.css','data.js','app.js','features.js','i18n.js','reader.js','reader-fit.js','experience.js','pwa.js','manifest.webmanifest','quran-source.json','quran-layout.json','books.json','exports.json','assets/sakinah-emblem.png','assets/bhd-logo.svg','assets/app-icon-192.png','assets/app-icon-512.png','assets/qaboos.jpg'];
+const VERSION='sakinah-v9-20261117',SHELL=VERSION+'-shell',MEDIA=VERSION+'-media';
+const SHELL_FILES=['./','index.html','style.css','reader-fit.css','experience.css','mobile.css','state.js','device.js','data.js','app.js','features.js','i18n.js','reader.js','reader-fit.js','experience.js','pwa.js','manifest.webmanifest','quran-source.json','quran-layout.json','books.json','exports.json','assets/sakinah-emblem.png','assets/bhd-logo.svg','assets/app-icon-192.png','assets/app-icon-512.png','assets/qaboos.jpg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(SHELL).then(c=>c.addAll(SHELL_FILES.map(file=>new Request(new URL(file,self.location.href),{cache:'reload'})))).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('sakinah-v')&&!k.startsWith(VERSION)).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 async function trim(cache,max){const keys=await cache.keys();await Promise.all(keys.slice(0,Math.max(0,keys.length-max)).map(k=>cache.delete(k)))}

@@ -2,9 +2,27 @@
 
 موقع قراءة عام، بهوية عمانية وإباضية، مع حساب اختياري ومكتبة PDF.
 
+## النشر والروابط
+
+- GitHub: https://github.com/ainoamn/sakinah
+- Vercel (إنتاج): https://sakinah-swart.vercel.app
+- لوحة Vercel: https://vercel.com/bhdom89-8158s-projects/sakinah
+
+الواجهة العامة المنشورة على Vercel هي الملفات في `public/site/` عبر `vercel.json` (مخرجات ثابتة بلا بناء Next). أي دفع إلى الفرع `main` يُعاد نشره تلقائيًا بعد ربط المستودع.
+
+رفع ونشر يدوي من مجلد المشروع:
+
+    git add -A
+    git commit -m "Update Site source"
+    git push origin main
+    vercel deploy --prod --yes
+
 ## مصدر الموقع
 
 - `public/site/`: الواجهة العربية والإنجليزية والمصحف والأصول والكتب؛ هذا هو مصدر الواجهة الذي يُعدل.
+- `public/site/state.js`: حفظ فوري محلي مع نسخة IndexedDB للاستعادة؛ لا يُرسل إلى خادم.
+- `public/site/device.js`: استئناف التطبيق المثبّت وتصدير/استيراد نسخة التقدم.
+- `public/site/mobile.css`: تنسيقات الشاشات الضيقة وأدوات نسخة التقدم.
 - `app/api/account/route.ts`: واجهة الحساب المحمية بهوية Sites؛ لا يُؤخذ معرف المستخدم من الطلب.
 - `db/schema.ts` و`drizzle/`: مخطط الحساب والنشاط وترحيله.
 - `.openai/hosting.json`: هوية الموقع وربط D1 باسم DB. الجمهور عام.
@@ -14,11 +32,12 @@
 
     npm run dev -- --port 5173 --hostname 127.0.0.1
     node validate.cjs
+    node scripts/test-device-state.cjs
     python scripts/test-account.py
 
 اختبار الحساب يستخدم محاكاة الدخول المحلية Seedy فقط. التشغيل المحلي يحتاج تطبيق ترحيل D1 قبل اختبارات الحساب؛ راجع README الخاص ببنية Sites عند تعديل المخطط.
 
-البناء المعتمد:
+البناء المعتمد لـ Sites:
 
     node C:/Users/ahami/.codex/plugins/cache/openai-curated-remote/sites/1.1.6/scripts/build-site.mjs
 
@@ -67,3 +86,11 @@
 V7 cache correction: versioned frontend script/style URLs, public shell fetched with reload during service-worker installation, network revalidation and ignore-search offline matching. Cleared detached placeholder-image callbacks and percent-encoded the SVG placeholder to prevent late image errors.
 
 V8 continuous reader: all initial and lazily appended pages use one QPC page component and matching paper surface. Placeholder image callbacks are detached before replacement; an automatic image failure cannot open the Unicode text fallback alongside a rendered page. Page text remains an explicit expandable option. Final source is synchronized to the user-requested GitHub repository after publishing.
+
+### Sakinah v9 — device persistence and install resume
+- `state.js` writes every change immediately to `localStorage` and mirrors an IndexedDB backup (`sakinah-device-state`). Recovery restores missing local keys without overwriting a newer in-session write. Storage mode is exposed on `document.documentElement.dataset.stateStorage`.
+- Standalone / `?launch=app` relaunches resume the last supported route (including Quran page or continuous scroll). Browser tabs that stay on `#home` are not forced to resume.
+- Progress keys cover counters, favorites, bookmark, last/saved page, tasbih goal, deck position, flow parts, language, edition and font settings. Export/import uses `sakinah-progress` JSON validated in `device.js`; sign-in data is excluded.
+- Home Quran CTA continues from `lastPage`. Deck pagers and flow-reader parts remember their place. Mobile default reading size starts at 26px under 760px width.
+- PWA shell cache bumped to `sakinah-v9-20261117` and includes `state.js`, `device.js`, `mobile.css`. Install flow asks for persistent storage when available and clarifies iOS “Open as Web App”.
+- Validation: `node scripts/test-device-state.cjs` covers Android/iOS/app-launch resume, IndexedDB recovery, fresh-write conflict protection and continuous-reading route updates. Published to GitHub `ainoamn/sakinah` and Vercel production.

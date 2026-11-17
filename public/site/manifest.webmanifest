@@ -5,7 +5,7 @@
   "description": "القرآن والأذكار والأدعية، إحدى مبادرات شركة بن حمود للتطوير BHD.",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "./#home",
+  "start_url": "./?launch=app#home",
   "scope": "./",
   "display": "standalone",
   "background_color": "#FBFAF7",
@@ -15,7 +15,7 @@
     {"src":"assets/app-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ],
   "shortcuts": [
-    {"name":"المصحف الكريم","url":"./#quran/page/1"},
+    {"name":"المصحف الكريم","url":"./?launch=app#quran"},
     {"name":"الأذكار اليومية","url":"./#athkar"},
     {"name":"السبحة الإلكترونية","url":"./#tasbih"}
   ],

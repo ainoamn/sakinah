@@ -1,0 +1,43 @@
+/* Prevent Safari text inflation and input focus zoom while retaining manual user zoom. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;width:100%;max-width:100%;overflow-x:clip}
+body{min-width:0;width:100%;max-width:100%;overflow-x:clip}
+#shell,#main,#main>*,.reader-topbar,.book-toolbar,.toolbar,.screen-deck,.source-grid>*,.account-columns>*,.calendar-grid{min-width:0;box-sizing:border-box}
+img,svg,video,canvas{max-width:100%}input,select,textarea{box-sizing:border-box;max-width:100%}
+#shell{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body.reading-mode #main.reader-main{padding:3px!important}
+.device-state-tools{display:flex;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--line)}
+.device-state-tools .chip{font-size:13px}.device-state-tools input[type=file]{display:none}
+.save-status{font-size:12px;line-height:1.7;padding:8px 10px;background:#08a39f0c;border-radius:7px}
+@media(max-width:1023px){
+ input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea,
+ .reader-main .book-toolbar input,.reader-main .book-toolbar select,
+ .screen-main>.toolbar input,.screen-main>.toolbar select,
+ .screen-main #name-search,.screen-main .prayer-toolbar select,
+ .scroll-reader-bar input,.settings-card input,.settings-card select{font-size:16px!important;line-height:1.4}
+ #shell,html[dir=ltr] #shell{margin-inline:0;width:100%;max-width:100%}
+ #main{max-width:100%;padding:12px 10px 20px}
+ .page-heading h1{font-size:26px!important;line-height:1.45}
+ .page-heading p{font-size:14px;line-height:1.8}
+ .page-heading .eyebrow{font-size:10px}
+ .screen-main .page-heading h1{font-size:23px!important}
+ .screen-main>.toolbar{min-width:0;gap:4px}
+ .screen-main>.toolbar input{width:0;flex:1 1 70px;min-width:50px}
+ .screen-main>.toolbar select{flex:0 1 34%;min-width:72px;max-width:36%;padding-inline:4px}
+ .reader-topbar .book-toolbar select{width:0;flex:1 1 80px;min-width:55px;padding-inline:3px}
+ .reader-topbar .book-toolbar input{flex:none;width:46px;min-width:46px}
+ .screen-main .prayer-toolbar select{min-width:65px;flex:1 1 30%;max-width:38%;padding-inline:3px}
+ .screen-main .prayer-toolbar>a{flex:0 1 28%;min-width:0;white-space:normal;text-align:center;line-height:1.4}
+ .scroll-reader-bar{gap:6px}.scroll-reader-bar input{width:60px}
+ .source-grid,.account-columns{grid-template-columns:minmax(0,1fr)}
+ .source-card{padding:18px 16px;overflow-wrap:anywhere}.source-card h2{font-size:23px}.source-card p{font-size:15px;line-height:1.9}
+ .screen-deck .dhikr-card>.arabic-text{font-size:var(--reading,26px);line-height:1.8}
+ .screen-deck .name-card span{font-size:28px}
+ .home-front .premium-hero h1{font-size:35px}.home-front .premium-hero .hero-copy{padding:17px 18px}
+ .screen-main .counter-orbit{width:min(30dvh,230px);height:min(30dvh,230px)}
+ .screen-main .counter-button strong{font-size:53px}
+ .screen-deck .deed small{overflow-wrap:anywhere}
+}
+@media(max-width:360px){.page-heading h1,.screen-main .page-heading h1{font-size:21px!important}.home-front .premium-hero h1{font-size:31px}.reader-topbar .book-toolbar .chip{min-width:27px;padding-inline:5px}.reader-topbar .edition-tab{font-size:10px}}
+@media(max-height:500px){.screen-main .page-heading h1{font-size:22px!important}.home-front .premium-hero h1{font-size:29px}.screen-main .counter-orbit{width:130px;height:130px}.screen-main .counter-button strong{font-size:43px}.screen-deck .dhikr-card>.arabic-text{font-size:22px;line-height:1.5}}
+
+@media(max-width:1023px){input[type=number]{appearance:textfield;-moz-appearance:textfield}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.reader-topbar .book-toolbar input{width:52px;min-width:52px}}
