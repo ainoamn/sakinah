@@ -21,9 +21,10 @@ function makeDeck(grid,type='cards',size){
 }
 const screenCollection=collection;
 collection=function(route,category='الكل'){
- screenCollection(route,category);prepareScreen('collection');const toolbars=[...$('#main').querySelectorAll(':scope>.toolbar')],categories=toolbars[1],options=$('.session-toolbar');foldNotes([...$('#main').querySelectorAll(':scope>.notice'),options]);
+ screenCollection(route,category);const grid=$('#library-grid');if(grid){grid.classList.add('screen-deck');grid.setAttribute('aria-busy','true');[...grid.children].forEach(el=>el.hidden=true)}
+ prepareScreen('collection');const toolbars=[...$('#main').querySelectorAll(':scope>.toolbar')],categories=toolbars[1],options=$('.session-toolbar');foldNotes([...$('#main').querySelectorAll(':scope>.notice'),options]);
  if(categories){const select=document.createElement('select');select.setAttribute('aria-label',t('تصنيف المحتوى','Content category'));[...categories.querySelectorAll('[data-category]')].forEach(b=>{const o=document.createElement('option');o.value=b.dataset.category;o.textContent=b.textContent;o.selected=b.classList.contains('active');select.append(o)});select.onchange=()=>location.hash=route+'/'+encodeURIComponent(select.value);categories.replaceWith(select);toolbars[0].append(select)}
- $('#result-total').classList.add('sr-only');makeDeck($('#library-grid'),'cards')
+ $('#result-total').classList.add('sr-only');makeDeck(grid,'cards')
 };
 finishDhikr=function(d){recordActivity('dhikr',{id:d.id,title:d.title,count:dhikrGoal(d)});if(read('autoAdvance',true)&&currentRoute!=='session'&&activeDeck){const items=[...activeDeck.grid.children],i=items.findIndex(c=>c.id==='item-'+d.id),next=items.findIndex((el,n)=>n>i&&(()=>{const item=LIBRARY.find(x=>'item-'+x.id===el.id);return item&&(counts[item.id]||0)<dhikrGoal(item)})());if(next>=0)setTimeout(()=>{if(!activeDeck)return;activeDeck.index=next;activeDeck.show();items[next].querySelector('[data-count]')?.focus({preventScroll:true})},250)}};
 const screenNames=namesPage;namesPage=function(){screenNames();prepareScreen('names');foldNotes([...$('#main').querySelectorAll(':scope>.notice')]);makeDeck($('#names-grid'),'names')};
