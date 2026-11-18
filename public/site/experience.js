@@ -2,7 +2,7 @@
 const BHD={nameAr:'شركة بن حمود للتطوير',nameEn:'Bin Hamood Development',url:'https://www.bhd-om.com/company'};
 let activeDeck=null,viewObservers=[],textPageRecords=new WeakMap(),flowFont=read('quranFlowFont',0),flowPart=0,flowParts=[];
 function companyName(){return t(BHD.nameAr,BHD.nameEn)}
-function resetView(){viewObservers.forEach(o=>o.disconnect());viewObservers=[];activeDeck=null;$('#main').classList.remove('screen-main');delete $('#main').dataset.screen;document.body.classList.remove('screen-view')}
+function resetView(){viewObservers.forEach(o=>o.disconnect());viewObservers=[];activeDeck=null;$('#main').classList.remove('screen-main');delete $('#main').dataset.screen;document.body.classList.remove('screen-view','catalog-scroll');$('#main').querySelectorAll('.workspace-pager').forEach(el=>el.remove())}
 function prepareScreen(kind){resetView();document.body.classList.remove('book-view');document.body.classList.add('screen-view');$('#main').classList.add('screen-main');$('#main').dataset.screen=kind;window.scrollTo(0,0);foldNotes([...$('#main').querySelectorAll('.page-heading>p')])}
 function foldNotes(elements){const holder=$('.page-heading')||$('#main');holder.screenNotes=holder.screenNotes||[];elements.filter(Boolean).forEach(el=>{if(!holder.screenNotes.includes(el)){el.remove();holder.screenNotes.push(el)}});if(!holder.screenNotes.length)return;let button=holder.querySelector('.screen-notes');if(!button){button=document.createElement('button');button.className='chip screen-notes';button.textContent='ⓘ';button.setAttribute('aria-label',t('التعليمات والمصادر والخيارات','Guidance, sources and options'));holder.append(button)}button.onclick=()=>{const dialog=openReaderDialog(t('إرشادات وخيارات','Guidance and options'),'');holder.screenNotes.forEach(el=>dialog.append(el))}}
 function textPages(paragraph){
@@ -12,33 +12,49 @@ function textPages(paragraph){
  const chunks=[];let start=0;while(start<record.words.length){let lo=1,hi=record.words.length-start,best=1;while(lo<=hi){const mid=Math.floor((lo+hi)/2);paragraph.textContent=record.words.slice(start,start+mid).join(' ');if(paragraph.scrollHeight<=paragraph.clientHeight){best=mid;lo=mid+1}else hi=mid-1}chunks.push(record.words.slice(start,start+best).join(' '));start+=best}
  const show=index=>{record.index=Math.max(0,Math.min(chunks.length-1,index));paragraph.textContent=chunks[record.index]||'';controls.querySelector('span').textContent=chunks.length>1?t('تتمة النص','Text part')+' '+ar(record.index+1)+' / '+ar(chunks.length):'';const [prev,next]=controls.querySelectorAll('button');prev.disabled=record.index===0;next.disabled=record.index===chunks.length-1;prev.onclick=()=>show(record.index-1);next.onclick=()=>show(record.index+1);controls.hidden=chunks.length<=1};show(record.index)
 }
+function openCatalog(grid,type=''){
+ if(!grid)return null;
+ grid.classList.remove('screen-deck');
+ grid.classList.add('catalog-grid');
+ if(type)grid.classList.add('catalog-'+type);
+ document.body.classList.add('catalog-scroll');
+ grid.parentElement?.querySelectorAll(':scope > .workspace-pager').forEach(el=>el.remove());
+ [...grid.children].forEach(el=>{el.hidden=false});
+ grid.removeAttribute('aria-busy');
+ return null
+}
 function makeDeck(grid,type='cards',size){
- if(!grid)return;grid.classList.add('screen-deck','deck-'+type);grid.setAttribute('aria-busy','true');const pager=document.createElement('div');pager.className='workspace-pager';pager.innerHTML=`<button class="chip" aria-label="${t('الصفحة السابقة','Previous page')}">→ <span>${t('السابق','Previous')}</span></button><span class="deck-position" role="status"></span><button class="chip" aria-label="${t('الصفحة التالية','Next page')}"><span>${t('التالي','Next')}</span> ←</button>`;grid.after(pager);
- const deckKey='deckPosition-'+location.hash.split('?')[0];const state={index:read(deckKey,0),grid,show(){if(!grid.isConnected)return;const items=[...grid.children],w=grid.clientWidth,h=grid.clientHeight;let per=size||1,cols=1;if(type==='cards'){cols=w>=900?2:1;per=cols}else if(type==='names'){cols=w>=900?6:w>=600?4:3;per=cols*Math.max(1,Math.min(4,Math.floor(h/110)))}else if(type==='deeds'){cols=w>=700?2:1;per=cols*Math.max(1,Math.floor(h/88))}else if(type==='books'){cols=w>=1000?3:w>=650?2:1;per=cols}else if(type==='paths'){cols=2;per=1}
-  state.per=per;state.index=Math.max(0,Math.min(Math.floor(state.index/per)*per,Math.max(0,Math.ceil(items.length/per)-1)*per));grid.style.setProperty('--deck-cols',cols);grid.style.setProperty('--deck-rows',Math.max(1,Math.ceil(per/cols)));items.forEach((el,i)=>el.hidden=i<state.index||i>=state.index+per);const [prev,next]=pager.querySelectorAll('button');prev.disabled=state.index===0;next.disabled=state.index+per>=items.length;pager.querySelector('.deck-position').textContent=ar(items.length?Math.floor(state.index/per)+1:0)+' / '+ar(Math.ceil(items.length/per));prev.onclick=()=>{state.index-=per;state.show()};next.onclick=()=>{state.index+=per;state.show()};items.filter(el=>!el.hidden).forEach(el=>el.querySelectorAll('.arabic-text,.daily-text').forEach(textPages));grid.setAttribute('aria-busy','false');if(!$('#collection-search')?.value)write(deckKey,state.index)}};
- const wanted=new URLSearchParams(location.hash.split('?')[1]||'').get('item'),target=[...grid.children].findIndex(el=>el.id==='item-'+wanted);if(target>=0)state.index=target;
+ if(!grid)return null;
+ /* File/book listings keep paging (4 cols, max 12). All other screens scroll without السابق/التالي. */
+ if(type!=='books')return openCatalog(grid,type);
+ grid.classList.add('screen-deck','deck-books');
+ grid.classList.remove('catalog-grid');
+ document.body.classList.remove('catalog-scroll');
+ grid.setAttribute('aria-busy','true');
+ grid.parentElement?.querySelectorAll(':scope > .workspace-pager').forEach(el=>el.remove());
+ const pager=document.createElement('div');pager.className='workspace-pager';pager.innerHTML=`<button class="chip" aria-label="${t('الصفحة السابقة','Previous page')}">→ <span>${t('السابق','Previous')}</span></button><span class="deck-position" role="status"></span><button class="chip" aria-label="${t('الصفحة التالية','Next page')}"><span>${t('التالي','Next')}</span> ←</button>`;grid.after(pager);
+ const deckKey='deckPosition-'+location.hash.split('?')[0],pageSize=Math.max(1,Math.min(12,size||12));
+ const state={index:read(deckKey,0),grid,show(){if(!grid.isConnected)return;const items=[...grid.children],w=grid.clientWidth;const cols=w>=1100?4:w>=820?3:w>=560?2:1,per=pageSize;
+  state.per=per;state.index=Math.max(0,Math.min(Math.floor(state.index/per)*per,Math.max(0,Math.ceil(items.length/per)-1)*per));grid.style.setProperty('--deck-cols',cols);grid.style.setProperty('--deck-rows',Math.max(1,Math.ceil(Math.min(per,items.length||1)/cols)));items.forEach((el,i)=>el.hidden=i<state.index||i>=state.index+per);const pages=Math.max(1,Math.ceil(items.length/per)),page=items.length?Math.floor(state.index/per)+1:0;const [prev,next]=pager.querySelectorAll('button');prev.disabled=state.index===0;next.disabled=state.index+per>=items.length;pager.hidden=items.length<=per;pager.querySelector('.deck-position').textContent=ar(page)+' / '+ar(pages);prev.onclick=()=>{state.index-=per;state.show()};next.onclick=()=>{state.index+=per;state.show()};grid.setAttribute('aria-busy','false');if(!$('#library-search')?.value)write(deckKey,state.index)}};
  const observer=new MutationObserver(()=>requestAnimationFrame(()=>state.show()));observer.observe(grid,{childList:true});viewObservers.push(observer);const resize=new ResizeObserver(()=>requestAnimationFrame(()=>state.show()));resize.observe(grid);viewObservers.push(resize);activeDeck=state;requestAnimationFrame(()=>state.show());return state
 }
 const screenCollection=collection;
 collection=function(route,category='الكل'){
- screenCollection(route,category);const grid=$('#library-grid');if(grid){grid.classList.add('screen-deck');grid.setAttribute('aria-busy','true');[...grid.children].forEach(el=>el.hidden=true)}
+ screenCollection(route,category);const grid=$('#library-grid');
  prepareScreen('collection');const toolbars=[...$('#main').querySelectorAll(':scope>.toolbar')],categories=toolbars[1],options=$('.session-toolbar');foldNotes([...$('#main').querySelectorAll(':scope>.notice'),options]);
  if(categories){const select=document.createElement('select');select.setAttribute('aria-label',t('تصنيف المحتوى','Content category'));[...categories.querySelectorAll('[data-category]')].forEach(b=>{const o=document.createElement('option');o.value=b.dataset.category;o.textContent=b.textContent;o.selected=b.classList.contains('active');select.append(o)});select.onchange=()=>location.hash=route+'/'+encodeURIComponent(select.value);categories.replaceWith(select);toolbars[0].append(select)}
- $('#result-total').classList.add('sr-only');makeDeck(grid,'cards')
+ $('#result-total').classList.add('sr-only');openCatalog(grid,'cards')
 };
-finishDhikr=function(d){recordActivity('dhikr',{id:d.id,title:d.title,count:dhikrGoal(d)});if(read('autoAdvance',true)&&currentRoute!=='session'&&activeDeck){const items=[...activeDeck.grid.children],i=items.findIndex(c=>c.id==='item-'+d.id),next=items.findIndex((el,n)=>n>i&&(()=>{const item=LIBRARY.find(x=>'item-'+x.id===el.id);return item&&(counts[item.id]||0)<dhikrGoal(item)})());if(next>=0)setTimeout(()=>{if(!activeDeck)return;activeDeck.index=next;activeDeck.show();items[next].querySelector('[data-count]')?.focus({preventScroll:true})},250)}};
-const screenNames=namesPage;namesPage=function(){screenNames();prepareScreen('names');foldNotes([...$('#main').querySelectorAll(':scope>.notice')]);makeDeck($('#names-grid'),'names')};
-const screenDeeds=deeds;deeds=function(){screenDeeds();prepareScreen('deeds');foldNotes([...$('#main').querySelectorAll(':scope>.notice')]);makeDeck($('.deeds-list'),'deeds')};
+finishDhikr=function(d){recordActivity('dhikr',{id:d.id,title:d.title,count:dhikrGoal(d)});if(read('autoAdvance',true)&&currentRoute!=='session'){const items=[...document.querySelectorAll('#library-grid > [id^="item-"]')],i=items.findIndex(c=>c.id==='item-'+d.id),next=items.find((el,n)=>n>i&&(()=>{const item=LIBRARY.find(x=>'item-'+x.id===el.id);return item&&(counts[item.id]||0)<dhikrGoal(item)})());if(next)setTimeout(()=>{next.scrollIntoView({behavior:'smooth',block:'nearest'});next.querySelector('[data-count]')?.focus({preventScroll:true})},250)}};
+const screenNames=namesPage;namesPage=function(){screenNames();prepareScreen('names');foldNotes([...$('#main').querySelectorAll(':scope>.notice')]);openCatalog($('#names-grid'),'names')};
+const screenDeeds=deeds;deeds=function(){screenDeeds();prepareScreen('deeds');foldNotes([...$('#main').querySelectorAll(':scope>.notice')]);openCatalog($('.deeds-list'),'deeds')};
 const screenTasbih=tasbih;tasbih=function(){screenTasbih();const goal=$('#tasbih-goal');goal.value=read('tasbihGoal',33);goal.onchange();const updateGoal=goal.onchange;goal.onchange=()=>{write('tasbihGoal',Number(goal.value));updateGoal()};prepareScreen('tasbih');foldNotes([...$('.tasbih').querySelectorAll(':scope>p.hint:last-child')])};
 const screenHome=home;home=function(){
- screenHome();prepareScreen('home');const main=$('#main'),date=$('.date-line'),hero=$('.premium-hero'),wisdom=$('.wisdom-card'),quick=$('.quick-services'),paths=[...main.querySelectorAll('.paths .path')],daily=[...main.querySelectorAll('.home-bottom>article')],landmarks=[...main.querySelectorAll('.landmark')];
- const resumePage=read('lastPage',1),quranLink=hero.querySelector('a[href^="#quran/page/"]');if(quranLink){quranLink.href='#quran/page/'+resumePage;if(resumePage>1)quranLink.textContent=t('متابعة المصحف','Continue Quran')+' · '+ar(resumePage)+' ←'}
- const deck=document.createElement('div');deck.className='home-panels';const front=document.createElement('section');front.className='home-front';front.append(hero,wisdom,quick);deck.append(front);
- for(let i=0;i<paths.length;i+=4){const panel=document.createElement('section');panel.className='home-path-panel';panel.innerHTML=`<h2>${t('أبواب السكينة','Paths to serenity')}</h2>`;const grid=document.createElement('div');grid.className='home-paths';paths.slice(i,i+4).forEach(el=>grid.append(el));panel.append(grid);deck.append(panel)}
- daily.forEach(el=>{el.classList.add('home-reflection');deck.append(el)});landmarks.forEach(el=>deck.append(el));main.replaceChildren(date,deck);makeDeck(deck,'home')
+ screenHome();prepareScreen('home');document.body.classList.add('catalog-scroll');
+ const hero=$('.premium-hero'),resumePage=read('lastPage',1),quranLink=hero?.querySelector('a[href^="#quran/page/"]');if(quranLink){quranLink.href='#quran/page/'+resumePage;if(resumePage>1)quranLink.textContent=t('متابعة المصحف','Continue Quran')+' · '+ar(resumePage)+' ←'}
 };
-const screenLandmarks=landmarksPage;landmarksPage=function(){screenLandmarks();prepareScreen('landmarks');const grid=$('.landmarks-grid');$('.landmarks-section .section-head').remove();const story=$('.logo-story');foldNotes([story]);$('.landmarks-section').replaceWith(grid);makeDeck(grid,'landmarks')};
-const screenLibrary=libraryPage;libraryPage=async function(id,index=0){await screenLibrary(id,index);if(currentRoute!=='library')return;if(!id||['prayers','prayers-duas','prayers-munajat'].includes(id)){prepareScreen('books');if($('.books-grid'))makeDeck($('.books-grid'),'books')}};
+const screenLandmarks=landmarksPage;landmarksPage=function(){screenLandmarks();prepareScreen('landmarks');const grid=$('.landmarks-grid');$('.landmarks-section .section-head').remove();const story=$('.logo-story');foldNotes([story]);$('.landmarks-section').replaceWith(grid);openCatalog(grid,'landmarks')};
+const screenLibrary=libraryPage;libraryPage=async function(id,index=0){await screenLibrary(id,index);if(currentRoute!=='library')return;if(!id||['prayers','prayers-duas','prayers-munajat'].includes(id)){if($('.books-grid')&&!activeDeck)makeDeck($('.books-grid'),'books')}};
 const screenCalendar=calendarPage;calendarPage=async function(){await screenCalendar();if(currentRoute!=='calendar')return;prepareScreen('calendar');foldNotes([...$('#main').querySelectorAll(':scope>.hint,:scope>.source')]);fitCalendar();const o=new MutationObserver(fitCalendar);o.observe($('#month-grid'),{childList:true});viewObservers.push(o)};
 function fitCalendar(){const grid=$('#month-grid');if(grid)grid.style.gridTemplateRows=`repeat(${Math.max(1,Math.ceil(grid.children.length/7))},minmax(0,1fr))`}
 const originalShowPrayers=showPrayers;showPrayers=function(day,target){originalShowPrayers(day,target);if(target.id==='selected-prayer-date'){const d=openReaderDialog(t('مواقيت اليوم المحدد','Selected day’s prayer times'),target.innerHTML);d.classList.add('prayer-dialog');target.replaceChildren()}};
