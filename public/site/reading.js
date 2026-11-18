@@ -14,7 +14,7 @@ function renderLibraryIndex(books,id){const section=id||'root',group=id==='praye
 
 function librarySpread(){return read('libraryMode','spread')==='spread'&&document.documentElement.clientWidth>=1000&&innerWidth/innerHeight>1.1}
 function libraryPageHeader(book,page){return `<div class="library-leaf-head"><span>${esc(lang()==='en'?book.titleEn:book.title)}</span><span>سَكِينَة</span></div>`}
-function normalizeLibraryText(text=''){return String(text).replace(/\u06DD/g,'\n').replace(/\u06DE/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()}
+function normalizeLibraryText(text=''){return String(text).replace(/\u06DD/g,'\n').replace(/\u06DE/g,'').replace(/\.(?=\s|$)/g,'.\n').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()}
 function libraryTextHtml(text){const parts=normalizeLibraryText(text).split(/\n+/).map(part=>part.replace(/\s+/g,' ').trim()).filter(Boolean);return parts.map(part=>`<p class="library-para">${esc(part)}</p>`).join('')||`<p class="library-para"></p>`}
 function libraryPaper(book,page){return `<section class="library-paper ${book.textEdition?'text-edition':'image-edition'}">${libraryPageHeader(book,page)}<div class="library-paper-body" lang="ar" dir="rtl">${book.textEdition?`<h2>${esc(page.title)}</h2><div class="library-text">${libraryTextHtml(page.text)}</div><small class="library-reference">${esc(page.reference||'')}</small>`:`<img src="${esc(page.image)}" alt="${esc(book.title)} — ${t('الصفحة','Page')} ${ar(page.source+1)}" loading="lazy">`}</div><div class="library-leaf-foot"><span>${t('الصفحة','Page')} ${ar(page.number)}</span><span>${page.part?t('تتمة','continued'):''}</span></div></section>`}
 function paginateLibrary(book){
