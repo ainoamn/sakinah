@@ -1,6 +1,9 @@
 /* Immediate local writes, with an independent IndexedDB copy for recovery. No server transmission. */
 (()=>{
- const prefix='sakinah-',memory=new Map(),written=new Set(),provisional=new Map();let booting=true,lastGesture=0;for(const event of ['pointerdown','click','keydown','input','change'])document.addEventListener(event,()=>lastGesture=Date.now(),{capture:true,passive:true});let database=null,localAvailable=true,recovered=false,ownedRoute=null;let mirrorTimer=null;const pendingMirrors=new Map();function scheduleMirror(key,raw){pendingMirrors.set(key,raw);if(mirrorTimer)return;mirrorTimer=setTimeout(()=>{mirrorTimer=null;for(const [k,v]of pendingMirrors){pendingMirrors.delete(k);mirror(k,v)}},300)}function flushMirrors(){if(mirrorTimer){clearTimeout(mirrorTimer);mirrorTimer=null}for(const [k,v]of pendingMirrors){pendingMirrors.delete(k);mirror(k,v)}}
+ const prefix='sakinah-',memory=new Map(),written=new Set(),provisional=new Map();let booting=true,lastGesture=0;for(const event of ['pointerdown','click','keydown','input','change'])document.addEventListener(event,()=>lastGesture=Date.now(),{capture:true,passive:true});let database=null,localAvailable=true,recovered=false,ownedRoute=null;let mirrorTimer=null;const pendingMirrors=new Map();
+ // Progress mirrors write immediately for durability; mtime keys may coalesce briefly.
+ function scheduleMirror(key,raw){if(key.startsWith('mtime-')){pendingMirrors.set(key,raw);if(mirrorTimer)return;mirrorTimer=setTimeout(()=>{mirrorTimer=null;for(const [k,v]of pendingMirrors){pendingMirrors.delete(k);mirror(k,v)}},300);return}mirror(key,raw)}
+ function flushMirrors(){if(mirrorTimer){clearTimeout(mirrorTimer);mirrorTimer=null}for(const [k,v]of pendingMirrors){pendingMirrors.delete(k);mirror(k,v)}}
  function localGet(key){try{return localStorage.getItem(prefix+key)}catch{localAvailable=false;return null}}
  function read(key,fallback){try{const raw=localGet(key)??memory.get(key);return raw==null?fallback:JSON.parse(raw)??fallback}catch{return fallback}}
  function mirror(key,raw){if(!database)return;try{const tx=database.transaction('values','readwrite');tx.objectStore('values').put(raw,key)}catch{}}
