@@ -20,6 +20,6 @@ async function request(url,{method='GET',mode='cors'}={}){let promise;handlers.f
  failNetwork=true;assert.equal(await(await request('https://example.test/site/',{mode:'navigate'})).text(),'cached public shell');
  failNetwork=false;failCache=true;assert.equal(await(await request('https://example.test/site/data.js')).text(),'online');
  const beforePdf=stored.length;failCache=false;await request('https://example.test/site/books/test.pdf',{mode:'navigate'});assert.equal(stored.length,beforePdf,'PDF navigation must not replace the app shell');
- assert(!stored.some(key=>key.includes('/api/')));
+ const beforeOptional=stored.length;await request('https://example.test/site/quran-source.json');await request('https://example.test/site/tafsir-source.json');assert.equal(stored.length,beforeOptional,'optional Quran and commentary are not saved without a selected pack');assert(!stored.some(key=>key.includes('/api/')));
  console.log('PASS: manifest, icons and complete offline shell; private APIs excluded; offline navigation works; quota failure preserves online reading.');
 })().catch(error=>{console.error(error);process.exitCode=1});
