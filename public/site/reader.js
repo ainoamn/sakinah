@@ -3,7 +3,7 @@ const EDITIONS=[{id:'hafs',ar:'مصحف المدينة',en:'Madinah Mushaf',symb
 let tafsirAbort=null,focusReturnY=0,readerResizeTimer,readerResizeObserver=null;
 const tafsirCache=new Map();
 function currentEdition(){return EDITIONS.some(e=>e.id===read('mushafEdition','hafs'))?read('mushafEdition','hafs'):'hafs'}
-function readerSpread(){if(currentEdition()==='tafsir')return false;const w=document.documentElement.clientWidth||innerWidth,h=window.visualViewport?.height||innerHeight,wide=w>h*1.12;if(document.body.classList.contains('reading-mode'))return wide&&w>=680;return wide?w>=860:w>=1180}
+function readerSpread(){if(currentEdition()==='tafsir')return false;const w=document.documentElement.clientWidth||innerWidth,h=window.visualViewport?.height||innerHeight,wide=w>h*1.12;if(document.body.classList.contains('reading-mode'))return wide&&w>=640;return wide?w>=640:w>=1180}
 pageImage=function(p){return 'https://quran.ksu.edu.sa/'+(currentEdition()==='tajweed'?'tajweed_png/':'ayat/safahat1/')+p+'.png'};
 function editionTabs(){return `<div class="reader-editions" role="tablist" aria-label="${t('اختر المصحف','Choose a Quran edition')}">${EDITIONS.map(e=>`<button class="edition-tab ${currentEdition()===e.id?'selected':''}" role="tab" aria-selected="${currentEdition()===e.id}" data-edition="${e.id}"><span aria-hidden="true">${e.symbol}</span><span>${t(e.ar,e.en)}</span></button>`).join('')}</div>`}
 function chooseEdition(id){if(!EDITIONS.some(e=>e.id===id))return;tafsirAbort?.abort();write('mushafEdition',id);const p=Number($('#book')?.dataset.page)||Number($('#visible-page')?.dataset.page)||read('lastPage',1);if(currentRoute==='quran-scroll'){scrollQuran(p)}else if(currentRoute==='quran'&&$('#book'))renderBook(p);else location.hash='quran/page/'+p}

@@ -249,38 +249,62 @@ body.surah-combo-open{overscroll-behavior:none}
 #reader-dialog .surah-select-list input{position:static!important;width:18px!important;height:18px!important;margin:0!important;flex:0 0 18px!important;align-self:center!important}
 #reader-dialog .surah-select-list .surah-jump{flex:0 1 auto!important;width:auto!important;display:inline!important;text-align:right!important;white-space:nowrap!important;margin:0!important}
 body.reading-mode #shell>header,body.reading-mode #shell>footer{display:none!important}
-@media (orientation:landscape) and (max-height:920px){
+body.reading-mode #shell{margin:0!important;height:100dvh}
+body.reading-mode #main.reader-main{height:100%;min-height:0}
+@media (orientation:landscape) and (max-height:920px) and (max-width:1400px){
+ #shell,html[dir=ltr] #shell{margin:0!important}
+ body:not(.menu-open) #sidebar{display:none!important}
+ .mobile{display:inline-grid!important}
  body.book-view #shell>header{display:none!important}
- body.reading-mode #main.reader-main{padding:4px;gap:4px}
+ body.reading-mode #main.reader-main{padding:3px;gap:3px}
  body.reading-mode .focus-bar{min-height:32px;height:32px}
  body.reading-mode .focus-bar .chip,body.reading-mode .focus-bar .icon-button{min-height:28px;height:28px}
- .reader-topbar{flex-direction:row!important;align-items:center!important;flex-wrap:nowrap;min-height:32px;gap:4px}
- .reader-topbar .reader-editions,.reader-topbar .book-toolbar{min-width:0!important;width:auto!important;flex:1 1 0}
+ .reader-topbar{flex-direction:row!important;align-items:center!important;flex-wrap:nowrap;min-height:30px;gap:4px;overflow:hidden}
+ .reader-topbar .reader-editions,.reader-topbar .book-toolbar{min-width:0!important;width:auto!important;flex:1 1 0;overflow:auto}
  .reader-topbar .edition-tab{font-size:11px;min-height:28px;padding:2px 6px}
- .reader-main .book-navigation{min-height:30px}
- .reader-main .book-stage{padding:4px}
- body.screen-view #shell>header,body.library-reader-view #shell>header{height:36px;min-height:36px}
- .screen-main[data-screen=session]>.page-heading{min-height:0}
- .screen-main[data-screen=session]>.page-heading h1{font-size:20px!important}
- .screen-main[data-screen=session]>.page-heading .eyebrow,.screen-main[data-screen=session]>.page-heading>p{display:none}
- .screen-main[data-screen=session]>.site-prayer-strip{padding:6px 8px;gap:4px}
- .screen-main[data-screen=session] .site-prayer-dates{font-size:11px}
- .screen-main[data-screen=session] .site-prayer-dates strong,.screen-main[data-screen=session] .site-prayer-smart strong{font-size:13px}
- .screen-main[data-screen=session]>.prayer-slide{flex-direction:row;align-items:center;justify-content:center;padding:8px 12px;gap:12px;width:min(980px,100%)}
- .screen-main[data-screen=session] .prayer-slide>.arabic-text{font-size:clamp(18px,3.2vh,28px);min-height:0;line-height:1.7;padding:6px 8px}
- .screen-main[data-screen=session] .prayer-slide>h2{font-size:18px}
- .screen-main[data-screen=session] .slide-counter{width:92px;height:92px;min-width:92px;min-height:92px;margin:0}
+ .reader-topbar .edition-tab>span:first-child{display:none}
+ .reader-main .book-navigation{min-height:28px}
+ .reader-main .book-stage{padding:2px}
+ body.screen-view #shell>header{height:34px!important;min-height:34px!important}
+ body.library-reader-view #shell>header{display:none!important}
+ #main.screen-main[data-screen=session]{padding:4px 8px;gap:4px}
+ .screen-main[data-screen=session]>.page-heading{display:none}
+ .screen-main[data-screen=session]>.site-prayer-strip{flex-direction:row;align-items:center;width:100%;max-width:none;padding:4px 8px;gap:8px}
+ .screen-main[data-screen=session] .site-prayer-dates,.screen-main[data-screen=session] .site-prayer-link{display:none}
+ .screen-main[data-screen=session] .site-prayer-smart{flex:1;gap:6px}
+ .screen-main[data-screen=session] .site-prayer-smart>div{flex-direction:row;flex-wrap:wrap;align-items:baseline;padding:3px 8px;gap:4px}
+ .screen-main[data-screen=session] .site-prayer-smart strong{font-size:13px}
+ .screen-main[data-screen=session]>.slide-meta,.screen-main[data-screen=session]>.slide-navigation,.screen-main[data-screen=session]>.prayer-slide{width:100%;max-width:none;margin:0}
+ .screen-main[data-screen=session]>.slide-meta{justify-content:center;gap:6px;font-size:12px}
+ .screen-main[data-screen=session]>.prayer-slide{display:flex!important;flex:1 1 auto;flex-direction:column;min-height:0;overflow:hidden;align-items:stretch;padding:8px 12px;gap:4px}
+ .screen-main[data-screen=session] .prayer-slide>.eyebrow{display:none}
+ .screen-main[data-screen=session] .prayer-slide>h2{font-size:18px;margin:0;flex:none}
+ .screen-main[data-screen=session] .prayer-slide>.arabic-text{flex:1 1 auto;min-height:0!important;max-height:none;overflow:auto;font-size:clamp(16px,3.6vh,28px);line-height:1.7;padding:4px 8px}
+ .screen-main[data-screen=session] .prayer-slide>.source,.screen-main[data-screen=session] .prayer-slide>.counter-caption{font-size:12px;margin:0;flex:none}
+ .screen-main[data-screen=session] .slide-counter{width:96px;height:96px;min-width:96px;min-height:96px;margin:0 auto;flex:none}
  .screen-main[data-screen=session] .slide-counter strong{font-size:30px}
- .screen-main[data-screen=session]>.slide-navigation .btn{min-width:110px;min-height:36px}
+ .screen-main[data-screen=session]>.slide-navigation{gap:8px;padding:0}
+ .screen-main[data-screen=session]>.slide-navigation .btn{min-width:0;flex:1;min-height:34px}
  .library-reader-top h1{font-size:18px}
  .library-reader-tools{flex-wrap:nowrap;overflow:auto}
  .library-reader-tools .chip,.library-navigation .chip{height:30px;min-height:30px}
+ body.library-reader-view main.library-reader{padding:4px;gap:4px}
+ .screen-main[data-screen=books]>.page-heading .eyebrow,.screen-main[data-screen=books]>.page-heading>p{display:none}
+ .screen-main[data-screen=books]>.page-heading{min-height:0}
+ .screen-main[data-screen=books]>.page-heading h1{font-size:22px!important}
  .screen-deck.deck-books{align-content:stretch}
+ .screen-deck .book-card{padding:8px;gap:4px}
+ .screen-deck .book-card .book-emblem{display:none}
+ .screen-deck .book-card h2{font-size:16px}
+ .screen-deck .book-card p{font-size:11px;line-height:1.4}
+ .screen-deck .book-card .btn{min-height:30px}
 }
-@media (orientation:landscape) and (max-height:480px){
- .screen-main[data-screen=session]>.site-prayer-strip,.library-reader-top,body.library-reader-view #shell>header{display:none}
- .screen-main[data-screen=session] .slide-counter{width:74px;height:74px;min-width:74px;min-height:74px}
- .screen-main[data-screen=session] .slide-counter strong{font-size:24px}
+@media (orientation:landscape) and (max-height:520px){
+ body.screen-view #shell>footer{display:none!important}
+ .screen-main[data-screen=session]>.site-prayer-strip,.library-reader-top{display:none}
+ .screen-main[data-screen=session] .slide-counter{width:64px;height:64px;min-width:64px;min-height:64px}
+ .screen-main[data-screen=session] .slide-counter strong{font-size:22px}
+ .screen-main[data-screen=session] .slide-counter small{font-size:9px}
  body.library-reader-view main.library-reader{padding:3px;gap:3px}
 }
 
