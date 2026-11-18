@@ -160,28 +160,29 @@ body.screen-view.catalog-scroll #main.screen-main{overflow:auto}.catalog-grid{fl
 
 
 .reader-topbar,.reader-topbar .book-toolbar,.surah-picker{overflow:visible!important}
-.surah-picker{position:relative;display:flex;align-items:center;gap:4px;flex:1.8;min-width:180px;max-width:420px;z-index:30}
-.surah-picker #book-surah{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.surah-picker{position:relative;display:flex;align-items:center;gap:4px;flex:1.6;min-width:160px;max-width:340px;z-index:30}
+.surah-picker #book-surah{display:none!important}
 .surah-combo-trigger{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:32px;padding:4px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;font-size:13px;text-align:start;cursor:pointer}
 .surah-combo-trigger #surah-combo-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .surah-combo-caret{flex:none;opacity:.7;font-size:12px}
 .surah-picker.open .surah-combo-trigger{border-color:var(--gold);box-shadow:0 0 0 2px #b58d5522}
 .surah-picker #surah-pick{flex:none;white-space:nowrap}
 .surah-picker #surah-pick.active,.surah-filter-on #surah-pick{border-color:#b58d5570;color:var(--green);background:#b58d5514}
-.surah-combo-panel{display:none;flex-direction:column;gap:8px;padding:10px;background:#fffef9;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 40px #183b3140;max-height:min(60vh,420px)}
+.surah-combo-panel{display:none;flex-direction:column;gap:6px;padding:8px;background:#fffef9;border:1px solid var(--line);border-radius:10px;box-shadow:0 14px 32px #183b3140;max-height:min(52vh,360px);box-sizing:border-box}
 .surah-combo-panel:not([hidden]){display:flex!important}
-.surah-combo-panel #surah-combo-search{width:100%!important;max-width:none!important;min-width:0!important;min-height:42px!important;height:auto!important;font-size:15px!important;padding:8px 12px!important;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box}
-.surah-combo-list{flex:1;min-height:160px;max-height:min(48vh,320px);overflow:auto;display:flex;flex-direction:column;gap:2px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:4px}
-.surah-combo-option{display:block;width:100%;text-align:start;border:0;background:transparent;padding:10px 12px;border-radius:8px;font:inherit;font-size:14px;line-height:1.5;color:var(--ink)!important;cursor:pointer;min-height:40px}
+body.surah-combo-open{overscroll-behavior:none}
+.surah-combo-panel #surah-combo-search{width:100%!important;max-width:none!important;min-width:0!important;min-height:42px!important;height:42px!important;font-size:16px!important;line-height:1.3!important;padding:8px 10px!important;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);box-sizing:border-box}
+.surah-combo-list{flex:1;min-height:120px;max-height:min(42vh,280px);overflow:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:1px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:3px}
+.surah-combo-option{display:block;width:100%;text-align:start;border:0;background:transparent;padding:9px 10px;border-radius:7px;font:inherit;font-size:14px;line-height:1.45;color:var(--ink)!important;cursor:pointer;min-height:38px}
 .surah-combo-option:hover,.surah-combo-option.active{background:#183b310e}
-.surah-combo-empty{padding:16px;text-align:center;color:#6a746f;font-size:13px}
+.surah-combo-empty{padding:14px;text-align:center;color:#6a746f;font-size:13px}
 .surah-select-panel{display:flex;flex-direction:column;gap:10px;min-width:min(440px,92vw);max-height:min(72vh,580px)}
-.surah-select-panel #surah-pick-search{width:100%;min-height:42px;font-size:15px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.surah-select-panel #surah-pick-search{width:100%;min-height:42px;font-size:16px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
 .surah-select-actions,.surah-select-footer{display:flex;gap:8px;flex-wrap:wrap}
 .surah-select-list{overflow:auto;flex:1;min-height:200px;max-height:44vh;border:1px solid var(--line);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:2px;background:#fff}
 .surah-select-list label{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1.4}
 .surah-select-list label:hover{background:#183b310a}
 .surah-select-list input{width:18px;height:18px;accent-color:var(--green);flex:none}
 .surah-select-footer .btn{flex:1;min-height:44px}
-@media(max-width:760px){.surah-picker{max-width:none;width:100%;order:-1;flex:1 1 100%}.surah-combo-trigger{min-height:34px;font-size:13px}.surah-picker #surah-pick{padding:2px 8px;font-size:11px}.reader-topbar .book-toolbar .surah-picker{width:100%}}
+@media(max-width:760px){.surah-picker{max-width:none;width:100%;order:-1;flex:1 1 100%}.surah-combo-trigger{min-height:34px;font-size:13px}.surah-picker #surah-pick{padding:2px 8px;font-size:11px}.reader-topbar .book-toolbar .surah-picker{width:100%}.surah-combo-panel{max-height:min(48vh,320px)}}
 
