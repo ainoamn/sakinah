@@ -5,7 +5,8 @@ groups={
  'quran': ['quran-source.json','quran-layout.json','assets/uthmanic-hafs.woff2'],
  'dhikr': ['data.js','books-text.json'],
  'tafsir': ['tafsir-source.json'],
- 'books': []}
+ 'books': [],
+ 'prayers': ['prayer-library.json','original-text-books.json']}
 books=json.loads((site/'books.json').read_text(encoding='utf-8'))
 paths=set()
 for b in books:
@@ -20,6 +21,10 @@ def walk(v):
   for x in v:walk(x)
 walk(json.loads((site/'exports.json').read_text(encoding='utf-8')))
 groups['books']=sorted(paths)
+prayers=json.loads((site/'prayer-library.json').read_text(encoding='utf-8')) if (site/'prayer-library.json').exists() else []
+prayer_paths={b['pdf'] for b in prayers if b.get('pdf')}
+prayer_paths.update({'books/devotional/duas-complete.pdf','books/devotional/munajat-complete.pdf'})
+groups['prayers']=sorted(set(groups['prayers'])|prayer_paths)
 remote=[(k,f'https://verses.quran.foundation/fonts/quran/hafs/{v}/woff2/p{p}.woff2') for k,v in [('hafs','v2'),('tajweed','v4/colrv1')] for p in range(1,605)]
 def size(item):
  k,u=item

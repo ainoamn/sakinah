@@ -2,6 +2,8 @@
 
 موقع قراءة عام، بهوية عمانية وإباضية، مع حساب اختياري ومكتبة PDF.
 
+وثيقة المتطلبات وسجل التسليم من موجات البناء: [`docs/PROJECT-BRIEF.md`](docs/PROJECT-BRIEF.md).
+
 ## النشر والروابط
 
 - GitHub: https://github.com/ainoamn/sakinah
@@ -111,3 +113,10 @@ V8 continuous reader: all initial and lazily appended pages use one QPC page com
 - Every vector Quran page has surah/juz metadata and a page number inside its frame. Night mode changes paper, ink and the Tajweed black palette while retaining rule colors. Continuous reading has focus/fullscreen controls.
 - All library books use a bounded spread/continuous reader, focus mode, bookmarks and night mode. Five new text editions contain the existing 90 sourced entries, in the local Hafs Unicode font; existing diacritics are preserved. The five uploaded PDFs retain their original page images: they have not been automatically transcribed, re-vocalized or presented as new text editions.
 - Verified at 320x740, 390x844, 844x390 and 1280x720; selected-content cache reuse and lifecycle decisions tested. Actual Android/iOS installation needs physical-device verification. Vercel hosts the static public reader; Sites hosts the optional account API.
+
+### V11 — Prayer Library and resumed original transcriptions
+- Completes the work left mid-flight after the responsive/Tajweed/Tafsir wave: integrates `#library/prayers` with 54 Sahifa dua booklets and 15 Munajat booklets (`prayer-library.json`), each as a Hafs text edition with downloadable PDF and complete-collection PDFs.
+- Source wording and vocalization are retained from the attributed public-domain import; Sakinah branding is packaging only, not authorship or fiqh endorsement.
+- `original-text-books.json` overlays text editions for `comprehensive`, `ruqyah`, and `qadr` while keeping original page images available for comparison. `retreat` and `supplications` remain image editions until remaining draft transcriptions are finished.
+- Offline catalog gains a `prayers` pack; service worker cache bumped to `sakinah-v11-20261118`. Quran page ornament/meta spacing refined in the vector reader.
+- Full requirements history: `docs/PROJECT-BRIEF.md`. Review notes for the two primary transcriptions: `scripts/review-original-prayers.md`.
