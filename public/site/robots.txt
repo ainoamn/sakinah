@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sakinah-swart.vercel.app/sitemap.xml

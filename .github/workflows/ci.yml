@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate Quran data and library integrity
+        run: node validate.cjs
+      - name: Device-state persistence tests
+        run: node scripts/test-device-state.cjs
+      - name: PWA manifest and service-worker tests
+        run: node scripts/test-pwa.cjs
+      - name: JS syntax check (public site)
+        run: |
+          for f in public/site/*.js; do node --check "$f"; done
+      - name: Ensure service-worker version bumped on sw.js changes
+        run: |
+          if git diff --name-only origin/main...HEAD 2>/dev/null | grep -q 'public/site/sw.js'; then
+            git diff origin/main...HEAD -- public/site/sw.js | grep -q "^+const VERSION='sakinah-v"               || (echo 'Bump sw.js VERSION constant when modifying sw.js' && exit 1)
+          fi

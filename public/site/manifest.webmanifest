@@ -16,8 +16,8 @@
   ],
   "shortcuts": [
     {"name":"المصحف الكريم","url":"./?launch=app#quran"},
-    {"name":"الأذكار اليومية","url":"./#athkar"},
-    {"name":"السبحة الإلكترونية","url":"./#tasbih"}
+    {"name":"الأذكار اليومية","url":"./?launch=app#athkar"},
+    {"name":"السبحة الإلكترونية","url":"./?launch=app#tasbih"}
   ],
   "categories": ["books", "education", "lifestyle"]
 }

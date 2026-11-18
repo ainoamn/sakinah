@@ -1,0 +1,10 @@
+# Git LFS للأصول الثقيلة.
+# للأصول الموجودة أصلًا في التاريخ:
+#   git lfs migrate import --include="*.webp,*.pdf,*.jpg,*.jpeg,*.png,*.woff2"
+# ثم ادفع بـ --force مرة واحدة. الأصول الجديدة بعد هذا الملف ستُدار تلقائيًا.
+*.webp filter=lfs diff=lfs merge=lfs -text
+*.pdf  filter=lfs diff=lfs merge=lfs -text
+*.jpg  filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.png  filter=lfs diff=lfs merge=lfs -text
+*.woff2 filter=lfs diff=lfs merge=lfs -text
