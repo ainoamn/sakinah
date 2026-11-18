@@ -38,7 +38,7 @@ const screenHome=home;home=function(){
  daily.forEach(el=>{el.classList.add('home-reflection');deck.append(el)});landmarks.forEach(el=>deck.append(el));main.replaceChildren(date,deck);makeDeck(deck,'home')
 };
 const screenLandmarks=landmarksPage;landmarksPage=function(){screenLandmarks();prepareScreen('landmarks');const grid=$('.landmarks-grid');$('.landmarks-section .section-head').remove();const story=$('.logo-story');foldNotes([story]);$('.landmarks-section').replaceWith(grid);makeDeck(grid,'landmarks')};
-const screenLibrary=libraryPage;libraryPage=async function(id,index=0){await screenLibrary(id,index);if(currentRoute!=='library')return;prepareScreen(id?'book-slides':'books');if(!id)makeDeck($('.books-grid'),'books')};
+const screenLibrary=libraryPage;libraryPage=async function(id,index=0){await screenLibrary(id,index)};
 const screenCalendar=calendarPage;calendarPage=async function(){await screenCalendar();if(currentRoute!=='calendar')return;prepareScreen('calendar');foldNotes([...$('#main').querySelectorAll(':scope>.hint,:scope>.source')]);fitCalendar();const o=new MutationObserver(fitCalendar);o.observe($('#month-grid'),{childList:true});viewObservers.push(o)};
 function fitCalendar(){const grid=$('#month-grid');if(grid)grid.style.gridTemplateRows=`repeat(${Math.max(1,Math.ceil(grid.children.length/7))},minmax(0,1fr))`}
 const originalShowPrayers=showPrayers;showPrayers=function(day,target){originalShowPrayers(day,target);if(target.id==='selected-prayer-date'){const d=openReaderDialog(t('مواقيت اليوم المحدد','Selected day’s prayer times'),target.innerHTML);d.classList.add('prayer-dialog');target.replaceChildren()}};
