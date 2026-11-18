@@ -12,7 +12,7 @@ function renderLibraryIndex(books,id){const section=id||'root',group=id==='praye
  prepareScreen('books');const grid=$('.books-grid');makeDeck(grid,'books');if($('#library-search'))$('#library-search').oninput=e=>{const term=normalize(e.target.value);grid.innerHTML=(!group&&!term?directoryCard:'')+selected.filter(b=>normalize(b.title+' '+(b.titleEn||'')).includes(term)).map(libraryCard).join('');if(activeDeck){activeDeck.index=0;activeDeck.show()}}
 }
 
-function librarySpread(){return read('libraryMode','spread')==='spread'&&document.documentElement.clientWidth>=1000&&innerWidth/innerHeight>1.1}
+function librarySpread(){const w=document.documentElement.clientWidth||innerWidth;return read('libraryMode','spread')==='spread'&&w>innerHeight*1.12&&w>=720}
 function libraryPageHeader(book,page){return `<div class="library-leaf-head"><span>${esc(lang()==='en'?book.titleEn:book.title)}</span><span>سَكِينَة</span></div>`}
 function normalizeLibraryText(text=''){return String(text).replace(/\u06DD/g,'\n').replace(/\u06DE/g,'').replace(/\.(?=\s|$)/g,'.\n').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()}
 function libraryTextHtml(text){const parts=normalizeLibraryText(text).split(/\n+/).map(part=>part.replace(/\s+/g,' ').trim()).filter(Boolean);return parts.map(part=>`<p class="library-para">${esc(part)}</p>`).join('')||`<p class="library-para"></p>`}
