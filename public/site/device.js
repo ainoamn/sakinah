@@ -13,7 +13,7 @@ SakinahState.ready.then(()=>{document.documentElement.dataset.persistenceReady='
 function updateDeviceViewport(){const view=window.visualViewport;const height=view&&Math.abs(view.scale-1)<.01?view.height:innerHeight;document.documentElement.style.setProperty('--screen-vh',height+'px');document.documentElement.dataset.standalone=isStandalone()?'true':'false'}
 window.addEventListener('resize',updateDeviceViewport);window.addEventListener('pageshow',updateDeviceViewport);window.visualViewport?.addEventListener('resize',updateDeviceViewport);updateDeviceViewport();
 if(isStandalone())SakinahState.protect();window.addEventListener('appinstalled',()=>SakinahState.protect());
-const progressKey=/^(?:counts|tasbih|tasbihDhikr|tasbihGoal|savedPage|lastPage|bookmark|lastRoute|autoAdvance|font|quranFlowFont|mushafEdition|language|favorites|session-.{1,150}|deckPosition-.{1,150}|flowPart-\d{1,3}|bookPosition-[a-z-]+|bookPart-[a-z-]+|libraryMode|libraryFont)$/;
+const progressKey=/^(?:counts|tasbih|tasbihDhikr|tasbihGoal|savedPage|lastPage|bookmark|lastRoute|autoAdvance|font|quranFlowFont|quranSelectedSurahs|mushafEdition|language|favorites|session-.{1,150}|deckPosition-.{1,150}|flowPart-\d{1,3}|bookPosition-[a-z-]+|bookPart-[a-z-]+|libraryMode|libraryFont)$/;
 function progressSnapshot(){const values=Object.fromEntries(SakinahState.entries().filter(([key])=>progressKey.test(key)));return {schema:'sakinah-progress',version:1,savedAt:new Date().toISOString(),values}}
 function validateProgress(data){
  if(data?.schema!=='sakinah-progress'||data.version!==1||!data.values||Array.isArray(data.values)||typeof data.values!=='object'||Object.keys(data.values).length>300)throw Error('format');
