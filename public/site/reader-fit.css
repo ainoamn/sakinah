@@ -49,8 +49,11 @@ body.book-view #main.reader-main{display:flex;flex-direction:column;flex:1;min-h
 #reader-dialog{width:720px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:20px;overflow:auto}
 #reader-dialog .dialog-top{position:sticky;top:-20px;z-index:2;background:var(--paper);margin:0 0 12px}
 #reader-dialog h2{font-size:25px;margin:0}
-.reader-extra{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.reader-extra p{width:100%}
+.reader-extra{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.reader-extra>label{flex:0 0 auto;font-size:14px}
+.reader-extra>select,.reader-extra>input{min-height:42px;font-size:16px}
+.reader-extra>.chip,.reader-extra>a.chip{min-height:42px;padding:8px 14px}
+.reader-extra p{width:100%;margin:4px 0 0}
 .reader-extra select{font-size:16px}
 .reader-text-content{font-size:30px;line-height:2.2}
 .vector-zoom-tools{display:flex;gap:15px;font-size:13px;align-items:center}
