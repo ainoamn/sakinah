@@ -34,6 +34,7 @@ body.screen-view.catalog-scroll #main.screen-main{overflow:auto}.catalog-grid{fl
 .site-prayer-smart strong{font:500 18px/1.35 'IBM Plex Sans Arabic',sans-serif;color:#fffef8}
 .site-prayer-smart b{font-size:14px;font-weight:500;color:#e8d5a8}
 .site-prayer-link{align-self:flex-end;font-size:13px;color:#f0e2b8;line-height:1.3}
+}
 
 /* Session reading: desktop-first */
 .screen-main[data-screen=session]{align-items:center}
@@ -268,7 +269,6 @@ body.surah-combo-open{overscroll-behavior:none}
 #reader-dialog .surah-select-list label{display:flex!important;flex-direction:row!important;direction:rtl!important;justify-content:flex-start!important;align-items:center!important;gap:8px!important;position:static!important;width:100%!important;height:auto!important;overflow:visible!important;clip-path:none!important}
 #reader-dialog .surah-select-list input{position:static!important;width:18px!important;height:18px!important;margin:0!important;flex:0 0 18px!important;align-self:center!important}
 #reader-dialog .surah-select-list .surah-jump{flex:0 1 auto!important;width:auto!important;display:inline!important;text-align:right!important;white-space:nowrap!important;margin:0!important}
-}
 body.reading-mode #shell>header,body.reading-mode #shell>footer{display:none!important}
 body.reading-mode #shell{margin:0!important;height:100dvh}
 body.reading-mode #main.reader-main{height:100%;min-height:0}
