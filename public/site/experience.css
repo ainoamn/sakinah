@@ -184,7 +184,16 @@ body.screen-view.catalog-scroll #main.screen-main{overflow:auto}.catalog-grid{fl
 .surah-select-list input{width:18px;height:18px;margin:0;accent-color:var(--green);flex:none}
 .surah-select-list .surah-jump{display:inline;flex:0 1 auto;width:auto;border:0;background:transparent;text-align:right;font:inherit;font-size:16px;line-height:1.5;color:var(--ink);padding:0;cursor:pointer;white-space:nowrap}
 .surah-select-footer .btn{flex:1;min-height:44px}
-@media(max-width:760px){.surah-open{max-width:none;width:100%;order:-1;justify-content:space-between}.reader-topbar .book-toolbar .surah-open{width:100%}}
+@media(max-width:760px){
+ .reader-topbar{overflow:visible;height:auto;min-height:0;flex:none;align-items:stretch}
+ .reader-topbar .reader-editions{flex:0 0 auto}
+ .reader-topbar .book-toolbar,.reader-main .book-toolbar{flex:0 0 auto!important;flex-wrap:wrap!important;align-items:center;align-content:flex-start;row-gap:4px;column-gap:4px;overflow:visible!important;height:auto!important;min-height:auto!important;max-height:none!important;max-width:100%;width:100%}
+ .surah-open{max-width:none;width:100%;flex:1 0 100%;order:-1;justify-content:space-between}
+ .reader-topbar .book-toolbar .surah-open,.reader-main .book-toolbar .surah-open{width:100%;flex:1 0 100%;max-width:none}
+ .reader-topbar .book-toolbar > *:not(.surah-open),.reader-main .book-toolbar > *:not(.surah-open){flex:0 0 auto}
+ .reader-main #book-focus span,.reader-topbar .book-toolbar #book-focus span{display:inline!important}
+ .reader-topbar .book-toolbar label,.reader-main .book-toolbar label{position:static!important;width:auto!important;height:auto!important;overflow:visible!important;clip-path:none!important;flex:0 0 auto;font-size:11px;white-space:nowrap}
+}
 
 body.surah-combo-open{overscroll-behavior:none}
 #reader-dialog:has(.surah-jump-panel),#reader-dialog:has(.surah-select-panel){width:min(440px,calc(100vw - 24px));max-width:calc(100vw - 24px);overflow-x:hidden}

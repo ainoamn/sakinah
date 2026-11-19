@@ -1,5 +1,5 @@
 /* Public reading resources only. Account APIs and user activity are never cached. */
-const VERSION='sakinah-v58-20261119',SHELL=VERSION+'-shell',MEDIA=VERSION+'-media';
+const VERSION='sakinah-v59-20261119',SHELL=VERSION+'-shell',MEDIA=VERSION+'-media';
 const INDEX_URL=new URL('index.html',self.location.href).href;
 const SHELL_FILES=['./','index.html','style.css','reader-fit.css','experience.css','mobile.css','reading.css','reading.js','offline-catalog.json','state.js','device.js','sync.js','offline.js','data.js','app.js','features.js','i18n.js','reader.js','reader-fit.js','experience.js','pwa.js','manifest.webmanifest','books.json','exports.json','assets/sakinah-emblem.png','assets/bhd-logo.svg','assets/app-icon-192.png','assets/app-icon-512.png','assets/qaboos.jpg','assets/ameen.jpg','assets/nizwa.jpg','assets/uthmanic-hafs.woff2'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(SHELL).then(c=>c.addAll(SHELL_FILES.map(file=>new Request(new URL(file,self.location.href),{cache:'reload'})))).then(()=>self.skipWaiting())));

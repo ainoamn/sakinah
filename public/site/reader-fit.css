@@ -69,11 +69,11 @@ body.reading-mode .tafsir-panel{height:100%;min-height:0;flex:1}
  body.book-view #main.reader-main{padding:5px 7px;gap:5px}
  .reader-main .reader-editions{min-height:36px}
  .reader-main .edition-tab{font-size:11px;padding:3px 5px;min-height:30px;gap:4px}
- .reader-main .book-toolbar{gap:4px;min-height:34px}
- .reader-main .book-toolbar select{flex:1;width:100px;max-width:none;font-size:13px;height:34px;min-height:34px;padding:2px 4px}
- .reader-main .book-toolbar input{width:47px;min-width:47px;height:34px;min-height:34px}
- .reader-main .book-toolbar .chip{height:34px;min-height:34px;min-width:32px;padding:2px 7px}
- .reader-main #book-focus span{display:none}
+ .reader-main .book-toolbar{gap:4px;min-height:34px;height:auto;max-height:none;flex-wrap:wrap;overflow:visible;max-width:100%;align-content:flex-start}
+ .reader-main .book-toolbar select{flex:0 0 auto;width:72px;max-width:28vw;font-size:13px;height:34px;min-height:34px;padding:2px 4px}
+ .reader-main .book-toolbar input{width:47px;min-width:47px;height:34px;min-height:34px;flex:0 0 auto}
+ .reader-main .book-toolbar .chip{height:34px;min-height:34px;min-width:32px;padding:2px 7px;flex:0 0 auto}
+ .reader-main #book-focus span{display:inline}
  .reader-main #reader-more{padding:0 8px;min-width:33px}
  .reader-main .book-stage{padding:5px;border-radius:7px}
  .reader-main .paper-leaf{padding:4px 5px}
