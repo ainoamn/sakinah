@@ -47,7 +47,7 @@ body.screen-view.catalog-scroll #main.screen-main{overflow:auto}.catalog-grid{fl
 .screen-main[data-screen=session]>.page-heading .eyebrow{justify-content:center}
 .screen-main[data-screen=session]>.slide-meta{justify-content:center;flex-wrap:wrap;gap:8px 14px;margin:0}
 .screen-main[data-screen=session]>.prayer-slide{flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:22px 28px 20px;overflow:hidden;margin:0 auto;text-align:center;width:min(920px,100%);max-width:100%;box-sizing:border-box}
-.screen-main[data-screen=session] .prayer-slide>.arabic-text{flex:1 1 auto;align-self:stretch;min-height:8em;min-width:0;width:100%;max-width:100%;box-sizing:border-box;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;margin:0;padding:12px 18px;font-size:clamp(26px,2.1vw,36px);line-height:2;text-align:center;display:block;white-space:normal;overflow-wrap:anywhere;word-wrap:break-word;-webkit-overflow-scrolling:touch}
+.screen-main[data-screen=session] .prayer-slide>.arabic-text{flex:1 1 auto;align-self:stretch;min-height:8em;min-width:0;width:100%;max-width:100%;box-sizing:border-box;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;margin:0;padding:12px 18px;font-family:SakinahOfflineHafs,Amiri,'Noto Naskh Arabic',serif;font-size:clamp(26px,2.1vw,36px);line-height:2.05;text-align:justify;text-justify:inter-word;text-align-last:center;display:block;white-space:normal;overflow-wrap:anywhere;word-wrap:break-word;-webkit-overflow-scrolling:touch;font-synthesis:none}
 .screen-main[data-screen=session] .prayer-slide>h2{font-size:26px;line-height:1.4;margin:0;flex:none;text-align:center;width:100%}
 .screen-main[data-screen=session] .prayer-slide>.eyebrow{font-size:13px;margin:0;flex:none;justify-content:center;width:100%}
 .screen-main[data-screen=session] .slide-counter{width:140px;height:140px;min-width:140px;min-height:140px;margin:8px auto 2px;flex:none;border-width:5px;box-shadow:0 0 0 8px #173f3514,0 16px 34px #173f3533;outline:2px solid #ad925c99;position:relative;z-index:2}
@@ -363,7 +363,7 @@ body.reading-mode #main.reader-main{height:100%;min-height:0}
  .screen-main[data-screen=session] .prayer-slide>.source{grid-column:1;grid-row:5}
  .screen-main[data-screen=session] .prayer-slide>.counter-caption{grid-column:1;grid-row:6}
  .screen-main[data-screen=session] .prayer-slide>.eyebrow,.screen-main[data-screen=session] .prayer-slide>h2,.screen-main[data-screen=session] .prayer-slide>.source,.screen-main[data-screen=session] .prayer-slide>.counter-caption{margin:0;text-align:center}
- .screen-main[data-screen=session] .prayer-slide>.arabic-text{min-height:0;overflow:auto;margin:0;padding:4px 8px;font-size:clamp(20px,2.6vh,32px);line-height:1.85}
+ .screen-main[data-screen=session] .prayer-slide>.arabic-text{min-height:0;overflow:auto;margin:0;padding:4px 8px;font-family:SakinahOfflineHafs,Amiri,'Noto Naskh Arabic',serif;font-size:clamp(20px,2.6vh,32px);line-height:2;text-align:justify;text-justify:inter-word;text-align-last:center}
  .screen-main[data-screen=session] .prayer-slide>.toolbar{display:none}
  .screen-main[data-screen=session] .slide-counter{grid-column:2;grid-row:1 / -1;justify-self:center;align-self:center;width:132px;height:132px;min-width:132px;min-height:132px;margin:0}
  .screen-main[data-screen=session] .slide-counter strong{font-size:40px}
