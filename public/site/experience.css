@@ -336,4 +336,29 @@ body.reading-mode #main.reader-main{height:100%;min-height:0}
  .hero-day-note{font-size:11px;color:#d7c9a0}
  .hero-day-link{font-size:12px;color:#f0e2b8;white-space:nowrap}
 }
+@media (min-width:761px) and (min-height:640px){
+ #main.screen-main[data-screen=session]{align-items:center;padding:8px 18px 8px;gap:8px;overflow:hidden}
+ .screen-main[data-screen=session]>.page-heading,
+ .screen-main[data-screen=session]>.site-prayer-strip,
+ .screen-main[data-screen=session]>.slide-meta,
+ .screen-main[data-screen=session]>.prayer-slide,
+ .screen-main[data-screen=session]>.slide-navigation{width:min(980px,100%);max-width:980px;margin:0 auto;align-self:center;box-sizing:border-box}
+ .screen-main[data-screen=session]>.page-heading{min-height:0;padding:0;text-align:center}
+ .screen-main[data-screen=session]>.page-heading>p,.screen-main[data-screen=session]>.page-heading .eyebrow{display:none}
+ .screen-main[data-screen=session]>.slide-meta{justify-content:center;margin:0;flex:none}
+ .screen-main[data-screen=session]>.prayer-slide{display:grid;flex:1 1 0;min-height:0;overflow:hidden;align-items:center;justify-items:stretch;grid-template-columns:minmax(0,1fr) 150px;grid-template-rows:auto auto auto minmax(0,1fr) auto auto;column-gap:18px;row-gap:6px;padding:12px 22px 10px}
+ .screen-main[data-screen=session] .prayer-slide::before{grid-column:1;grid-row:1;margin:0}
+ .screen-main[data-screen=session] .prayer-slide>.eyebrow{grid-column:1;grid-row:2}
+ .screen-main[data-screen=session] .prayer-slide>h2{grid-column:1;grid-row:3}
+ .screen-main[data-screen=session] .prayer-slide>.arabic-text{grid-column:1;grid-row:4}
+ .screen-main[data-screen=session] .prayer-slide>.source{grid-column:1;grid-row:5}
+ .screen-main[data-screen=session] .prayer-slide>.counter-caption{grid-column:1;grid-row:6}
+ .screen-main[data-screen=session] .prayer-slide>.eyebrow,.screen-main[data-screen=session] .prayer-slide>h2,.screen-main[data-screen=session] .prayer-slide>.source,.screen-main[data-screen=session] .prayer-slide>.counter-caption{margin:0;text-align:center}
+ .screen-main[data-screen=session] .prayer-slide>.arabic-text{min-height:0;overflow:auto;margin:0;padding:4px 8px;font-size:clamp(20px,2.6vh,32px);line-height:1.85}
+ .screen-main[data-screen=session] .prayer-slide>.toolbar{display:none}
+ .screen-main[data-screen=session] .slide-counter{grid-column:2;grid-row:1 / -1;justify-self:center;align-self:center;width:132px;height:132px;min-width:132px;min-height:132px;margin:0}
+ .screen-main[data-screen=session] .slide-counter strong{font-size:40px}
+ .screen-main[data-screen=session]>.slide-navigation{display:flex;justify-content:center;gap:12px;flex:none;margin:0}
+ .screen-main[data-screen=session]>.slide-navigation .btn{min-width:140px;min-height:42px}
+}
 
