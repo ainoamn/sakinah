@@ -269,12 +269,21 @@ body.reading-mode #main.reader-main{height:100%;min-height:0}
  body.reading-mode #main.reader-main{padding:3px;gap:3px}
  body.reading-mode .focus-bar{min-height:32px;height:32px}
  body.reading-mode .focus-bar .chip,body.reading-mode .focus-bar .icon-button{min-height:28px;height:28px}
- .reader-topbar{flex-direction:row!important;align-items:center!important;flex-wrap:nowrap;min-height:30px;gap:4px;overflow:hidden}
- .reader-topbar .reader-editions,.reader-topbar .book-toolbar{min-width:0!important;width:auto!important;flex:1 1 0;overflow:auto}
- .reader-topbar .edition-tab{font-size:11px;min-height:28px;padding:2px 6px}
+ body.book-view #main.reader-main{padding:2px 4px;gap:2px}
+ .reader-topbar{flex-direction:column!important;align-items:stretch!important;flex-wrap:nowrap;min-height:0;gap:2px;overflow:visible}
+ .reader-topbar .reader-editions,.reader-topbar .book-toolbar{min-width:0!important;width:100%!important;flex:none;display:flex;flex-wrap:nowrap;align-items:center;gap:3px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+ .reader-topbar .edition-tab{font-size:11px;min-height:28px;height:28px;padding:2px 6px;flex:0 0 auto}
  .reader-topbar .edition-tab>span:first-child{display:none}
- .reader-main .book-navigation{min-height:28px}
- .reader-main .book-stage{padding:2px}
+ .reader-topbar .book-toolbar .chip,.reader-topbar .book-toolbar .surah-open,.reader-topbar .book-toolbar select,.reader-topbar .book-toolbar input,.reader-topbar .book-toolbar a.chip{flex:0 0 auto;height:28px;min-height:28px;font-size:12px}
+ .reader-topbar .surah-open{max-width:min(220px,42vw)}
+ .reader-topbar .book-toolbar #book-focus span,.reader-topbar .book-toolbar #reader-larger{font-size:12px;display:inline!important}
+ .reader-main #book-focus span{display:inline!important}
+ .reader-topbar .book-toolbar label,.reader-main .book-toolbar label{position:static!important;width:auto!important;height:auto!important;overflow:visible!important;clip-path:none!important;flex:0 0 auto;font-size:11px;white-space:nowrap;opacity:.9}
+ .reader-topbar .book-toolbar{scrollbar-width:thin;padding-bottom:1px}
+ .reader-topbar .book-toolbar #book-juz{min-width:52px;max-width:72px}
+ .reader-topbar .book-toolbar #book-focus{min-width:auto;padding-inline:8px}
+ .reader-main .book-navigation{min-height:28px;flex:none}
+ .reader-main .book-stage{padding:2px;flex:1 1 0;min-height:0}
  body.screen-view #shell>header{height:34px!important;min-height:34px!important}
  body.library-reader-view #shell>header{display:none!important}
  #main.screen-main[data-screen=session]{padding:4px 8px;gap:4px}
@@ -317,6 +326,15 @@ body.reading-mode #main.reader-main{height:100%;min-height:0}
  .screen-main[data-screen=session] .slide-counter strong{font-size:22px}
  .screen-main[data-screen=session] .slide-counter small{font-size:9px}
  body.library-reader-view main.library-reader{padding:3px;gap:3px}
+ body.book-view #main.reader-main{padding:1px 3px;gap:1px}
+ .reader-topbar{gap:1px}
+ .reader-topbar .reader-editions{min-height:26px}
+ .reader-topbar .edition-tab{min-height:26px;height:26px;font-size:10px;padding:1px 5px}
+ .reader-topbar .surah-open{max-width:min(150px,34vw)}
+ .reader-topbar .book-toolbar .chip,.reader-topbar .book-toolbar .surah-open,.reader-topbar .book-toolbar select,.reader-topbar .book-toolbar input,.reader-topbar .book-toolbar a.chip{height:26px;min-height:26px;font-size:11px;padding:1px 6px}
+ .reader-main .book-navigation{min-height:26px}
+ .reader-main .book-navigation .btn,.reader-main .book-navigation .chip{height:26px;min-height:26px}
+ .reader-main .leaf-foot{display:none}
 }
 #reader-dialog .surah-select-list label{display:flex!important;flex-direction:row!important;direction:rtl!important;justify-content:flex-start!important;align-items:center!important;gap:8px!important;width:100%!important;height:auto!important}
 #reader-dialog .surah-select-list input{position:static!important;flex:0 0 18px!important;width:18px!important;height:18px!important;margin:0!important}
