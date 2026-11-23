@@ -8,8 +8,47 @@ const polishedScroll=scrollQuran;scrollQuran=function(start){polishedScroll(star
 let libraryDataPromise,libraryViewState=null,libraryLayoutTimer;
 function loadLibraryData(){return libraryDataPromise||(libraryDataPromise=Promise.all(['books.json','books-text.json','prayer-library.json','original-text-books.json','heritage-library.json'].map(f=>fetch(f).then(r=>{if(!r.ok)throw Error('books');return r.json()}).catch(e=>{if(f!=='books.json')return [];throw e}))).then(([original,text,devotional,transcriptions,heritage])=>{const converted=new Map(transcriptions.map(b=>[b.id,b]));BOOKS=[...text,...original.map(b=>converted.has(b.id)?{...b,...converted.get(b.id),originalPdf:b.pdf,originalSlides:b.slides}:b),...devotional,...heritage];return BOOKS}).catch(e=>{libraryDataPromise=null;throw e}))}
 function librarySections(selected='root'){const items=[['root','#library',t('الكل','All')],['aqidah','#library/aqidah',t('العقيدة','Aqidah')],['hadith','#library/hadith',t('الحديث','Hadith')],['sunnah','#library/sunnah',t('السنة','Sunnah')],['prayers','#library/prayers',t('الأدعية','Prayers')],['prayers-duas','#library/prayers-duas',t('أدعية','Duas')],['prayers-munajat','#library/prayers-munajat',t('مناجيات','Munajat')]];return `<nav class="library-collections" aria-label="${t('أقسام المكتبة','Library sections')}"><div class="library-collections-track">${items.map(([id,href,label])=>`<a class="chip" href="${href}" ${selected===id?'aria-current="page"':''}>${label}</a>`).join('')}</div></nav>`}
-function libraryCard(b){const pages=b.hadithCount||b.slides?.length||0;const kind=b.remoteHadith?t('حديث — يُحمَّل عند الفتح','Hadith — loads when opened'):b.section==='aqidah'?t('عقيدة إباضية','Ibadi aqidah'):b.textEdition?t('كتاب نصي','Text book'):t('صفحات مصوّرة','Scanned pages');const title=lang()==='en'?b.titleEn||b.title:b.title;const meta=b.author?esc(b.author)+' · ':'';const countLabel=b.category?t('نص مأثور مع نسبة المصدر','Attributed text'):ar(pages)+' '+(b.hadithCount?t('حديثًا','hadiths'):t('صفحة','pages'));return `<article class="book-card" title="${esc(b.sourceLabel||title)}"><img class="book-emblem" src="assets/sakinah-emblem.png" alt=""><small>${kind}</small><h2>${esc(title)}</h2><p>${meta}${countLabel}</p><a class="btn" href="#library/${b.id}/${read('bookPosition-'+b.id,0)}">${t('افتح الكتاب','Open book')} ←</a>${b.pdf?`<a class="chip" href="${esc(b.pdf)}" download>↓ PDF</a>`:''}</article>`}
-function libraryDirectoryCards(books){const count=section=>books.filter(b=>b.section===section).length;return[{href:'#library/aqidah',title:t('العقيدة الإباضية','Ibadi Aqidah'),desc:t('مشارق الأنوار، بهجة الأنوار، أصول الدين وغيرها.','Mashariq, Bahjat, Usul al-Din and more.'),n:count('aqidah')},{href:'#library/hadith',title:t('كتب الحديث','Hadith books'),desc:t('مسند الربيع والصحاح والسنن للقراءة.','Musnad al-Rabi, Sahih and Sunan collections.'),n:count('hadith')},{href:'#library/sunnah',title:t('السنة والمختصرات','Sunnah & digests'),desc:t('الأربعون النووية والقدسية.','Nawawi and Qudsi forties.'),n:count('sunnah')},{href:'#library/prayers',title:t('مكتبة الأدعية','Prayer Library'),desc:t('الأدعية والمناجيات المشكّلة مع المصدر.','Vocalized supplications with sources.'),n:books.filter(b=>b.category).length}].map(c=>`<article class="book-card prayer-library-entry"><img class="book-emblem" src="assets/sakinah-emblem.png" alt=""><small>${t('قسم في مكتبة سكينة','Sakinah library section')}</small><h2>${c.title}</h2><p>${c.desc}</p><p>${ar(c.n)} ${t('كتابًا','books')}</p><a class="btn" href="${c.href}">${t('دخول القسم','Enter section')} ←</a></article>`).join('')}
+function libraryPdfHref(b){return b?.pdf||b?.originalPdf||''}
+function libraryShelfCard({title,meta='',readHref,pdfHref='',readLabel,pdfLabel,sealAlt=''}){
+ const readText=readLabel||t('قراءة','Read');
+ const pdfText=pdfLabel||t('تنزيل PDF','Download PDF');
+ const pdf=pdfHref
+  ?`<a class="btn secondary book-pdf" href="${esc(pdfHref)}" download target="_blank" rel="noopener">${pdfText}</a>`
+  :`<button type="button" class="btn secondary book-pdf" disabled aria-disabled="true" title="${t('لا يتوفر ملف PDF لهذا العنوان','No PDF is available for this title')}">${pdfText}</button>`;
+ return `<article class="book-card shelf-card" title="${esc(title)}">
+  <div class="book-seal" aria-hidden="true"><img class="book-emblem" src="assets/sakinah-emblem.png" alt="${esc(sealAlt)}"></div>
+  <h2>${esc(title)}</h2>
+  ${meta?`<p class="book-meta">${meta}</p>`:''}
+  <div class="book-actions">
+   <a class="btn book-read" href="${esc(readHref)}">${readText}</a>
+   ${pdf}
+  </div>
+ </article>`}
+function libraryCard(b){
+ const pages=b.hadithCount||b.slides?.length||0;
+ const title=lang()==='en'?b.titleEn||b.title:b.title;
+ const metaParts=[b.author?esc(b.author):'',b.category?'':(ar(pages)+' '+(b.hadithCount?t('حديثًا','hadiths'):t('صفحة','pages')))].filter(Boolean);
+ return libraryShelfCard({
+  title,
+  meta:metaParts.join(' · '),
+  readHref:`#library/${b.id}/${read('bookPosition-'+b.id,0)}`,
+  pdfHref:libraryPdfHref(b),
+  readLabel:t('قراءة','Read'),
+  pdfLabel:t('تنزيل PDF','Download PDF')
+ })
+}
+function libraryDirectoryCards(books){
+ const count=section=>books.filter(b=>b.section===section).length;
+ return [{href:'#library/aqidah',title:t('العقيدة الإباضية','Ibadi Aqidah'),desc:t('مشارق الأنوار، بهجة الأنوار، أصول الدين وغيرها.','Mashariq, Bahjat, Usul al-Din and more.'),n:count('aqidah')},{href:'#library/hadith',title:t('كتب الحديث','Hadith books'),desc:t('مسند الربيع والصحاح والسنن للقراءة.','Musnad al-Rabi, Sahih and Sunan collections.'),n:count('hadith')},{href:'#library/sunnah',title:t('السنة والمختصرات','Sunnah & digests'),desc:t('الأربعون النووية والقدسية.','Nawawi and Qudsi forties.'),n:count('sunnah')},{href:'#library/prayers',title:t('مكتبة الأدعية','Prayer Library'),desc:t('الأدعية والمناجيات المشكّلة مع المصدر.','Vocalized supplications with sources.'),n:books.filter(b=>b.category).length}]
+  .map(c=>libraryShelfCard({
+   title:c.title,
+   meta:`${esc(c.desc)} · ${ar(c.n)} ${t('كتابًا','books')}`,
+   readHref:c.href,
+   pdfHref:'',
+   readLabel:t('دخول القسم','Enter section'),
+   pdfLabel:t('تنزيل PDF','Download PDF')
+  })).join('')
+}
 function hadithApiToSlides(data,bookTitle){const sections=data.metadata?.sections||{},buckets={};for(const h of data.hadiths||[]){const book=String(h.reference?.book??0);(buckets[book]||(buckets[book]=[])).push(h)}const keys=Object.keys(buckets).sort((a,b)=>Number(a)-Number(b)).filter(k=>buckets[k].length);const slides=[];for(const key of keys){const list=buckets[key],sectionName=sections[key]||'',chunk=4;for(let i=0;i<list.length;i+=chunk){const part=list.slice(i,i+chunk),first=part[0].hadithnumber||part[0].arabicnumber,last=part[part.length-1].hadithnumber||part[part.length-1].arabicnumber;slides.push({title:(sectionName?sectionName+' · ':'')+t('أحاديث','Hadiths')+' '+ar(first)+(part.length>1?'–'+ar(last):''),text:part.map(h=>((h.hadithnumber||h.arabicnumber)?ar(h.hadithnumber||h.arabicnumber)+'. ':'')+(h.text||'').trim()).filter(Boolean).join('\n\n'),reference:bookTitle+(sectionName?' · '+sectionName:'')+' · '+ar(first)+(part.length>1?'–'+ar(last):'')})}}return slides.length?slides:[{title:bookTitle,text:t('تعذر قراءة أحاديث هذا المصدر.','Could not parse hadiths from this source.'),reference:bookTitle}]}
 const remoteHadithCache=new Map();
 async function ensureHeritageBook(book){if(!book?.remoteHadith||book._hadithReady)return book;if(remoteHadithCache.has(book.id)){const slides=remoteHadithCache.get(book.id);book.slides=slides;book._hadithReady=true;return book}$('#main').innerHTML=heading(esc(lang()==='en'?book.titleEn||book.title:book.title),t('جارٍ تحميل نص الحديث…','Loading hadith text…'));try{const data=await fetch(book.remoteHadith).then(r=>{if(!r.ok)throw Error('hadith');return r.json()});const slides=hadithApiToSlides(data,book.title);remoteHadithCache.set(book.id,slides);book.slides=slides;book._hadithReady=true;const idx=BOOKS.findIndex(b=>b.id===book.id);if(idx>=0)BOOKS[idx]=book;return book}catch{toast?.(t('تعذر تحميل كتاب الحديث. تحقق من الاتصال.','Could not load the hadith book. Check your connection.'));throw Error('hadith-load')}}
@@ -17,16 +56,30 @@ function renderLibraryIndex(books,id){const section=id||'root',group=id==='praye
  const directoryCards=libraryDirectoryCards(books);
  let selected=group?books.filter(b=>b.category===group):heritage?books.filter(b=>b.section===heritage):books.filter(b=>!b.category&&!b.section);const collectionDownload=group?`<a class="chip" download href="books/devotional/${group}-complete.pdf">↓ ${t('تنزيل المجموعة كاملة PDF','Download the complete collection PDF')}</a>`:'';
  const blurb=id==='prayers'?t('اختر الأدعية أو المناجيات. حُفظت الألفاظ والتشكيل ونسبة النصوص إلى مصادرها.','Choose supplications or intimate prayers. Wording, source vocalization and attribution are retained.'):heritage==='aqidah'?t('كتب العقيدة الإباضية للقراءة النصية، منسوبة إلى مصادرها.','Ibadi aqidah books for text reading, with source attribution.'):heritage==='hadith'?t('كتب الحديث للقراءة. مسند الربيع محليًا، والصحاح والسنن تُحمَّل عند الفتح.','Hadith books for reading. Musnad al-Rabi is local; Sahih and Sunan load when opened.'):heritage==='sunnah'?t('مختصرات السنة: الأربعون النووية والقدسية.','Sunnah digests: Nawawi and Qudsi forties.'):t('اقرأ ككتاب بالطول أو العرض، وكبّر الخط أو افتح وضع التركيز.','Read in book or continuous view, enlarge the font, or use focus mode.');
- $('#main').innerHTML=heading(title,blurb)+librarySections(section)+(id==='prayers'?'':`<div class="toolbar"><label class="sr-only" for="library-search">${t('بحث في الكتب','Search books')}</label><input id="library-search" type="search" placeholder="${t('ابحث عن كتيّب…','Find a booklet…')}">${collectionDownload}</div>`)+`<div class="books-grid">${id==='prayers'?['duas','munajat'].map(category=>`<article class="book-card"><img class="book-emblem" src="assets/sakinah-emblem.png" alt=""><h2>${category==='duas'?t('الأدعية','Supplications'):t('المناجيات','Intimate prayers')}</h2><p>${ar(books.filter(b=>b.category===category).length)} ${t('كتيبًا مشكّلًا من المصدر','source-vocalized booklets')}</p><a class="btn" href="#library/prayers-${category}">${t('عرض الكتيبات','Browse booklets')} ←</a><a class="chip" download href="books/devotional/${category}-complete.pdf">↓ ${t('المجموعة كاملة','Complete collection')} PDF</a></article>`).join(''):(group||heritage?'':directoryCards)+selected.map(libraryCard).join('')}</div>`;
+ const prayerCards=id==='prayers'?['duas','munajat'].map(category=>libraryShelfCard({
+  title:category==='duas'?t('الأدعية','Supplications'):t('المناجيات','Intimate prayers'),
+  meta:`${ar(books.filter(b=>b.category===category).length)} ${t('كتيبًا مشكّلًا من المصدر','source-vocalized booklets')}`,
+  readHref:`#library/prayers-${category}`,
+  pdfHref:`books/devotional/${category}-complete.pdf`,
+  readLabel:t('قراءة','Read'),
+  pdfLabel:t('تنزيل PDF','Download PDF')
+ })).join(''):'';
+ $('#main').innerHTML=heading(title,blurb)+librarySections(section)+(id==='prayers'?'':`<div class="toolbar"><label class="sr-only" for="library-search">${t('بحث في الكتب','Search books')}</label><input id="library-search" type="search" placeholder="${t('ابحث عن كتيّب…','Find a booklet…')}">${collectionDownload}</div>`)+`<div class="books-grid shelf-grid">${id==='prayers'?prayerCards:(group||heritage?'':directoryCards)+selected.map(libraryCard).join('')}</div>`;
  prepareScreen('books');const grid=$('.books-grid');openCatalog(grid,'books');bindLibraryCardOpens(grid);if($('#library-search'))$('#library-search').oninput=e=>{const term=normalize(e.target.value);grid.innerHTML=(!group&&!heritage&&!term?directoryCards:'')+selected.filter(b=>normalize(b.title+' '+(b.titleEn||'')+' '+(b.author||'')).includes(term)).map(libraryCard).join('');openCatalog(grid,'books');bindLibraryCardOpens(grid)}
 }
-function bindLibraryCardOpens(grid){if(!grid)return;grid.querySelectorAll('.book-card').forEach(card=>{const link=card.querySelector('a.btn[href^="#library"]');if(!link)return;card.classList.add('book-card-openable');card.tabIndex=0;card.setAttribute('role','link');card.setAttribute('aria-label',link.textContent.trim()+' — '+(card.querySelector('h2')?.textContent||''));const open=()=>{location.hash=link.getAttribute('href').replace(/^#/,'')};card.onclick=e=>{if(e.target.closest('a,button'))return;e.preventDefault();open()};card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}}})}
+function bindLibraryCardOpens(grid){if(!grid)return;grid.querySelectorAll('.book-card').forEach(card=>{
+  const link=card.querySelector('a.book-read[href^="#"]');
+  if(!link)return;
+  card.classList.add('book-card-openable');
+  const open=()=>{const href=link.getAttribute('href')||'';location.hash=href.startsWith('#')?href.slice(1):href};
+  card.onclick=e=>{if(e.target.closest('a,button'))return;e.preventDefault();open()};
+ })}
 function libraryMode(){return read('libraryReadMode','spread')==='scroll'?'scroll':'spread'}
 function librarySpread(){const w=document.documentElement.clientWidth||innerWidth,h=document.documentElement.clientHeight||innerHeight;return libraryMode()==='spread'&&w>=640&&w>=h*0.92}
 function libraryPageHeader(book,page){return `<div class="library-leaf-head"><span>${esc(lang()==='en'?book.titleEn||book.title:book.title)}</span><span>سَكِينَة</span></div>`}
 function normalizeLibraryText(text=''){return String(text).replace(/\u06DD/g,'\n').replace(/\u06DE/g,'').replace(/\.(?=\s|$)/g,'.\n').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()}
 function libraryTextHtml(text){const parts=normalizeLibraryText(text).split(/\n+/).map(part=>part.replace(/\s+/g,' ').trim()).filter(Boolean);return parts.map(part=>`<p class="library-para">${esc(part)}</p>`).join('')||`<p class="library-para"></p>`}
-function libraryPaper(book,page,side=''){return `<section class="library-paper ${book.textEdition?'text-edition':'image-edition'} ${side}" data-library-page="${page.number}">${libraryPageHeader(book,page)}<div class="library-paper-body" lang="ar" dir="rtl">${book.textEdition?`<h2>${esc(page.title||'')}</h2><div class="library-text">${libraryTextHtml(page.text)}</div><small class="library-reference">${esc(page.reference||'')}</small>`:`<img src="${esc(page.image)}" alt="${esc(book.title)} — ${t('الصفحة','Page')} ${ar(page.source+1)}" loading="lazy">`}</div><div class="library-leaf-foot"><span>${t('الصفحة','Page')} ${ar(page.number)}</span><span>${page.part?t('تتمة','continued'):''}</span></div></section>`}
+function libraryPaper(book,page,side=''){return `<section class="library-paper book-leaf ${book.textEdition?'text-edition':'image-edition'} ${side}" data-library-page="${page.number}" draggable="false">${libraryPageHeader(book,page)}<div class="library-paper-body" lang="ar" dir="rtl">${book.textEdition?`<h2>${esc(page.title||'')}</h2><div class="library-text" contenteditable="false">${libraryTextHtml(page.text)}</div><small class="library-reference">${esc(page.reference||'')}</small>`:`<img src="${esc(page.image)}" alt="${esc(book.title)} — ${t('الصفحة','Page')} ${ar(page.source+1)}" loading="lazy" draggable="false">`}</div><div class="library-leaf-foot"><span>${t('الصفحة','Page')} ${ar(page.number)}</span><span>${page.part?t('تتمة','continued'):''}</span></div></section>`}
 function paginateLibrary(book){
  if(!book?.slides?.length)return [];
  return book.slides.map((s,i)=>({...s,text:normalizeLibraryText(s.text||''),source:i,number:i+1,part:0}))
