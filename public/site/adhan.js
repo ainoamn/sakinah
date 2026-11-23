@@ -19,7 +19,8 @@ const DEFAULT_IQAMAH={Fajr:20,Dhuhr:15,Asr:15,Maghrib:10,Isha:15};
 
 const adhanState={
  timer:null,audioCtx:null,player:null,unlocked:false,playing:false,stopTone:null,
- overlay:null,iqamahTimer:null,wakeLock:null,dhikrTimer:null,playToken:0
+ overlay:null,iqamahTimer:null,wakeLock:null,dhikrTimer:null,playToken:0,
+ silenceArmed:false,playStartedAt:0,startOrient:null,lastFlipAt:0
 };
 
 function adhanSettings(){
@@ -94,9 +95,75 @@ function adhanStopTone(){
  if(typeof adhanState.stopTone==='function'){try{adhanState.stopTone()}catch{}}
  adhanState.stopTone=null;
  adhanState.playing=false;
+ adhanState.playStartedAt=0;
+ adhanState.startOrient=null;
  if(adhanState.player){
-  try{adhanState.player.oncanplay=null;adhanState.player.onerror=null;adhanState.player.onended=null;adhanState.player.pause()}catch{}
+  try{
+   const p=adhanState.player;
+   p.oncanplay=null;p.onerror=null;p.onended=null;
+   p.pause();
+   p.currentTime=0;
+   p.removeAttribute('src');
+   p.load();
+  }catch{}
  }
+}
+
+/** Stop currently playing Adhan/takbir/beep (button or flip phone). */
+function adhanRequestStop(reason='button'){
+ const was=adhanState.playing||Boolean(adhanState.player?.src);
+ adhanStopTone();
+ if(was){
+  const msg=reason==='flip'
+   ?t('توقف الأذان لقلب الهاتف','Adhan stopped because the phone was flipped')
+   :t('توقف صوت الأذان','Adhan sound stopped');
+  toast?.(msg);
+ }
+ return was;
+}
+
+function adhanCurrentOrientKey(){
+ const angle=screen.orientation?.angle
+  ??(typeof window.orientation==='number'?window.orientation:0);
+ const type=screen.orientation?.type||'';
+ return type+'|'+angle;
+}
+
+function adhanArmSilenceGestures(){
+ if(adhanState.silenceArmed)return;
+ adhanState.silenceArmed=true;
+
+ const stopIfPlaying=reason=>{
+  if(!adhanState.playing)return;
+  // Ignore the first 700ms so enabling/rotating into the page doesn't kill playback immediately
+  if(Date.now()-(adhanState.playStartedAt||0)<700)return;
+  const now=Date.now();
+  if(now-(adhanState.lastFlipAt||0)<600)return;
+  adhanState.lastFlipAt=now;
+  adhanRequestStop(reason);
+ };
+
+ const onOrientChange=()=>{
+  if(!adhanState.playing)return;
+  const key=adhanCurrentOrientKey();
+  if(adhanState.startOrient!=null&&key!==adhanState.startOrient)stopIfPlaying('flip');
+  else if(adhanState.startOrient==null)adhanState.startOrient=key;
+ };
+
+ window.addEventListener('orientationchange',onOrientChange,{passive:true});
+ try{screen.orientation?.addEventListener?.('change',onOrientChange)}catch{}
+
+ // Face-down / strong flip while Adhan is playing
+ window.addEventListener('deviceorientation',e=>{
+  if(!adhanState.playing)return;
+  if(Date.now()-(adhanState.playStartedAt||0)<900)return;
+  const beta=typeof e.beta==='number'?e.beta:null;
+  const gamma=typeof e.gamma==='number'?e.gamma:null;
+  if(beta==null)return;
+  // Face toward ground / flipped over: |beta| large, or upside-down reading
+  const faceDown=Math.abs(beta)>135||(Math.abs(beta)>100&&Math.abs(gamma||0)>40);
+  if(faceDown)stopIfPlaying('flip');
+ },{passive:true});
 }
 
 /** Play a local Adhan/takbir MP3 reliably (wait until buffered, then play). */
@@ -128,10 +195,15 @@ function adhanPlayMp3(opts={}){
  };
 
  adhanState.playing=true;
+ adhanState.playStartedAt=Date.now();
+ adhanState.startOrient=adhanCurrentOrientKey();
+ adhanArmSilenceGestures();
  adhanState.stopTone=()=>{if(fadeTimer)clearInterval(fadeTimer);safeStop();finish()};
 
  const startPlayback=()=>{
   if(adhanState.playToken!==token)return;
+  adhanState.playStartedAt=Date.now();
+  adhanState.startOrient=adhanCurrentOrientKey();
   const start=player.play();
   if(start&&typeof start.then==='function'){
    start.catch(err=>{
@@ -195,6 +267,9 @@ function adhanPlayTakbir(){
 function adhanPlayBeep(){
  if(!adhanUnlockAudio()||!adhanState.audioCtx)return 0;
  adhanStopTone();
+ adhanState.playStartedAt=Date.now();
+ adhanState.startOrient=adhanCurrentOrientKey();
+ adhanArmSilenceGestures();
  const ctx=adhanState.audioCtx;
  const notes=[880,660];
  const pace=.18,gainMax=.12;
@@ -503,13 +578,13 @@ function adhanPanelHTML(){
    <strong>${t('الأذان والإقامة والتقويم','Adhan, Iqamah & calendar')}</strong>
    <span>${s.enabled?t('مفعّل','On'):t('متوقف','Off')}</span>
   </div>
-  <p class="hint">${t('أصوات محفوظة داخل التطبيق، ومنها أذان مسقط. قبل الأذان: مقطع تكبير كامل. عند الأذان: التسجيل كاملًا أو التكبير فقط. عند الإقامة: نغمة قصيرة مع عدّ تنازلي وذكر.','Voices are stored in the app, including Muscat Adhan. Before Adhan: a complete takbir clip. At Adhan: full recording or takbir only. At Iqamah: a short beep with countdown and dhikr.')}</p>
+  <p class="hint">${t('أصوات محفوظة داخل التطبيق، ومنها أذان مسقط. أوقف الصوت بزر «إيقاف الصوت» أو بقلب الهاتف.','Voices are stored in the app, including Muscat Adhan. Stop with “Stop sound” or by flipping the phone.')}</p>
   <div class="adhan-actions">
    <button class="btn" type="button" id="adhan-toggle">${s.enabled?t('إيقاف الأذان','Stop Adhan'):t('تفعيل الأذان','Enable Adhan')}</button>
    <button class="chip" type="button" id="adhan-test-full">${t('تجربة الأذان','Test Adhan')}</button>
    <button class="chip" type="button" id="adhan-test-takbir">${t('تجربة التكبير','Test Takbir')}</button>
    <button class="chip" type="button" id="adhan-test-beep">${t('تجربة الإقامة','Test Iqamah tone')}</button>
-   <button class="chip" type="button" id="adhan-stop">${t('إيقاف الصوت','Stop sound')}</button>
+   <button class="btn secondary" type="button" id="adhan-stop">${t('إيقاف الصوت','Stop sound')}</button>
    <button class="chip" type="button" id="adhan-test-screen">${t('تجربة شاشة الإقامة','Test Iqamah screen')}</button>
    <button class="chip" type="button" id="adhan-export-ics">↓ ${t('إضافة للتقويم (.ics)','Add to calendar (.ics)')}</button>
   </div>
@@ -547,7 +622,13 @@ function bindAdhanPanel(root=document){
  panel.dataset.bound='1';
  $('#adhan-toggle',panel).onclick=async()=>{
   const s=adhanSettings();
-  if(s.enabled){adhanDisable();panel.querySelector('.adhan-panel-head span').textContent=t('متوقف','Off');$('#adhan-toggle',panel).textContent=t('تفعيل الأذان','Enable Adhan');return}
+  if(s.enabled){
+   adhanStopTone();
+   adhanDisable();
+   panel.querySelector('.adhan-panel-head span').textContent=t('متوقف','Off');
+   $('#adhan-toggle',panel).textContent=t('تفعيل الأذان','Enable Adhan');
+   return;
+  }
   await adhanEnable();
   panel.querySelector('.adhan-panel-head span').textContent=t('مفعّل','On');
   $('#adhan-toggle',panel).textContent=t('إيقاف الأذان','Stop Adhan');
@@ -559,7 +640,7 @@ function bindAdhanPanel(root=document){
  };
  $('#adhan-test-takbir',panel).onclick=()=>{adhanUnlockAudio();adhanPlayCue('takbir');toast?.(t('تشغيل التكبير من بداية الأذان','Playing takbir from the Adhan opening'))};
  $('#adhan-test-beep',panel).onclick=()=>{adhanUnlockAudio();adhanPlayCue('beep');toast?.(t('نغمة الإقامة القصيرة','Short Iqamah tone'))};
- $('#adhan-stop',panel).onclick=()=>{adhanStopTone();toast?.(t('توقف الصوت','Sound stopped'))};
+ $('#adhan-stop',panel).onclick=()=>{adhanRequestStop('button')};
  $('#adhan-test-screen',panel).onclick=()=>{
   const key=ADHAN_PRAYERS.find(k=>adhanSettings().prayers.includes(k))||'Dhuhr';
   adhanOpenIqamah(key,adhanSettings().iqamahMin[key]||10);
@@ -608,8 +689,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 if(adhanSettings().enabled)queueMicrotask(()=>adhanEnsureWatch());
 
+// Always listen for flip-to-silence once the script loads
+queueMicrotask(()=>adhanArmSilenceGestures());
+
 window.SakinahAdhan={
- adhanSettings,saveAdhanSettings,adhanEnable,adhanDisable,adhanPlayCue,
+ adhanSettings,saveAdhanSettings,adhanEnable,adhanDisable,adhanPlayCue,adhanStopTone,adhanRequestStop,
  exportPrayerCalendarICS,adhanPanelHTML,bindAdhanPanel,adhanEnsureWatch,
  hookAdhanIntoPrayerWatch,adhanOpenIqamah,adhanCloseIqamah,ADHAN_VOICES
 };
