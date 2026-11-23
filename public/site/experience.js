@@ -119,5 +119,25 @@ function warmNearbyQuranPages(page){if(typeof pageFont!=='function')return;const
 const warmBook=renderBook;renderBook=function(value){warmBook(value);const page=Number($('#book')?.dataset.page);if(page)requestAnimationFrame(()=>warmNearbyQuranPages(page))};
 warmSiteCache();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')warmSiteCache()},{passive:true});
-document.addEventListener('pointerdown',e=>{if(e.button)return;const b=e.target.closest('button[data-count]:not(#slide-count),#tasbih-tap,.counter-button');if(!b||b.disabled)return;e.preventDefault();b.click()},{passive:false});
+/* Instant counters: fire once on pointerdown, then block the browser's follow-up click
+   (and any rapid double-fire) so tasbih / beads never jump by 2+. */
+const COUNT_TAP_SEL='button[data-count]:not(#slide-count),#tasbih-tap,.counter-button';
+const countTapAt=new WeakMap();
+document.addEventListener('pointerdown',e=>{
+ if(e.button)return;
+ const b=e.target.closest(COUNT_TAP_SEL);
+ if(!b||b.disabled)return;
+ e.preventDefault();
+ const now=performance.now();
+ if(now-(countTapAt.get(b)||0)<220)return;
+ countTapAt.set(b,now);
+ b.dataset.countTap='1';
+ b.click();
+},{passive:false});
+document.addEventListener('click',e=>{
+ const b=e.target.closest(COUNT_TAP_SEL);
+ if(!b)return;
+ if(b.dataset.countTap==='1'){delete b.dataset.countTap;return}
+ if(performance.now()-(countTapAt.get(b)||0)<500){e.preventDefault();e.stopImmediatePropagation()}
+},true);
 document.documentElement.style.setProperty('touch-action','manipulation');
