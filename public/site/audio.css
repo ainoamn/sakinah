@@ -1,24 +1,21 @@
-/* Tilawa player — matches Sakinah light/dark reading theme */
-.tilawa-dock{
- position:fixed;inset-inline:12px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:140;
- display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
- padding:10px 12px;border-radius:18px;border:1px solid var(--line);
- background:color-mix(in srgb,var(--paper) 94%,transparent);color:var(--ink);
- box-shadow:0 12px 32px #173f3518;backdrop-filter:blur(12px)
+/* Tilawa player — floating reveal FAB + themed sheet */
+.tilawa-fab{
+ position:fixed;z-index:145;inset-inline-end:18px;bottom:calc(22px + env(safe-area-inset-bottom));
+ width:58px;height:58px;border-radius:999px;border:1px solid var(--line);
+ background:color-mix(in srgb,var(--paper) 92%,transparent);color:var(--green);
+ box-shadow:0 14px 34px #173f3528;backdrop-filter:blur(10px);
+ display:none;align-items:center;justify-content:center;font-size:22px;cursor:pointer;
+ transition:transform .18s ease,opacity .18s ease
 }
-.tilawa-dock .tilawa-dock-meta{min-width:0;display:flex;flex-direction:column;gap:1px;cursor:pointer}
-.tilawa-dock strong{font:600 14px/1.35 'IBM Plex Sans Arabic',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--green)}
-.tilawa-dock small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tilawa-dock-btn{width:42px;height:42px;border-radius:999px;border:0;background:var(--green);color:var(--paper);font-size:16px;cursor:pointer}
-.tilawa-dock-gear{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--soft);color:var(--gold);cursor:pointer}
-body.scroll-focus .tilawa-dock,body.book-view .tilawa-dock,body.reading-mode .tilawa-dock{z-index:160}
-body.dark .tilawa-dock{
- background:color-mix(in srgb,#142c27 92%,transparent);border-color:#74694088;color:#ede7d6;box-shadow:0 12px 32px #0006
+.tilawa-fab.is-on{display:inline-flex}
+.tilawa-fab.is-playing{background:var(--green);color:var(--paper);border-color:var(--green)}
+.tilawa-fab:active{transform:scale(.96)}
+body.scroll-focus .tilawa-fab,body.book-view .tilawa-fab,body.reading-mode .tilawa-fab{z-index:165}
+body.dark .tilawa-fab{
+ background:color-mix(in srgb,#142c27 92%,transparent);border-color:#746940;color:#e8d5a8;box-shadow:0 14px 34px #0007
 }
-body.dark .tilawa-dock strong{color:#e8d5a8}
-body.dark .tilawa-dock small{color:#b7c0b8}
-body.dark .tilawa-dock-btn{background:var(--gold);color:#142c27}
-body.dark .tilawa-dock-gear{background:#1a332d;border-color:#746940;color:#e8d5a8}
+body.dark .tilawa-fab.is-playing{background:var(--gold);color:#142c27;border-color:var(--gold)}
+.tilawa-dock{display:none!important}
 
 .tilawa-sheet-root{position:fixed;inset:0;z-index:180;display:none;align-items:flex-end;justify-content:center;background:#173f3540}
 .tilawa-sheet-root.is-open{display:flex}

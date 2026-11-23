@@ -21,7 +21,7 @@ const TILAWAT_REPEAT_COUNTS=[1,2,3,5,10,0];
 const tilawa={
  a:null,b:null,using:'a',
  queue:[],index:0,playing:false,mode:'page',abort:0,sheet:'',
- progressTimer:null,repeatLeft:0
+ progressTimer:null,repeatLeft:0,fabTimer:null
 };
 
 function tilawaSettings(){
@@ -114,8 +114,6 @@ function tilawaPaintProgress(){
  }
  if(now)now.textContent=tilawaFmtTime(current);
  if(dur)dur.textContent=tilawaFmtTime(duration);
- const dock=$('#tilawa-dock-sub');
- if(dock&&cur)dock.textContent=tilawaReciterLabel()+' · '+t('آية','Ayah')+' '+ar(cur.a);
 }
 function tilawaPreloadNext(){
  const next=tilawa.queue[tilawa.index+1];
@@ -304,17 +302,11 @@ function tilawaFollowPage(cur){
 function syncTilawaUi(){
  const cur=tilawaCurrent();
  const conf=tilawaSettings();
- const dock=$('#tilawa-dock');
- if(dock){
-  const play=$('#tilawa-dock-play');
-  const title=$('#tilawa-dock-title');
-  const sub=$('#tilawa-dock-sub');
-  if(play){
-   play.textContent=tilawa.playing?'❚❚':'▶';
-   play.setAttribute('aria-label',tilawa.playing?t('إيقاف','Pause'):t('تشغيل','Play'));
-  }
-  if(title)title.textContent=cur?tilawaShortName(cur.name):t('التلاوة','Recitation');
-  if(sub)sub.textContent=cur?(tilawaReciterLabel()+' · '+t('آية','Ayah')+' '+ar(cur.a)):tilawaReciterLabel();
+ const fab=$('#tilawa-fab');
+ if(fab){
+  fab.textContent=tilawa.playing?'❚❚':'▶';
+  fab.classList.toggle('is-playing',tilawa.playing);
+  fab.setAttribute('aria-label',tilawa.playing?t('مشغّل التلاوة','Recitation player'):t('فتح مشغّل التلاوة','Open recitation player'));
  }
  const sheetTitle=$('#tilawa-sheet-surah');
  const sheetRec=$('#tilawa-sheet-reciter');
@@ -378,7 +370,9 @@ async function tilawaPlay(){
   toast(t('اضغط التشغيل مرة أخرى بعد اختيار القارئ.','Tap play again after choosing a reciter.'));
  }
  syncTilawaUi();
- openTilawaPlayer();
+ // Keep reading immersive: hide controls after playback starts.
+ closeTilawaSheets();
+ hideTilawaFab();
 }
 function tilawaPause(){
  tilawaPrimary()?.pause();
@@ -531,8 +525,10 @@ function closeTilawaSheets(){
  if(!root)return;
  root.classList.remove('is-open');
  root.hidden=true;
+ hideTilawaFab();
 }
 function openTilawaSheet(kind){
+ hideTilawaFab();
  const root=tilawaSheetRoot();
  tilawa.sheet=kind;
  root.hidden=false;
@@ -772,24 +768,26 @@ function renderTilawaRangeSheet(){
  };
 }
 
-function tilawaDockHtml(){
- return `<aside id="tilawa-dock" class="tilawa-dock" aria-label="${t('مشغّل التلاوة','Recitation player')}">
-  <button type="button" class="tilawa-dock-btn" id="tilawa-dock-play" aria-label="${t('تشغيل','Play')}">▶</button>
-  <div class="tilawa-dock-meta" id="tilawa-dock-open">
-   <strong id="tilawa-dock-title">${t('التلاوة','Recitation')}</strong>
-   <small id="tilawa-dock-sub">${esc(tilawaReciterLabel())}</small>
-  </div>
-  <button type="button" class="tilawa-dock-gear" id="tilawa-dock-settings" aria-label="${t('إعدادات الصوت','Audio settings')}">⚙</button>
- </aside>`;
+function showTilawaFab(){
+ const fab=mountTilawaBar();
+ if(!fab)return;
+ fab.classList.add('is-on');
+ clearTimeout(tilawa.fabTimer);
+ tilawa.fabTimer=setTimeout(()=>{if(!tilawa.sheet)hideTilawaFab()},6000);
 }
-function bindTilawaDock(){
- const dock=$('#tilawa-dock');
- if(!dock||dock.dataset.bound==='1')return;
- dock.dataset.bound='1';
- $('#tilawa-dock-play').onclick=e=>{e.stopPropagation();tilawaToggle();if(tilawa.playing)openTilawaPlayer()};
- $('#tilawa-dock-settings').onclick=e=>{e.stopPropagation();openTilawaSettings()};
- $('#tilawa-dock-open').onclick=()=>openTilawaPlayer();
- dock.addEventListener('click',e=>{if(e.target===dock)openTilawaPlayer()});
+function hideTilawaFab(){
+ clearTimeout(tilawa.fabTimer);
+ $('#tilawa-fab')?.classList.remove('is-on');
+}
+function bindTilawaFab(){
+ const fab=$('#tilawa-fab');
+ if(!fab||fab.dataset.bound==='1')return;
+ fab.dataset.bound='1';
+ fab.onclick=e=>{
+  e.stopPropagation();
+  hideTilawaFab();
+  openTilawaPlayer();
+ };
  if(navigator.mediaSession){
   navigator.mediaSession.setActionHandler('play',()=>tilawaPlay());
   navigator.mediaSession.setActionHandler('pause',()=>tilawaPause());
@@ -797,6 +795,20 @@ function bindTilawaDock(){
   navigator.mediaSession.setActionHandler('nexttrack',()=>tilawaNext());
  }
  syncTilawaUi();
+}
+function bindTilawaPageReveal(){
+ if(document.documentElement.dataset.tilawaReveal==='1')return;
+ document.documentElement.dataset.tilawaReveal='1';
+ document.addEventListener('pointerup',e=>{
+  if(!['quran','quran-scroll'].includes(currentRoute))return;
+  if(tilawa.sheet)return;
+  if($('#tilawa-ayah-menu'))return;
+  const tEl=e.target;
+  if(!(tEl instanceof Element))return;
+  if(tEl.closest('#tilawa-fab,#tilawa-sheet-root,#tilawa-ayah-menu,.tilawa-inline,.qpc-ayah-hit,button,a,input,select,textarea,label,.chip,.btn,.book-toolbar,.scroll-reader-bar,.book-navigation,.reader-editions,.focus-bar,#sidebar,header,footer'))return;
+  if(!tEl.closest('#main,.book-stage,#book,.vertical-page,.vector-page,.paper-leaf,.qpc-svg,.mushaf,.quran-layout'))return;
+  showTilawaFab();
+ },{passive:true});
 }
 function measureLineRange(line,start,end){
  const chars=line.getNumberOfChars?.()||0;if(!chars)return null;
@@ -818,9 +830,9 @@ function openTilawaAyahMenu(s,a,page,evt){
  const x=Math.min(window.innerWidth-240,Math.max(8,(evt?.clientX||40)-20));
  const y=Math.min(window.innerHeight-220,Math.max(8,(evt?.clientY||80)+8));
  menu.style.left=x+'px';menu.style.top=y+'px';
- menu.querySelector('[data-act="from"]').onclick=()=>{tilawaStartSurah(s,a);closeTilawaAyahMenu();openTilawaPlayer()};
- menu.querySelector('[data-act="page"]').onclick=()=>{tilawaStartPage(page);closeTilawaAyahMenu();openTilawaPlayer()};
- menu.querySelector('[data-act="surah"]').onclick=()=>{tilawaStartSurah(s,1);closeTilawaAyahMenu();openTilawaPlayer()};
+ menu.querySelector('[data-act="from"]').onclick=()=>{closeTilawaAyahMenu();tilawaStartSurah(s,a)};
+ menu.querySelector('[data-act="page"]').onclick=()=>{closeTilawaAyahMenu();tilawaStartPage(page)};
+ menu.querySelector('[data-act="surah"]').onclick=()=>{closeTilawaAyahMenu();tilawaStartSurah(s,1)};
  menu.querySelector('[data-act="range"]').onclick=()=>{
   const max=QURAN[s-1]?.ayahs.length||a;
   tilawaSaveSettings({range:{s1:s,a1:a,s2:s,a2:Math.min(max,a+4),s,from:a,to:Math.min(max,a+4)},rangeMode:'ayah'});
@@ -828,7 +840,7 @@ function openTilawaAyahMenu(s,a,page,evt){
  };
  menu.querySelector('[data-act="repeat"]').onclick=()=>{
   tilawaSaveSettings({repeatMode:'ayah',repeatCount:tilawaSettings().repeatCount||3});
-  tilawaStartSurah(s,a);closeTilawaAyahMenu();openTilawaPlayer();
+  closeTilawaAyahMenu();tilawaStartSurah(s,a);
  };
  setTimeout(()=>document.addEventListener('click',closeTilawaAyahMenu,{once:true}),0);
 }
@@ -861,10 +873,12 @@ function bindPageAyahHits(page){
 }
 function mountTilawaBar(){
  $('#tilawa-bar')?.remove();
- if($('#tilawa-dock')){bindTilawaDock();syncTilawaUi();return $('#tilawa-dock')}
- document.body.insertAdjacentHTML('beforeend',tilawaDockHtml());
- bindTilawaDock();
- return $('#tilawa-dock');
+ $('#tilawa-dock')?.remove();
+ if($('#tilawa-fab')){bindTilawaFab();bindTilawaPageReveal();syncTilawaUi();return $('#tilawa-fab')}
+ document.body.insertAdjacentHTML('beforeend',`<button type="button" id="tilawa-fab" class="tilawa-fab" aria-label="${t('فتح مشغّل التلاوة','Open recitation player')}">▶</button>`);
+ bindTilawaFab();
+ bindTilawaPageReveal();
+ return $('#tilawa-fab');
 }
 function enhanceQuranTextAudio(){
  const details=document.querySelector('.surah-title + details, .quran-layout details');
@@ -897,14 +911,11 @@ function enhanceMushafAudio(){
  requestAnimationFrame(()=>{bindPageAyahHits(page);if(tilawaCurrent())highlightTilawaAyah(tilawaCurrent())});
  if($('.book-navigation')&&!$('#tilawa-book-play')){
   $('.book-navigation').insertAdjacentHTML('beforeend',`<button class="chip" id="tilawa-book-play" type="button" aria-label="${t('تشغيل صفحة المصحف','Play mushaf page')}">▶ ${t('تلاوة','Tilawa')}</button>`);
-  $('#tilawa-book-play').onclick=()=>{tilawaStartPage(Number($('#book')?.dataset.page)||read('lastPage',1));openTilawaPlayer()};
+  $('#tilawa-book-play').onclick=()=>openTilawaPlayer();
  }
  if($('.scroll-reader-bar')&&!$('#tilawa-scroll-play')){
   $('.scroll-reader-bar').insertAdjacentHTML('beforeend',`<button class="chip" id="tilawa-scroll-play" type="button">▶ ${t('تلاوة','Tilawa')}</button><button class="chip" id="tilawa-scroll-settings" type="button">⚙</button>`);
-  $('#tilawa-scroll-play').onclick=()=>{
-   const page=Number($('#visible-page')?.dataset?.page)||read('lastPage',1);
-   tilawaStartPage(page);openTilawaPlayer();
-  };
+  $('#tilawa-scroll-play').onclick=()=>openTilawaPlayer();
   $('#tilawa-scroll-settings').onclick=()=>openTilawaSettings();
  }
 }
@@ -940,6 +951,7 @@ window.SakinahTilawa={TILAWAT_RECITERS,tilawaStartPage,tilawaStartSurah,tilawaSt
    else if(currentRoute==='quran')enhanceQuranTextAudio();
    else if(!['quran','quran-scroll'].includes(currentRoute)){
     $('#tilawa-dock')?.remove();
+    $('#tilawa-fab')?.remove();
     closeTilawaSheets();
     closeTilawaAyahMenu();
     if(tilawa.playing)tilawaPause();
