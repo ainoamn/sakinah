@@ -84,8 +84,11 @@ body.qibla-camera-on .qibla-camera-layer,
 
 .qibla-dial{
   --qibla-turn:0deg;
+  --qibla-bearing:0deg;
+  --qibla-radius:min(39vw,165px);
   position:relative;z-index:1;width:min(78vw,330px);aspect-ratio:1;
   border-radius:50%;
+  direction:ltr;
   background:
     radial-gradient(circle at 50% 50%,#fffdf8 0 58%,#eef5f1 100%);
   border:4px solid #c9a227;
@@ -128,23 +131,27 @@ body.qibla-camera-on .qibla-camera-layer,
 .qibla-cardinal.e{right:.7rem;top:50%;transform:translateY(-50%)}
 .qibla-cardinal.w{left:.7rem;top:50%;transform:translateY(-50%)}
 
-/* Kaaba sits on the rim at the Qibla bearing */
+/* Kaaba on the rim at true Qibla bearing (origin = dial center) */
 .qibla-kaaba{
   position:absolute;left:50%;top:50%;width:0;height:0;
-  transform:rotate(0deg);transform-origin:0 0;
+  transform:rotate(var(--qibla-bearing,0deg));
+  transform-origin:0 0;
   transition:transform .1s linear;will-change:transform;
+  pointer-events:none;
 }
 .qibla-kaaba-icon{
-  position:absolute;left:-22px;top:calc(-50% - 4px);width:44px;height:44px;
+  position:absolute;left:0;top:0;width:44px;height:44px;
   display:grid;place-items:center;
+  /* Rim placement: % of zero-size parent is useless — use dial radius */
+  transform:translate(-50%,-50%) translateY(calc(-1 * var(--qibla-radius) + 26px));
   font-size:1.55rem;line-height:1;
   background:radial-gradient(circle at 50% 45%,#fff8e4,#e7d39a);
   border:2px solid #ad925c;border-radius:50%;
   box-shadow:0 4px 14px rgba(9,45,36,.28);
-  transition:transform .35s ease,background .35s ease,border-color .35s ease,box-shadow .35s ease,width .35s ease,height .35s ease,font-size .35s ease,left .35s ease,top .35s ease;
+  transition:background .35s ease,border-color .35s ease,box-shadow .35s ease,width .35s ease,height .35s ease,font-size .35s ease;
 }
 .qibla-board[data-aligned="1"] .qibla-kaaba-icon{
-  left:-32px;top:calc(-50% - 10px);width:64px;height:64px;font-size:2rem;
+  width:64px;height:64px;font-size:2rem;
   background:radial-gradient(circle at 50% 40%,#ffffff,#c8f0d8);
   border-color:#0d5c4d;
   box-shadow:0 0 0 5px color-mix(in srgb,#0d5c4d 22%,transparent),0 8px 22px rgba(13,92,77,.35);
