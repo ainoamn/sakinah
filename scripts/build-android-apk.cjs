@@ -15,8 +15,11 @@ const core=require(path.join(
 const ROOT=path.join(__dirname,'..');
 // Android Gradle rejects non-ASCII project paths on Windows (Arabic folder names).
 const OUT_DIR=process.env.SAKINAH_TWA_DIR||path.join(process.env.LOCALAPPDATA||ROOT,'sakinah-android-twa');
-const MANIFEST_URL='https://sakinah-swart.vercel.app/manifest.webmanifest';
+const HOST=process.env.SAKINAH_TWA_HOST||'s.bhd-om.com';
+const MANIFEST_URL=`https://${HOST}/manifest.webmanifest`;
 const PACKAGE_ID='om.bhd.sakinah';
+const APP_VERSION_NAME=process.env.SAKINAH_APK_VERSION||'1.1.0';
+const APP_VERSION_CODE=Number(process.env.SAKINAH_APK_CODE||2);
 const KEYSTORE=path.join(OUT_DIR,'android.keystore');
 const KEY_ALIAS='sakinah';
 const KEYSTORE_PASSWORD=process.env.BUBBLEWRAP_KEYSTORE_PASSWORD||'SakinahBhd2026!';
@@ -53,15 +56,16 @@ async function main(){
  ensureSdkBin(cfg.androidSdkPath);
  fs.mkdirSync(OUT_DIR,{recursive:true});
 
- console.log('Fetching web manifest…');
+ console.log('Fetching web manifest…',MANIFEST_URL);
  let twa=await core.TwaManifest.fromWebManifest(MANIFEST_URL);
  twa.packageId=PACKAGE_ID;
  twa.name='سكينة';
  twa.launcherName='سكينة';
- twa.host='sakinah-swart.vercel.app';
+ twa.host=HOST;
  twa.startUrl='/?launch=app';
- twa.appVersionName='1.0.0';
- twa.appVersionCode=1;
+ twa.appVersionName=APP_VERSION_NAME;
+ twa.appVersionCode=APP_VERSION_CODE;
+ twa.appVersion=APP_VERSION_NAME;
  twa.signingKey={path:KEYSTORE,alias:KEY_ALIAS};
  twa.generatorApp='bubblewrap-cli';
  twa.features={locationDelegation:{enabled:true}};
@@ -69,15 +73,20 @@ async function main(){
  twa.enableNotifications=false;
  twa.isChromeOSOnly=false;
  twa.minSdkVersion=24;
+ // Keep Vercel origin trusted if the primary host is the custom domain.
+ if(HOST==='s.bhd-om.com')twa.additionalTrustedOrigins=['sakinah-swart.vercel.app'];
  await twa.saveToFile(path.join(OUT_DIR,'twa-manifest.json'));
  twa=await core.TwaManifest.fromFile(path.join(OUT_DIR,'twa-manifest.json'));
  twa.packageId=PACKAGE_ID;
  twa.name='سكينة';
  twa.launcherName='سكينة';
+ twa.host=HOST;
  twa.signingKey={path:KEYSTORE,alias:KEY_ALIAS};
  twa.features={locationDelegation:{enabled:true}};
- twa.appVersionName='1.0.0';
- twa.appVersionCode=1;
+ twa.appVersionName=APP_VERSION_NAME;
+ twa.appVersionCode=APP_VERSION_CODE;
+ twa.appVersion=APP_VERSION_NAME;
+ if(HOST==='s.bhd-om.com')twa.additionalTrustedOrigins=['sakinah-swart.vercel.app'];
  // Shortcut icons may be Git LFS pointers on the CDN; use the main icon for generation.
  const safeIcon=twa.iconUrl;
  if(Array.isArray(twa.shortcuts)){
@@ -140,9 +149,12 @@ async function main(){
 
  await androidSdkTools.zipalignOnlyVerification(unsigned);
  fs.copyFileSync(unsigned,aligned);
- // Bubblewrap's apksigner helper breaks when JAVA_HOME has spaces; sign via apksigner.bat.
- const apksigner=path.join(cfg.androidSdkPath,'build-tools','36.1.0','apksigner.bat');
- const sign=spawnSync(apksigner,[
+ // Bubblewrap's apksigner helper breaks when JAVA_HOME has spaces; call apksigner.jar via java
+ // (apksigner.bat + passwords containing "!" fail under cmd delayed expansion).
+ const apksignerJar=path.join(cfg.androidSdkPath,'build-tools','36.1.0','lib','apksigner.jar');
+ const javaBin=path.join(cfg.jdkPath,'bin','java.exe');
+ const sign=spawnSync(javaBin,[
+  '-jar',apksignerJar,
   'sign',
   '--ks',KEYSTORE,
   '--ks-key-alias',KEY_ALIAS,
