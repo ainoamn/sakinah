@@ -34,7 +34,7 @@
         { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://verses.quran.foundation https://verses.quran.com data:; img-src 'self' data: blob: https://quran.ksu.edu.sa; media-src 'self' blob: https://cdn.islamic.network; connect-src 'self' https://api.aladhan.com https://www.mara.gov.om https://api.quran.com https://api.alquran.cloud https://verses.quran.foundation https://verses.quran.com https://cdn.islamic.network; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://verses.quran.foundation https://verses.quran.com data:; img-src 'self' data: blob: https://quran.ksu.edu.sa; media-src 'self' blob: https://cdn.islamic.network https://everyayah.com https://www.everyayah.com; connect-src 'self' https://api.aladhan.com https://www.mara.gov.om https://api.quran.com https://api.alquran.cloud https://verses.quran.foundation https://verses.quran.com https://cdn.islamic.network https://everyayah.com https://www.everyayah.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
         },
         { "key": "Permissions-Policy", "value": "geolocation=(self), microphone=(), camera=(self)" }
       ]

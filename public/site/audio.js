@@ -1,24 +1,24 @@
 /* Tilawa library: Golden-Mushaf style player, settings, and on-page ayah highlight.
-   Reciters use islamic.network (global ayah) by default, or everyayah.com folders (sss+aaa). */
+   Primary source: everyayah.com (sss+aaa). Fallback: cdn.islamic.network when available. */
 const TILAWAT_RECITERS=[
- {id:'ar.alafasy',ar:'مشاري العفاسي',en:'Mishary Alafasy'},
- {id:'ar.husary',ar:'محمود خليل الحصري',en:'Mahmoud Khalil Al-Husary'},
- {id:'ar.husarymujawwad',ar:'الحصري (مجوّد)',en:'Al-Husary (Mujawwad)'},
+ {id:'ar.alafasy',ar:'مشاري العفاسي',en:'Mishary Alafasy',everyayah:'Alafasy_128kbps',cdn:'ar.alafasy'},
+ {id:'ar.husary',ar:'محمود خليل الحصري',en:'Mahmoud Khalil Al-Husary',everyayah:'Husary_128kbps',cdn:'ar.husary'},
+ {id:'ar.husarymujawwad',ar:'الحصري (مجوّد)',en:'Al-Husary (Mujawwad)',everyayah:'Husary_128kbps_Mujawwad',cdn:'ar.husarymujawwad'},
  {id:'husary-muallim',ar:'الحصري (معلّم)',en:'Al-Husary (Muallim)',everyayah:'Husary_Muallim_128kbps'},
- {id:'ar.minshawi',ar:'محمد صديق المنشاوي',en:'Muhammad Siddiq Al-Minshawi'},
+ {id:'ar.minshawi',ar:'محمد صديق المنشاوي',en:'Muhammad Siddiq Al-Minshawi',everyayah:'Minshawy_Murattal_128kbps',cdn:'ar.minshawi'},
  {id:'minshawi-mujawwad',ar:'المنشاوي (مجوّد)',en:'Al-Minshawi (Mujawwad)',everyayah:'Minshawy_Mujawwad_192kbps'},
- {id:'ar.mahermuaiqly',ar:'ماهر المعيقلي',en:'Maher Al-Muaiqly'},
- {id:'ar.abdurrahmaansudais',ar:'عبدالرحمن السديس',en:'Abdul Rahman Al-Sudais'},
- {id:'ar.saoodshuraym',ar:'سعود الشريم',en:'Saud Al-Shuraim'},
+ {id:'ar.mahermuaiqly',ar:'ماهر المعيقلي',en:'Maher Al-Muaiqly',everyayah:'MaherAlMuaiqly128kbps',cdn:'ar.mahermuaiqly'},
+ {id:'ar.abdurrahmaansudais',ar:'عبدالرحمن السديس',en:'Abdul Rahman Al-Sudais',everyayah:'Abdurrahmaan_As-Sudais_192kbps'},
+ {id:'ar.saoodshuraym',ar:'سعود الشريم',en:'Saud Al-Shuraim',everyayah:'Saood_ash-Shuraym_128kbps'},
  {id:'yasser-dossari',ar:'ياسر الدوسري',en:'Yasser Al-Dosari',everyayah:'Yasser_Ad-Dussary_128kbps'},
- {id:'ar.hudhaify',ar:'علي الحذيفي',en:'Ali Al-Hudhaify'},
- {id:'ar.abdulsamad',ar:'عبدالباسط عبدالصمد',en:'Abdul Basit Abdus Samad'},
+ {id:'ar.hudhaify',ar:'علي الحذيفي',en:'Ali Al-Hudhaify',everyayah:'Hudhaify_128kbps',cdn:'ar.hudhaify'},
+ {id:'ar.abdulsamad',ar:'عبدالباسط عبدالصمد',en:'Abdul Basit Abdus Samad',everyayah:'Abdul_Basit_Murattal_192kbps'},
  {id:'abdulbasit-mujawwad',ar:'عبدالباسط (مجوّد)',en:'Abdul Basit (Mujawwad)',everyayah:'Abdul_Basit_Mujawwad_128kbps'},
- {id:'ar.muhammadayyoub',ar:'محمد أيوب',en:'Muhammad Ayyoub'},
- {id:'ar.muhammadjibreel',ar:'محمد جبريل',en:'Muhammad Jibreel'},
- {id:'ar.ahmedajamy',ar:'أحمد العجمي',en:'Ahmed Al-Ajamy'},
- {id:'ar.shaatree',ar:'أبو بكر الشاطري',en:'Abu Bakr Ash-Shaatree'},
- {id:'ar.abdullahbasfar',ar:'عبدالله بصفر',en:'Abdullah Basfar'},
+ {id:'ar.muhammadayyoub',ar:'محمد أيوب',en:'Muhammad Ayyoub',everyayah:'Muhammad_Ayyoub_128kbps',cdn:'ar.muhammadayyoub'},
+ {id:'ar.muhammadjibreel',ar:'محمد جبريل',en:'Muhammad Jibreel',everyayah:'Muhammad_Jibreel_128kbps',cdn:'ar.muhammadjibreel'},
+ {id:'ar.ahmedajamy',ar:'أحمد العجمي',en:'Ahmed Al-Ajamy',everyayah:'Ahmed_ibn_Ali_al-Ajamy_128kbps_ketaballah.net',cdn:'ar.ahmedajamy'},
+ {id:'ar.shaatree',ar:'أبو بكر الشاطري',en:'Abu Bakr Ash-Shaatree',everyayah:'Abu_Bakr_Ash-Shaatree_128kbps',cdn:'ar.shaatree'},
+ {id:'ar.abdullahbasfar',ar:'عبدالله بصفر',en:'Abdullah Basfar',everyayah:'Abdullah_Basfar_64kbps'},
  {id:'nasser-qatami',ar:'ناصر القطامي',en:'Nasser Al-Qatami',everyayah:'Nasser_Alqatami_128kbps'},
  {id:'saad-ghamadi',ar:'سعد الغامدي',en:'Saad Al-Ghamdi',everyayah:'Ghamadi_40kbps'},
  {id:'fares-abbad',ar:'فارس عباد',en:'Fares Abbad',everyayah:'Fares_Abbad_64kbps'},
@@ -37,7 +37,7 @@ const TILAWAT_RECITERS=[
  {id:'mahmoud-banna',ar:'محمود علي البنا',en:'Mahmoud Ali Al-Banna',everyayah:'Mahmoud_Ali_Al_Banna_32kbps'},
  {id:'aziz-alili',ar:'عزيز عليلي',en:'Aziz Alili',everyayah:'aziz_alili_128kbps'},
  {id:'parhizgar',ar:'شهريار برهيزگار',en:'Shahriar Parhizgar',everyayah:'Parhizgar_48kbps'},
- {id:'ar.hanirifai',ar:'هاني الرفاعي',en:'Hani Rifai'}
+ {id:'ar.hanirifai',ar:'هاني الرفاعي',en:'Hani Rifai',everyayah:'Hani_Rifai_192kbps'}
 ];
 const TILAWAT_SPEEDS=[1,1.5,2];
 const TILAWAT_REPEAT_COUNTS=[1,2,3,5,10,0];
@@ -79,17 +79,29 @@ function tilawaReciter(){
 function tilawaReciterLabel(r=tilawaReciter()){
  return lang()==='en'?r.en:r.ar;
 }
-function tilawaAyahUrl(itemOrGlobal,reciterId){
+function tilawaEveryayahUrl(r,item){
+ if(!r?.everyayah||!item?.s||!item?.a)return '';
+ return 'https://everyayah.com/data/'+r.everyayah+'/'+String(item.s).padStart(3,'0')+String(item.a).padStart(3,'0')+'.mp3';
+}
+function tilawaCdnUrl(r,g){
+ const cdn=r?.cdn||null;
+ if(!cdn||!g)return '';
+ return 'https://cdn.islamic.network/quran/audio/128/'+cdn+'/'+g+'.mp3';
+}
+function tilawaAyahUrls(itemOrGlobal,reciterId){
  const r=TILAWAT_RECITERS.find(x=>x.id===(reciterId||tilawaReciter().id))||tilawaReciter();
  const item=itemOrGlobal&&typeof itemOrGlobal==='object'?itemOrGlobal:null;
  const g=item?item.g:itemOrGlobal;
- if(r.everyayah&&item&&item.s&&item.a){
-  return 'https://everyayah.com/data/'+r.everyayah+'/'+String(item.s).padStart(3,'0')+String(item.a).padStart(3,'0')+'.mp3';
- }
- const cdn=r.cdn||(String(r.id).startsWith('ar.')?r.id:null);
- if(cdn&&g)return 'https://cdn.islamic.network/quran/audio/128/'+cdn+'/'+g+'.mp3';
- if(r.everyayah&&item)return 'https://everyayah.com/data/'+r.everyayah+'/'+String(item.s).padStart(3,'0')+String(item.a).padStart(3,'0')+'.mp3';
- return 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/'+(g||1)+'.mp3';
+ const urls=[];
+ const every=tilawaEveryayahUrl(r,item);
+ if(every)urls.push(every);
+ const cdn=tilawaCdnUrl(r,g);
+ if(cdn)urls.push(cdn);
+ if(!urls.length)urls.push('https://everyayah.com/data/Alafasy_128kbps/001001.mp3');
+ return urls;
+}
+function tilawaAyahUrl(itemOrGlobal,reciterId){
+ return tilawaAyahUrls(itemOrGlobal,reciterId)[0];
 }
 function tilawaFmtTime(sec){
  if(!Number.isFinite(sec)||sec<0)return '0:00';
@@ -106,8 +118,17 @@ function tilawaMakeAudio(slot){
  el.addEventListener('ended',()=>{if(tilawaPrimary()===el)tilawaOnEnded()});
  el.addEventListener('error',()=>{
   if(tilawaPrimary()!==el)return;
+  const tried=Number(el.dataset.tried||0);
+  const alts=(el.dataset.alts||'').split('|').filter(Boolean);
+  if(tried+1<alts.length){
+   el.dataset.tried=String(tried+1);
+   el.dataset.url=alts[tried+1];
+   el.src=alts[tried+1];
+   try{el.load();if(tilawa.playing)el.play().catch(()=>{})}catch{}
+   return;
+  }
   tilawa.playing=false;syncTilawaUi();
-  toast(t('تعذر تشغيل التلاوة. تحقق من الاتصال.','Could not play the recitation. Check your connection.'));
+  toast(t('تعذر تشغيل التلاوة. تحقق من الاتصال أو اختر قارئًا آخر.','Could not play the recitation. Check your connection or choose another reciter.'));
  });
  el.addEventListener('play',()=>{if(tilawaPrimary()===el){tilawa.playing=true;tilawaStartProgress();syncTilawaUi();tilawaPreloadNext()}});
  el.addEventListener('pause',()=>{if(tilawaPrimary()===el&&!el.ended){tilawa.playing=false;tilawaStopProgress();syncTilawaUi()}});
@@ -152,8 +173,11 @@ function tilawaPreloadNext(){
  const next=tilawa.queue[tilawa.index+1];
  const el=tilawaSecondary();
  if(!next||!el)return;
- const url=tilawaAyahUrl(next);
+ const urls=tilawaAyahUrls(next);
+ const url=urls[0];
  if(el.dataset.url===url&&el.readyState>=2)return;
+ el.dataset.alts=urls.join('|');
+ el.dataset.tried='0';
  el.dataset.url=url;
  el.preload='auto';
  el.src=url;
@@ -161,12 +185,15 @@ function tilawaPreloadNext(){
  try{el.load()}catch{}
 }
 async function tilawaArm(item,el){
- const url=tilawaAyahUrl(item);
+ const urls=tilawaAyahUrls(item);
+ const url=urls[0];
  if(el.dataset.url===url&&el.readyState>=2){
   el.playbackRate=tilawaSettings().speed;
   try{el.currentTime=0}catch{}
   return true;
  }
+ el.dataset.alts=urls.join('|');
+ el.dataset.tried='0';
  el.dataset.url=url;
  el.playbackRate=tilawaSettings().speed;
  el.src=url;
