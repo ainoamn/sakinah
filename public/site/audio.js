@@ -1,18 +1,42 @@
-/* Tilawa library: Golden-Mushaf style player, settings, and on-page ayah highlight. */
+/* Tilawa library: Golden-Mushaf style player, settings, and on-page ayah highlight.
+   Reciters use islamic.network (global ayah) by default, or everyayah.com folders (sss+aaa). */
 const TILAWAT_RECITERS=[
  {id:'ar.alafasy',ar:'مشاري العفاسي',en:'Mishary Alafasy'},
  {id:'ar.husary',ar:'محمود خليل الحصري',en:'Mahmoud Khalil Al-Husary'},
  {id:'ar.husarymujawwad',ar:'الحصري (مجوّد)',en:'Al-Husary (Mujawwad)'},
+ {id:'husary-muallim',ar:'الحصري (معلّم)',en:'Al-Husary (Muallim)',everyayah:'Husary_Muallim_128kbps'},
+ {id:'ar.minshawi',ar:'محمد صديق المنشاوي',en:'Muhammad Siddiq Al-Minshawi'},
+ {id:'minshawi-mujawwad',ar:'المنشاوي (مجوّد)',en:'Al-Minshawi (Mujawwad)',everyayah:'Minshawy_Mujawwad_192kbps'},
  {id:'ar.mahermuaiqly',ar:'ماهر المعيقلي',en:'Maher Al-Muaiqly'},
  {id:'ar.abdurrahmaansudais',ar:'عبدالرحمن السديس',en:'Abdul Rahman Al-Sudais'},
  {id:'ar.saoodshuraym',ar:'سعود الشريم',en:'Saud Al-Shuraim'},
+ {id:'yasser-dossari',ar:'ياسر الدوسري',en:'Yasser Al-Dosari',everyayah:'Yasser_Ad-Dussary_128kbps'},
  {id:'ar.hudhaify',ar:'علي الحذيفي',en:'Ali Al-Hudhaify'},
  {id:'ar.abdulsamad',ar:'عبدالباسط عبدالصمد',en:'Abdul Basit Abdus Samad'},
+ {id:'abdulbasit-mujawwad',ar:'عبدالباسط (مجوّد)',en:'Abdul Basit (Mujawwad)',everyayah:'Abdul_Basit_Mujawwad_128kbps'},
  {id:'ar.muhammadayyoub',ar:'محمد أيوب',en:'Muhammad Ayyoub'},
  {id:'ar.muhammadjibreel',ar:'محمد جبريل',en:'Muhammad Jibreel'},
  {id:'ar.ahmedajamy',ar:'أحمد العجمي',en:'Ahmed Al-Ajamy'},
  {id:'ar.shaatree',ar:'أبو بكر الشاطري',en:'Abu Bakr Ash-Shaatree'},
  {id:'ar.abdullahbasfar',ar:'عبدالله بصفر',en:'Abdullah Basfar'},
+ {id:'nasser-qatami',ar:'ناصر القطامي',en:'Nasser Al-Qatami',everyayah:'Nasser_Alqatami_128kbps'},
+ {id:'saad-ghamadi',ar:'سعد الغامدي',en:'Saad Al-Ghamdi',everyayah:'Ghamadi_40kbps'},
+ {id:'fares-abbad',ar:'فارس عباد',en:'Fares Abbad',everyayah:'Fares_Abbad_64kbps'},
+ {id:'ali-jaber',ar:'علي جابر',en:'Ali Jaber',everyayah:'Ali_Jaber_64kbps'},
+ {id:'muhsin-qasim',ar:'محسن القاسم',en:'Muhsin Al-Qasim',everyayah:'Muhsin_Al_Qasim_192kbps'},
+ {id:'abdullah-matroud',ar:'عبدالله المطرود',en:'Abdullah Al-Matroud',everyayah:'Abdullah_Matroud_128kbps'},
+ {id:'abdullah-juhaynee',ar:'عبدالله عواد الجهني',en:'Abdullah Awwad Al-Juhaynee',everyayah:'Abdullaah_3awwaad_Al-Juhaynee_128kbps'},
+ {id:'khalifa-tunaiji',ar:'خليفة الطنيجي',en:'Khalifa Al-Tunaiji',everyayah:'khalefa_al_tunaiji_64kbps'},
+ {id:'salaah-bukhatir',ar:'صلاح بو خاطر',en:'Salah Bukhatir',everyayah:'Salaah_AbdulRahman_Bukhatir_128kbps'},
+ {id:'sahl-yassin',ar:'سهل ياسين',en:'Sahl Yassin',everyayah:'Sahl_Yassin_128kbps'},
+ {id:'muhammad-abdulkareem',ar:'محمد عبدالكريم',en:'Muhammad Abdul Kareem',everyayah:'Muhammad_AbdulKareem_128kbps'},
+ {id:'ahmed-neana',ar:'أحمد نعينع',en:'Ahmed Neana',everyayah:'Ahmed_Neana_128kbps'},
+ {id:'ibrahim-akhdar',ar:'إبراهيم الأخضر',en:'Ibrahim Al-Akhdar',everyayah:'Ibrahim_Akhdar_32kbps'},
+ {id:'ayman-sowaid',ar:'أيمن سويد',en:'Ayman Sowaid',everyayah:'Ayman_Sowaid_64kbps'},
+ {id:'tablawy',ar:'محمد الطبلاوي',en:'Mohammad Al-Tablaway',everyayah:'Mohammad_al_Tablaway_128kbps'},
+ {id:'mahmoud-banna',ar:'محمود علي البنا',en:'Mahmoud Ali Al-Banna',everyayah:'Mahmoud_Ali_Al_Banna_32kbps'},
+ {id:'aziz-alili',ar:'عزيز عليلي',en:'Aziz Alili',everyayah:'aziz_alili_128kbps'},
+ {id:'parhizgar',ar:'شهريار برهيزگار',en:'Shahriar Parhizgar',everyayah:'Parhizgar_48kbps'},
  {id:'ar.hanirifai',ar:'هاني الرفاعي',en:'Hani Rifai'}
 ];
 const TILAWAT_SPEEDS=[1,1.5,2];
@@ -55,8 +79,17 @@ function tilawaReciter(){
 function tilawaReciterLabel(r=tilawaReciter()){
  return lang()==='en'?r.en:r.ar;
 }
-function tilawaAyahUrl(globalNumber,reciter=tilawaReciter().id){
- return 'https://cdn.islamic.network/quran/audio/128/'+reciter+'/'+globalNumber+'.mp3';
+function tilawaAyahUrl(itemOrGlobal,reciterId){
+ const r=TILAWAT_RECITERS.find(x=>x.id===(reciterId||tilawaReciter().id))||tilawaReciter();
+ const item=itemOrGlobal&&typeof itemOrGlobal==='object'?itemOrGlobal:null;
+ const g=item?item.g:itemOrGlobal;
+ if(r.everyayah&&item&&item.s&&item.a){
+  return 'https://everyayah.com/data/'+r.everyayah+'/'+String(item.s).padStart(3,'0')+String(item.a).padStart(3,'0')+'.mp3';
+ }
+ const cdn=r.cdn||(String(r.id).startsWith('ar.')?r.id:null);
+ if(cdn&&g)return 'https://cdn.islamic.network/quran/audio/128/'+cdn+'/'+g+'.mp3';
+ if(r.everyayah&&item)return 'https://everyayah.com/data/'+r.everyayah+'/'+String(item.s).padStart(3,'0')+String(item.a).padStart(3,'0')+'.mp3';
+ return 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/'+(g||1)+'.mp3';
 }
 function tilawaFmtTime(sec){
  if(!Number.isFinite(sec)||sec<0)return '0:00';
@@ -119,7 +152,7 @@ function tilawaPreloadNext(){
  const next=tilawa.queue[tilawa.index+1];
  const el=tilawaSecondary();
  if(!next||!el)return;
- const url=tilawaAyahUrl(next.g);
+ const url=tilawaAyahUrl(next);
  if(el.dataset.url===url&&el.readyState>=2)return;
  el.dataset.url=url;
  el.preload='auto';
@@ -128,7 +161,7 @@ function tilawaPreloadNext(){
  try{el.load()}catch{}
 }
 async function tilawaArm(item,el){
- const url=tilawaAyahUrl(item.g);
+ const url=tilawaAyahUrl(item);
  if(el.dataset.url===url&&el.readyState>=2){
   el.playbackRate=tilawaSettings().speed;
   try{el.currentTime=0}catch{}
@@ -153,7 +186,7 @@ async function tilawaAdvanceSeamless(){
  const next=tilawa.queue[tilawa.index+1];
  if(!next)return false;
  const ready=tilawaSecondary();
- const url=tilawaAyahUrl(next.g);
+ const url=tilawaAyahUrl(next);
  if(ready.dataset.url!==url||ready.readyState<2)await tilawaArm(next,ready);
  tilawa.index++;
  tilawa.using=tilawa.using==='a'?'b':'a';
