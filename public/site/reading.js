@@ -143,7 +143,15 @@ function libraryTextHtml(text){
  const parts=libraryParagraphs(text);
  return parts.map(part=>`<p class="library-para">${esc(part)}</p>`).join('')||`<p class="library-para"></p>`
 }
-function libraryPaper(book,page,side=''){const showTitle=book.textEdition&&page.title&&!page.part;return `<section class="library-paper book-leaf ${book.textEdition?'text-edition':'image-edition'} ${side}" data-library-page="${page.number}" draggable="false">${libraryPageHeader(book,page)}<div class="library-paper-body" lang="ar" dir="rtl">${book.textEdition?`${showTitle?`<h2>${esc(page.title)}</h2>`:''}<div class="library-text" contenteditable="false">${libraryTextHtml(page.text)}</div>${page.reference?`<small class="library-reference">${esc(page.reference)}</small>`:''}`:`<img src="${esc(page.image)}" alt="${esc(book.title)} — ${t('الصفحة','Page')} ${ar(page.source+1)}" loading="lazy" draggable="false">`}</div><div class="library-leaf-foot"><span>${t('الصفحة','Page')} ${ar(page.number)}</span><span>${page.part?t('تتمة','continued'):''}</span></div></section>`}
+function libraryPrintedLabel(page){
+ if(Number.isFinite(page?.printedPage))return t('المطبوع ص','Print p.')+' '+ar(page.printedPage);
+ return '';
+}
+function libraryPaper(book,page,side=''){
+ const heading=book.textEdition&&page.title&&!page.part&&!/^ص\s*\d+/.test(String(page.title||''))?page.title:'';
+ const printed=libraryPrintedLabel(page);
+ return `<section class="library-paper book-leaf ${book.textEdition?'text-edition':'image-edition'} ${side}" data-library-page="${page.number}" draggable="false">${libraryPageHeader(book,page)}<div class="library-paper-body" lang="ar" dir="rtl">${book.textEdition?`${heading?`<h2>${esc(heading)}</h2>`:''}<div class="library-text" contenteditable="false">${libraryTextHtml(page.text)}</div>`:`<img src="${esc(page.image)}" alt="${esc(book.title)} — ${t('الصفحة','Page')} ${ar(page.source+1)}" loading="lazy" draggable="false">`}</div><div class="library-leaf-foot"><span>${t('الصفحة','Page')} ${ar(page.number)}</span><span>${printed||(page.part?t('تتمة','continued'):'')}</span></div></section>`
+}
 function libraryMeasureHeight(measure,paras){
  measure.replaceChildren();
  for(const para of paras){
@@ -186,12 +194,13 @@ function paginateLibrary(book){
  try{
   book.slides.forEach((slide,source)=>{
    const paras=libraryParagraphs(slide.text||'');
-   if(!paras.length){pages.push({title:slide.title||'',text:'',reference:slide.reference||'',source,number:number++,part:0});return}
+   if(!paras.length){pages.push({title:slide.title||'',text:'',reference:slide.reference||'',printedPage:slide.printedPage??null,source,number:number++,part:0});return}
    let buf=[],part=0;
-   const room=()=>part===0&&slide.title?Math.max(140,baseAvail-Math.round(font*1.55)):baseAvail;
+   const hasHeading=slide.title&&!/^ص\s*\d+/.test(String(slide.title));
+   const room=()=>part===0&&hasHeading?Math.max(140,baseAvail-Math.round(font*1.55)):baseAvail;
    const flush=()=>{
     if(!buf.length)return;
-    pages.push({title:slide.title||'',text:buf.join('\n\n'),reference:slide.reference||'',source,number:number++,part:part});
+    pages.push({title:slide.title||'',text:buf.join('\n\n'),reference:slide.reference||'',printedPage:slide.printedPage??null,source,number:number++,part:part});
     part+=1;buf=[];
    };
    for(const para of paras){
@@ -242,7 +251,7 @@ libraryPage=async function(id,index=0){
  libraryViewState={book,source,cursor:0,pages:null};
  $('#library-focus').onclick=()=>setLibraryFocus(!document.body.classList.contains('library-focus'));
  $('#library-night').onclick=()=>$('#theme').click();
- $('#library-options').onclick=()=>{const dialog=openReaderDialog(t('عن هذا الإصدار','About this edition'),`<p>${esc(book.sourceLabel||'')}</p>${book.vocalizationNote?`<p class="library-edition-note">${esc(book.vocalizationNote)}</p>`:''}${book.sourceURL?`<a class="library-source-link" target="_blank" rel="noopener" href="${esc(book.sourceURL)}">${t('النص في المصدر','Source text')} ↗</a>`:''}${book.originalPdf?`<a class="chip" download href="${esc(book.originalPdf)}">↓ ${t('ملف الأصل قبل التفريغ','Original source PDF')}</a>`:''}<p>${book.textEdition?t('يُعرض النص كصفحات كتاب بخط موحّد، دون تمرير داخل الصفحة.','Text is shown as fixed book pages with a unified typeface, without scrolling inside a page.'):t('هذه صفحات أصلية مصوّرة تُعرض كورق كتاب.','These are original page images shown as book leaves.')}</p>${book.pdf?`<a class="btn" href="${esc(book.pdf)}" download>↓ PDF</a><button class="chip" id="library-share">${t('مشاركة الملف','Share file')}</button>`:''}`);dialog.querySelector('#library-share')?.addEventListener('click',()=>shareFile(book.pdf,book.title));};
+ $('#library-options').onclick=()=>{const dialog=openReaderDialog(t('عن هذا الإصدار','About this edition'),`<p>${esc(book.sourceLabel||'')}</p>${book.editionNote?`<p class="library-edition-note">${esc(book.editionNote)}</p>`:''}${book.vocalizationNote?`<p class="library-edition-note">${esc(book.vocalizationNote)}</p>`:''}${book.sourceURL?`<a class="library-source-link" target="_blank" rel="noopener" href="${esc(book.sourceURL)}">${t('النص في المصدر','Source text')} ↗</a>`:''}${book.originalPdf?`<a class="chip" download href="${esc(book.originalPdf)}">↓ ${t('ملف الأصل قبل التفريغ','Original source PDF')}</a>`:''}<p>${book.textEdition?t('يُعرض النص كصفحات كتاب بخط موحّد، دون تمرير داخل الصفحة. رقم «المطبوع» —إن وُجد— من ترقيم المصدر وقد لا يبدأ من ١.','Text is shown as fixed book pages with a unified typeface, without scrolling inside a page. A “print” page number — when present — comes from the source and may not start at 1.'):t('هذه صفحات أصلية مصوّرة تُعرض كورق كتاب.','These are original page images shown as book leaves.')}</p>${book.pdf?`<a class="btn" href="${esc(book.pdf)}" download>↓ PDF</a><button class="chip" id="library-share">${t('مشاركة الملف','Share file')}</button>`:''}`);dialog.querySelector('#library-share')?.addEventListener('click',()=>shareFile(book.pdf,book.title));};
  if($('#library-original'))$('#library-original').onclick=()=>{const page=libraryViewState.pages[libraryViewState.cursor],original=book.originalSlides.find(s=>s.sourcePage===page.sourcePage)||book.originalSlides[page.source];openReaderDialog(t('الصفحة الأصلية للمقارنة','Original page for comparison'),`<p>${t('الصفحة الأصلية','Original page')} ${ar(original.sourcePage)}</p><img style="width:100%;height:auto" src="${esc(original.image)}" alt="${esc(book.title)}">`)};
  for(const [btnId,delta]of [['library-smaller',-2],['library-larger',2]])if($('#'+btnId))$('#'+btnId).onclick=()=>{write('libraryFont',Math.max(18,Math.min(36,read('libraryFont',24)+delta)));fitLibrary()};
  window.scrollTo(0,0);
