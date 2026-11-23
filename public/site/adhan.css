@@ -1,0 +1,33 @@
+.adhan-panel{
+  margin:0 0 1rem;
+  padding:1rem 1.1rem 1.15rem;
+  border:1px solid color-mix(in srgb,var(--line,#e4dece) 80%,transparent);
+  border-radius:1rem;
+  background:
+    radial-gradient(120% 80% at 100% 0%,color-mix(in srgb,#c9a227 14%,transparent),transparent 55%),
+    var(--paper,#fffdf7);
+  display:grid;gap:.75rem;
+}
+.adhan-panel-head{
+  display:flex;align-items:center;justify-content:space-between;gap:.75rem;
+}
+.adhan-panel-head strong{font:600 1.05rem/1.4 'IBM Plex Sans Arabic',sans-serif;color:var(--green,#173f35)}
+.adhan-panel-head span{
+  font-size:.8rem;padding:.2rem .7rem;border-radius:999px;
+  background:color-mix(in srgb,#173f35 10%,transparent);color:var(--green,#173f35);
+}
+.adhan-actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.adhan-options,.adhan-prayers{display:flex;flex-wrap:wrap;gap:.55rem .9rem;align-items:center}
+.adhan-check{display:inline-flex;align-items:center;gap:.4rem;font-size:.9rem;color:var(--ink,#223e34)}
+.adhan-check input{accent-color:var(--green,#173f35);width:1rem;height:1rem}
+.adhan-advance{display:inline-flex;align-items:center;gap:.45rem;font-size:.9rem}
+.adhan-advance select{
+  border:1px solid var(--line,#e4dece);border-radius:999px;background:#fff;padding:.3rem .7rem;font:inherit;
+}
+@media(max-width:560px){
+  .adhan-actions .btn{width:100%}
+  .adhan-panel{padding:.9rem}
+}
+html.dark .adhan-panel{background:#102a24;border-color:#2a4a40;color:#eef5f1}
+html.dark .adhan-panel-head strong{color:#e8c547}
+html.dark .adhan-advance select{background:#123028;border-color:#2a4a40;color:#eef5f1}

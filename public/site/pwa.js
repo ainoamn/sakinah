@@ -6,9 +6,20 @@ function isEmbeddedBrowser(){const ua=navigator.userAgent||'';return /; wv\)/i.t
 function markInstallReady(){document.querySelectorAll('[data-install]').forEach(b=>{b.dataset.available='true';b.removeAttribute('aria-disabled')})}
 function chromeInstallUrl(){const url=location.href.split('#')[0]+(location.hash||'#home');return 'intent://'+location.host+location.pathname+location.search+location.hash+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end'}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;markInstallReady()});
-window.addEventListener('appinstalled',()=>{write('installOfferSeen',true);write('installed',true);installPrompt=null;toast(t('تم تثبيت سكينة.','Sakinah is installed.'));document.querySelectorAll('[data-install],#install-app').forEach(b=>{b.hidden=true})});
+async function activateAdhanAfterInstall(){
+ if(typeof adhanEnable!=='function')return;
+ try{await adhanEnable()}catch{}
+}
+window.addEventListener('appinstalled',()=>{write('installOfferSeen',true);write('installed',true);installPrompt=null;toast(t('تم تثبيت سكينة.','Sakinah is installed.'));document.querySelectorAll('[data-install],#install-app').forEach(b=>{b.hidden=true});queueMicrotask(()=>activateAdhanAfterInstall())});
 // Keep a visible install entry on phones even before beforeinstallprompt fires.
-document.addEventListener('DOMContentLoaded',()=>{if(!isStandalone()){document.querySelectorAll('#install-app,[data-install]').forEach(b=>{b.hidden=false;b.removeAttribute('aria-disabled')})}});
+document.addEventListener('DOMContentLoaded',()=>{
+ if(!isStandalone()){document.querySelectorAll('#install-app,[data-install]').forEach(b=>{b.hidden=false;b.removeAttribute('aria-disabled')});return}
+ // First open as installed app / TWA / APK: enable Adhan once
+ if(!read('adhanInstallBoot',false)){
+  write('adhanInstallBoot',true);
+  queueMicrotask(()=>activateAdhanAfterInstall());
+ }
+});
 if(!isStandalone()){queueMicrotask(()=>document.querySelectorAll('#install-app').forEach(b=>{b.hidden=false}))}
 async function waitForInstallPrompt(ms=2500){if(installPrompt)return installPrompt;const start=Date.now();while(!installPrompt&&Date.now()-start<ms){await new Promise(r=>setTimeout(r,120));if('serviceWorker'in navigator)try{await navigator.serviceWorker.ready}catch{}}return installPrompt}
 async function promptNativeInstall(){if(typeof navigator.install==='function'){try{await navigator.install();return true}catch(error){if(error.name==='AbortError')return true}}if(!installPrompt)return false;const prompt=installPrompt;installPrompt=null;try{await prompt.prompt();const choice=await prompt.userChoice;if(choice?.outcome!=='accepted'){/* event is spent; wait for a later beforeinstallprompt */}else write('installed',true);return true}catch{return false}}
