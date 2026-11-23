@@ -8,10 +8,41 @@ const polishedScroll=scrollQuran;scrollQuran=function(start){polishedScroll(star
 let libraryDataPromise,libraryViewState=null,libraryLayoutTimer;
 function loadLibraryData(){return libraryDataPromise||(libraryDataPromise=Promise.all(['books.json','books-text.json','prayer-library.json','original-text-books.json','heritage-library.json'].map(f=>fetch(f).then(r=>{if(!r.ok)throw Error('books');return r.json()}).catch(e=>{if(f!=='books.json')return [];throw e}))).then(([original,text,devotional,transcriptions,heritage])=>{const converted=new Map(transcriptions.map(b=>[b.id,b]));BOOKS=[...text,...original.map(b=>converted.has(b.id)?{...b,...converted.get(b.id),originalPdf:b.pdf,originalSlides:b.slides}:b),...devotional,...heritage];return BOOKS}).catch(e=>{libraryDataPromise=null;throw e}))}
 function librarySections(selected='root'){const items=[['root','#library',t('الكل','All')],['aqidah','#library/aqidah',t('العقيدة','Aqidah')],['hadith','#library/hadith',t('الحديث','Hadith')],['sunnah','#library/sunnah',t('السنة','Sunnah')],['prayers','#library/prayers',t('الأدعية','Prayers')],['prayers-duas','#library/prayers-duas',t('أدعية','Duas')],['prayers-munajat','#library/prayers-munajat',t('مناجيات','Munajat')]];return `<nav class="library-collections" aria-label="${t('أقسام المكتبة','Library sections')}"><div class="library-collections-track">${items.map(([id,href,label])=>`<a class="chip" href="${href}" ${selected===id?'aria-current="page"':''}>${label}</a>`).join('')}</div></nav>`}
+function libraryParentHref(id=''){
+ if(!id||id==='root')return '#home';
+ if(id==='prayers-duas'||id==='prayers-munajat')return '#library/prayers';
+ if(['prayers','aqidah','hadith','sunnah'].includes(id))return '#library';
+ return '#library';
+}
+function libraryPathNav(id=''){
+ const section=id||'root';
+ const labels={
+  root:t('مكتبة سكينة','Sakinah Library'),
+  prayers:t('الأدعية','Prayers'),
+  'prayers-duas':t('أدعية','Duas'),
+  'prayers-munajat':t('مناجيات','Munajat'),
+  aqidah:t('العقيدة','Aqidah'),
+  hadith:t('الحديث','Hadith'),
+  sunnah:t('السنة','Sunnah')
+ };
+ const crumbs=[{href:'#library',label:labels.root}];
+ if(section==='prayers-duas'||section==='prayers-munajat'){
+  crumbs.push({href:'#library/prayers',label:labels.prayers});
+  crumbs.push({href:'#library/'+section,label:labels[section],current:true});
+ }else if(section!=='root'){
+  crumbs.push({href:'#library/'+section,label:labels[section]||section,current:true});
+ }else crumbs[0].current=true;
+ const backHref=libraryParentHref(section);
+ const backLabel=section==='root'?t('الرئيسية','Home'):t('رجوع','Back');
+ return `<nav class="library-path" aria-label="${t('مسار المكتبة','Library path')}">
+  <a class="chip library-back" href="${backHref}">→ ${backLabel}</a>
+  <ol class="library-crumbs">${crumbs.map((c,i)=>`<li>${i?`<span class="library-crumb-sep" aria-hidden="true">‹</span>`:''}${c.current?`<span aria-current="page">${esc(c.label)}</span>`:`<a href="${c.href}">${esc(c.label)}</a>`}</li>`).join('')}</ol>
+ </nav>`
+}
 function libraryPdfHref(b){return b?.pdf||b?.originalPdf||''}
 function libraryShelfCard({title,meta='',readHref,pdfHref='',readLabel,pdfLabel,sealAlt=''}){
  const readText=readLabel||t('قراءة','Read');
- const pdfText=pdfLabel||t('تنزيل PDF','Download PDF');
+ const pdfText=pdfLabel||'PDF';
  const pdf=pdfHref
   ?`<a class="btn secondary book-pdf" href="${esc(pdfHref)}" download target="_blank" rel="noopener">${pdfText}</a>`
   :`<button type="button" class="btn secondary book-pdf" disabled aria-disabled="true" title="${t('لا يتوفر ملف PDF لهذا العنوان','No PDF is available for this title')}">${pdfText}</button>`;
@@ -34,7 +65,7 @@ function libraryCard(b){
   readHref:`#library/${b.id}/${read('bookPosition-'+b.id,0)}`,
   pdfHref:libraryPdfHref(b),
   readLabel:t('قراءة','Read'),
-  pdfLabel:t('تنزيل PDF','Download PDF')
+  pdfLabel:'PDF'
  })
 }
 function libraryDirectoryCards(books){
@@ -45,8 +76,8 @@ function libraryDirectoryCards(books){
    meta:`${esc(c.desc)} · ${ar(c.n)} ${t('كتابًا','books')}`,
    readHref:c.href,
    pdfHref:'',
-   readLabel:t('دخول القسم','Enter section'),
-   pdfLabel:t('تنزيل PDF','Download PDF')
+   readLabel:t('دخول','Enter'),
+   pdfLabel:'PDF'
   })).join('')
 }
 function hadithApiToSlides(data,bookTitle){const sections=data.metadata?.sections||{},buckets={};for(const h of data.hadiths||[]){const book=String(h.reference?.book??0);(buckets[book]||(buckets[book]=[])).push(h)}const keys=Object.keys(buckets).sort((a,b)=>Number(a)-Number(b)).filter(k=>buckets[k].length);const slides=[];for(const key of keys){const list=buckets[key],sectionName=sections[key]||'',chunk=4;for(let i=0;i<list.length;i+=chunk){const part=list.slice(i,i+chunk),first=part[0].hadithnumber||part[0].arabicnumber,last=part[part.length-1].hadithnumber||part[part.length-1].arabicnumber;slides.push({title:(sectionName?sectionName+' · ':'')+t('أحاديث','Hadiths')+' '+ar(first)+(part.length>1?'–'+ar(last):''),text:part.map(h=>((h.hadithnumber||h.arabicnumber)?ar(h.hadithnumber||h.arabicnumber)+'. ':'')+(h.text||'').trim()).filter(Boolean).join('\n\n'),reference:bookTitle+(sectionName?' · '+sectionName:'')+' · '+ar(first)+(part.length>1?'–'+ar(last):'')})}}return slides.length?slides:[{title:bookTitle,text:t('تعذر قراءة أحاديث هذا المصدر.','Could not parse hadiths from this source.'),reference:bookTitle}]}
@@ -62,10 +93,15 @@ function renderLibraryIndex(books,id){const section=id||'root',group=id==='praye
   readHref:`#library/prayers-${category}`,
   pdfHref:`books/devotional/${category}-complete.pdf`,
   readLabel:t('قراءة','Read'),
-  pdfLabel:t('تنزيل PDF','Download PDF')
+  pdfLabel:'PDF'
  })).join(''):'';
- $('#main').innerHTML=heading(title,blurb)+librarySections(section)+(id==='prayers'?'':`<div class="toolbar"><label class="sr-only" for="library-search">${t('بحث في الكتب','Search books')}</label><input id="library-search" type="search" placeholder="${t('ابحث عن كتيّب…','Find a booklet…')}">${collectionDownload}</div>`)+`<div class="books-grid shelf-grid">${id==='prayers'?prayerCards:(group||heritage?'':directoryCards)+selected.map(libraryCard).join('')}</div>`;
- prepareScreen('books');const grid=$('.books-grid');openCatalog(grid,'books');bindLibraryCardOpens(grid);if($('#library-search'))$('#library-search').oninput=e=>{const term=normalize(e.target.value);grid.innerHTML=(!group&&!heritage&&!term?directoryCards:'')+selected.filter(b=>normalize(b.title+' '+(b.titleEn||'')+' '+(b.author||'')).includes(term)).map(libraryCard).join('');openCatalog(grid,'books');bindLibraryCardOpens(grid)}
+ $('#main').innerHTML=heading(title,blurb)+libraryPathNav(section)+librarySections(section)+(id==='prayers'?'':`<div class="toolbar"><label class="sr-only" for="library-search">${t('بحث في الكتب','Search books')}</label><input id="library-search" type="search" placeholder="${t('ابحث عن كتيّب…','Find a booklet…')}">${collectionDownload}</div>`)+`<div class="books-grid shelf-grid">${id==='prayers'?prayerCards:(group||heritage?'':directoryCards)+selected.map(libraryCard).join('')}</div>`;
+ prepareScreen('books');const grid=$('.books-grid');
+ grid?.classList.remove('screen-deck','deck-books');
+ openCatalog(grid,'books');
+ document.body.classList.add('catalog-scroll');
+ bindLibraryCardOpens(grid);
+ if($('#library-search'))$('#library-search').oninput=e=>{const term=normalize(e.target.value);grid.innerHTML=(!group&&!heritage&&!term?directoryCards:'')+selected.filter(b=>normalize(b.title+' '+(b.titleEn||'')+' '+(b.author||'')).includes(term)).map(libraryCard).join('');grid.classList.remove('screen-deck','deck-books');openCatalog(grid,'books');bindLibraryCardOpens(grid)}
 }
 function bindLibraryCardOpens(grid){if(!grid)return;grid.querySelectorAll('.book-card').forEach(card=>{
   const link=card.querySelector('a.book-read[href^="#"]');
@@ -167,7 +203,8 @@ libraryPage=async function(id,index=0){
  if(!book.slides?.length){toast?.(t('تعذر فتح هذا الكتاب.','Could not open this book.'));renderLibraryIndex(libraryBooks,book.section||book.category&&('prayers-'+book.category)||'root');return}
  write('libraryReadMode','spread');
  const source=Math.max(0,Math.min(book.slides.length-1,Number(index)||0));document.body.classList.add('library-reader-view');$('#main').className='library-reader';const backHref=book.category?'#library/prayers-'+book.category:book.section?'#library/'+book.section:'#library';
- $('#main').innerHTML=`<div class="library-reader-top"><a class="chip" href="${backHref}" aria-label="${t('المكتبة','Library')}">→</a><h1>${esc(lang()==='en'?book.titleEn||book.title:book.title)}</h1><button class="chip" id="library-options" aria-label="${t('المصادر والخيارات','Sources and options')}">⋯</button></div><div class="library-reader-tools">${book.originalPdf?`<button class="chip" id="library-original" aria-label="${t('مقارنة الصفحة الأصلية','Compare original page')}">⌑</button>`:''}${book.textEdition?'<button class="chip" id="library-smaller" aria-label="تصغير الخط">أ−</button><button class="chip" id="library-larger" aria-label="تكبير الخط">أ+</button>':''}<button class="chip" id="library-focus" aria-pressed="${document.body.classList.contains('library-focus')}">⛶ ${t('وضع التركيز','Focus')}</button><button class="chip" id="library-save" aria-label="${t('حفظ موضع القراءة','Save reading position')}">◆</button><button class="chip" id="library-night" aria-label="${t('تبديل الوضع الليلي','Toggle night mode')}">☾</button>${book.pdf?`<a class="chip" href="${esc(book.pdf)}" download>↓ PDF</a>`:''}</div><div class="library-stage" id="library-stage" tabindex="0" aria-label="${t('صفحات الكتاب','Book pages')}"></div><div class="library-navigation"><button class="chip" id="library-prev" aria-label="${t('الصفحة السابقة','Previous page')}">→</button><span id="library-position" role="status"></span><button class="chip" id="library-next" aria-label="${t('الصفحة التالية','Next page')}">←</button></div>`;
+ const backLabel=book.category||book.section?t('رجوع للقسم','Back to section'):t('رجوع للمكتبة','Back to library');
+ $('#main').innerHTML=`<div class="library-reader-top"><a class="chip library-back" href="${backHref}" aria-label="${backLabel}">→ ${backLabel}</a><h1>${esc(lang()==='en'?book.titleEn||book.title:book.title)}</h1><button class="chip" id="library-options" aria-label="${t('المصادر والخيارات','Sources and options')}">⋯</button></div><div class="library-reader-tools">${book.originalPdf?`<button class="chip" id="library-original" aria-label="${t('مقارنة الصفحة الأصلية','Compare original page')}">⌑</button>`:''}${book.textEdition?'<button class="chip" id="library-smaller" aria-label="تصغير الخط">أ−</button><button class="chip" id="library-larger" aria-label="تكبير الخط">أ+</button>':''}<button class="chip" id="library-focus" aria-pressed="${document.body.classList.contains('library-focus')}">⛶ ${t('وضع التركيز','Focus')}</button><button class="chip" id="library-save" aria-label="${t('حفظ موضع القراءة','Save reading position')}">◆</button><button class="chip" id="library-night" aria-label="${t('تبديل الوضع الليلي','Toggle night mode')}">☾</button>${book.pdf?`<a class="chip" href="${esc(book.pdf)}" download>↓ PDF</a>`:''}</div><div class="library-stage" id="library-stage" tabindex="0" aria-label="${t('صفحات الكتاب','Book pages')}"></div><div class="library-navigation"><button class="chip" id="library-prev" aria-label="${t('الصفحة السابقة','Previous page')}">→ ${t('السابق','Prev')}</button><span id="library-position" role="status"></span><button class="chip" id="library-next" aria-label="${t('الصفحة التالية','Next page')}">${t('التالي','Next')} ←</button></div>`;
  libraryViewState={book,source,cursor:0,pages:null};
  $('#library-focus').onclick=()=>setLibraryFocus(!document.body.classList.contains('library-focus'));
  $('#library-night').onclick=()=>$('#theme').click();
