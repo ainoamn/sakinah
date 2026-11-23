@@ -132,3 +132,46 @@ html.dark .qibla-cardinal{color:#f0e6c8}
 html.dark .qibla-center{background:#123028;color:#eef5f1}
 html.dark .qibla-status[data-state="aligned"]{color:#e8c547}
 html.dark .qibla-city select{background:#123028;border-color:#2a4a40;color:#eef5f1}
+
+/* Fixed forward marker = top of phone */
+.qibla-forward{
+  position:absolute;top:.85rem;left:50%;z-index:3;
+  width:0;height:0;transform:translateX(-50%);
+  border-left:10px solid transparent;border-right:10px solid transparent;
+  border-bottom:16px solid #c9a227;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.25));
+}
+.qibla-forward::after{
+  content:"";position:absolute;left:-3px;top:14px;width:6px;height:14px;
+  background:#c9a227;border-radius:0 0 3px 3px;
+}
+
+/* Kaaba / Qibla reveal when aligned */
+.qibla-aligned{
+  position:absolute;inset:12% 10% 22%;z-index:4;
+  display:grid;place-content:center;justify-items:center;gap:.55rem;
+  text-align:center;pointer-events:none;
+  background:radial-gradient(circle at 50% 40%,rgba(255,252,240,.96),rgba(247,240,220,.92) 55%,rgba(247,240,220,.55));
+  border:2px solid #c9a227;border-radius:1.2rem;
+  box-shadow:0 16px 40px rgba(9,45,36,.28);
+  animation:qibla-reveal .35s ease;
+}
+.qibla-aligned[hidden]{display:none!important}
+.qibla-aligned img{
+  width:min(42vw,150px);height:min(42vw,150px);object-fit:contain;
+  filter:drop-shadow(0 8px 18px rgba(9,45,36,.25));
+}
+.qibla-aligned strong{font-size:1.2rem;color:#092D24}
+.qibla-aligned span{font-size:.95rem;color:#8a6a12;letter-spacing:.04em}
+.qibla-board[data-aligned="1"] .qibla-dial{opacity:.18;transform:scale(.92);transition:opacity .3s,transform .3s}
+.qibla-board[data-aligned="1"] .qibla-forward{opacity:.35}
+.qibla-board[data-mode="camera"] .qibla-aligned{
+  background:radial-gradient(circle at 50% 40%,rgba(8,28,22,.88),rgba(8,28,22,.72));
+  color:#f6efd8;border-color:#e8c547;
+}
+.qibla-board[data-mode="camera"] .qibla-aligned strong,
+.qibla-board[data-mode="camera"] .qibla-aligned span{color:#f6efd8}
+@keyframes qibla-reveal{
+  from{opacity:0;transform:scale(.86)}
+  to{opacity:1;transform:scale(1)}
+}

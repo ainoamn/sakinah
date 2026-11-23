@@ -1,4 +1,4 @@
-/* Qibla finder: compass dial + optional camera overlay. */
+/* Qibla finder: calibrated compass + Kaaba reveal when aligned. */
 const KAABA={lat:21.422487,lon:39.826206};
 const QIBLA_CITY_COORDS={
  Muscat:[23.5880,58.3829],
@@ -12,8 +12,9 @@ const QIBLA_CITY_COORDS={
 const qibla={
  mode:'compass',
  lat:null,lon:null,source:'city',
- heading:null,qibla:null,
- watchId:null,orientHandler:null,stream:null,raf:null
+ heading:null,rawHeading:null,qibla:null,
+ watchId:null,orientHandler:null,stream:null,raf:null,
+ aligned:false,samples:[]
 };
 
 function qiblaBearing(lat,lon){
@@ -25,6 +26,20 @@ function qiblaBearing(lat,lon){
 function qiblaNorm(deg){return ((deg%360)+360)%360}
 function qiblaDelta(from,to){return ((to-from+540)%360)-180}
 function qiblaFmt(deg){return Number.isFinite(deg)?Math.round(deg)+'°':'—'}
+function qiblaScreenAngle(){
+ const o=screen.orientation?.angle;
+ if(typeof o==='number')return o;
+ if(typeof window.orientation==='number')return window.orientation;
+ return 0;
+}
+function qiblaSmooth(heading){
+ qibla.samples.push(heading);
+ if(qibla.samples.length>8)qibla.samples.shift();
+ // Circular mean
+ let sx=0,sy=0;
+ for(const h of qibla.samples){const r=h*Math.PI/180;sx+=Math.cos(r);sy+=Math.sin(r)}
+ return qiblaNorm(Math.atan2(sy,sx)*180/Math.PI);
+}
 
 function qiblaStopSensors(){
  if(qibla.watchId!=null&&navigator.geolocation){try{navigator.geolocation.clearWatch(qibla.watchId)}catch{}}
@@ -37,6 +52,7 @@ function qiblaStopSensors(){
  if(qibla.raf){cancelAnimationFrame(qibla.raf);qibla.raf=null}
  if(qibla.stream){qibla.stream.getTracks().forEach(t=>t.stop());qibla.stream=null}
  const video=$('#qibla-video');if(video)video.srcObject=null;
+ qibla.samples=[];
 }
 
 function qiblaApplyCityFallback(){
@@ -70,10 +86,17 @@ async function qiblaLocate(){
 }
 
 function qiblaDeviceHeading(e){
- if(typeof e.webkitCompassHeading==='number'&&!Number.isNaN(e.webkitCompassHeading))return e.webkitCompassHeading;
- if(e.absolute===true&&typeof e.alpha==='number')return (360-e.alpha)%360;
- if(typeof e.alpha==='number')return (360-e.alpha)%360;
- return null;
+ // iOS Safari: true heading relative to magnetic north, already screen-aware.
+ if(typeof e.webkitCompassHeading==='number'&&!Number.isNaN(e.webkitCompassHeading)){
+  return qiblaNorm(e.webkitCompassHeading);
+ }
+ if(typeof e.alpha!=='number'||Number.isNaN(e.alpha))return null;
+ // Android / Chrome: alpha is device Z rotation. Convert to compass heading and
+ // compensate for screen orientation so "phone top" is the facing direction.
+ const screenAngle=qiblaScreenAngle();
+ let heading=qiblaNorm(360-e.alpha-screenAngle);
+ // When the phone is nearly flat, alpha alone is more reliable; upright use is default.
+ return heading;
 }
 
 async function qiblaStartCompass(){
@@ -82,11 +105,15 @@ async function qiblaStartCompass(){
   qibla.orientHandler=e=>{
    const h=qiblaDeviceHeading(e);
    if(h==null)return;
-   qibla.heading=h;
+   qibla.rawHeading=h;
+   qibla.heading=qiblaSmooth(h);
    qiblaPaintDial();
   };
-  const abs='ondeviceorientationabsolute'in window;
-  window.addEventListener(abs?'deviceorientationabsolute':'deviceorientation',qibla.orientHandler,true);
+  // Prefer absolute events when available (true north on Android).
+  if('ondeviceorientationabsolute'in window){
+   window.addEventListener('deviceorientationabsolute',qibla.orientHandler,true);
+  }
+  window.addEventListener('deviceorientation',qibla.orientHandler,true);
  };
  try{
   if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
@@ -124,20 +151,34 @@ function qiblaPaintMeta(){
 }
 
 function qiblaPaintDial(){
- const rotator=$('#qibla-rotator'),needle=$('#qibla-needle'),kaaba=$('#qibla-kaaba-mark'),status=$('#qibla-status'),headingEl=$('#qibla-heading');
+ const rotator=$('#qibla-rotator'),needle=$('#qibla-needle'),kaaba=$('#qibla-kaaba-mark');
+ const status=$('#qibla-status'),headingEl=$('#qibla-heading'),board=$('#qibla-stage');
+ const reveal=$('#qibla-aligned');
  if(!Number.isFinite(qibla.qibla))return;
  const heading=Number.isFinite(qibla.heading)?qibla.heading:0;
  const turn=qiblaNorm(qibla.qibla-heading);
+ // Ring rotates so geographic north tracks the device; Kaaba mark sits at absolute bearing.
  if(rotator)rotator.style.transform=`rotate(${-heading}deg)`;
  if(needle)needle.style.transform=`rotate(${qibla.qibla}deg)`;
  if(kaaba)kaaba.style.transform=`rotate(${qibla.qibla}deg)`;
+ // Fixed forward marker stays at top of phone = direction you face.
  const dial=$('#qibla-dial');if(dial)dial.style.setProperty('--qibla-turn',turn+'deg');
- if(headingEl)headingEl.textContent=Number.isFinite(qibla.heading)?t('اتجاه الجهاز','Device heading')+' · '+qiblaFmt(qibla.heading):t('حرّك الجهاز لمعايرة البوصلة','Move the device to calibrate the compass');
+ if(headingEl)headingEl.textContent=Number.isFinite(qibla.heading)
+  ?t('اتجاه الجهاز','Device heading')+' · '+qiblaFmt(qibla.heading)
+  :t('حرّك الجهاز بشكل رقم 8 لمعايرة البوصلة','Move the phone in a figure-8 to calibrate');
  const off=Number.isFinite(qibla.heading)?Math.abs(qiblaDelta(heading,qibla.qibla)):null;
+ const aligned=off!=null&&off<=6;
+ qibla.aligned=aligned;
+ if(board)board.dataset.aligned=aligned?'1':'0';
+ if(reveal)reveal.hidden=!aligned;
  if(status){
-  if(off==null)status.textContent=t('فعّل البوصلة ثم وجّه الجهاز.','Enable the compass, then face the device.');
-  else if(off<=8){status.textContent=t('أنت تواجه القبلة — الله أكبر','You are facing the Qibla');status.dataset.state='aligned'}
-  else{status.textContent=t('أدِر الجهاز نحو السهم الذهبي','Turn toward the gold arrow')+' · '+qiblaFmt(off);status.dataset.state='seek'}
+  if(off==null){status.textContent=t('فعّل البوصلة ثم وجّه أعلى الهاتف نحو السهم.','Enable the compass, then point the top of the phone toward the arrow.');status.dataset.state='idle'}
+  else if(aligned){status.textContent=t('أنت تواجه القبلة — الله أكبر','You are facing the Qibla');status.dataset.state='aligned'}
+  else{
+   const side=qiblaDelta(heading,qibla.qibla)>0?t('يمينًا','right'):t('يسارًا','left');
+   status.textContent=t('أدِر أعلى الهاتف','Turn the phone top')+' '+side+' · '+qiblaFmt(off);
+   status.dataset.state='seek';
+  }
  }
 }
 
@@ -160,7 +201,7 @@ async function qiblaPage(){
  else qiblaApplyCityFallback();
  const city=read('prayerCity','Muscat');
  const cityOpts=(typeof PRAYER_CITIES!=='undefined'?PRAYER_CITIES:[['Muscat','مسقط']]).map(([en,arName])=>`<option value="${en}" ${city===en?'selected':''}>${lang()==='en'?en:arName}</option>`).join('');
- $('#main').innerHTML=heading(t('اتجاه القبلة','Qibla direction'),t('بوصلة حية، ومعاينة اختيارية بالكاميرا. أبقِ الجهاز مستويًا بعيدًا عن المعادن.','Live compass with an optional camera view. Keep the device level and away from metal.'),t('صلاة','Prayer'))+`
+ $('#main').innerHTML=heading(t('اتجاه القبلة','Qibla direction'),t('وجّه أعلى الهاتف مع السهم الذهبي. عند الاصطفاف تظهر صورة القبلة.','Point the top of the phone with the gold arrow. When aligned, the Qibla image appears.'),t('صلاة','Prayer'))+`
  <div class="qibla-toolbar">
   <button class="chip active" type="button" data-qibla-mode="compass" aria-pressed="true">◎ ${t('بوصلة','Compass')}</button>
   <button class="chip" type="button" data-qibla-mode="camera" aria-pressed="false">▣ ${t('كاميرا','Camera')}</button>
@@ -169,8 +210,9 @@ async function qiblaPage(){
   <label class="qibla-city"><span>${t('المدينة','City')}</span><select id="qibla-city">${cityOpts}</select></label>
   <a class="chip" href="#calendar">${t('التقويم','Calendar')} ←</a>
  </div>
- <section class="qibla-board" id="qibla-stage" data-mode="compass">
+ <section class="qibla-board" id="qibla-stage" data-mode="compass" data-aligned="0">
   <div class="qibla-camera-layer" aria-hidden="true"><video id="qibla-video" playsinline muted autoplay></video></div>
+  <div class="qibla-forward" aria-hidden="true" title="${t('اتجاه أعلى الهاتف','Phone-top direction')}"></div>
   <div class="qibla-dial" id="qibla-dial">
    <div class="qibla-rotator" id="qibla-rotator">
     <div class="qibla-ring" aria-hidden="true">
@@ -184,12 +226,17 @@ async function qiblaPage(){
    </div>
    <div class="qibla-center"><strong>${t('القبلة','Qibla')}</strong><small id="qibla-heading">${t('فعّل البوصلة للبدء','Enable the compass to begin')}</small></div>
   </div>
-  <p class="qibla-status" id="qibla-status" data-state="idle">${t('فعّل البوصلة ثم وجّه الجهاز.','Enable the compass, then face the device.')}</p>
+  <div class="qibla-aligned" id="qibla-aligned" hidden>
+   <img src="assets/sakinah-emblem.png" alt="${t('القبلة','Qibla')}">
+   <strong>${t('القبلة أمامك','The Qibla is ahead')}</strong>
+   <span>الله أكبر</span>
+  </div>
+  <p class="qibla-status" id="qibla-status" data-state="idle">${t('فعّل البوصلة ثم وجّه أعلى الهاتف نحو السهم.','Enable the compass, then point the top of the phone toward the arrow.')}</p>
   <div class="qibla-meta" id="qibla-meta"></div>
  </section>
- <p class="hint">${t('الحساب تقريبي بحسب موقعك وبوصلة الجهاز. للضبط الأدق راعِ الانحراف المغناطيسي المحلي وابتعد عن الحديد والسماعات.','Bearing is approximate from your location and device compass. For finer accuracy, account for local magnetic declination and keep clear of metal and headphones.')}</p>`;
+ <p class="hint">${t('أبقِ الهاتف رأسيًا بعيدًا عن الحديد والسماعات، وحرّكه بشكل رقم 8 إن اضطرب المؤشر. الحساب تقريبي بحسب الموقع وبوصلة الجهاز.','Hold the phone upright, away from metal and headphones, and move it in a figure-8 if the needle jitters. Bearing is approximate from location and device compass.')}</p>`;
  qiblaPaintMeta();qiblaPaintDial();
- $('#qibla-enable').onclick=async()=>{const ok=await qiblaStartCompass();if(ok)toast?.(t('البوصلة جاهزة.','Compass ready.'))};
+ $('#qibla-enable').onclick=async()=>{const ok=await qiblaStartCompass();if(ok)toast?.(t('البوصلة جاهزة. حرّك الهاتف قليلًا للمعايرة.','Compass ready. Move the phone slightly to calibrate.'))};
  $('#qibla-locate').onclick=()=>qiblaLocate();
  $('#qibla-city').onchange=e=>{write('prayerCity',e.target.value);if(qibla.source!=='gps'){qiblaApplyCityFallback();qiblaPaintMeta();qiblaPaintDial()}};
  document.querySelectorAll('[data-qibla-mode]').forEach(btn=>btn.onclick=async()=>{
