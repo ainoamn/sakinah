@@ -1,5 +1,5 @@
 /* Public reading resources only. Account APIs and user activity are never cached. */
-const VERSION='sakinah-v85-book-rtl',SHELL=VERSION+'-shell',MEDIA=VERSION+'-media';
+const VERSION='sakinah-v86-qibla',SHELL=VERSION+'-shell',MEDIA=VERSION+'-media';
 const INDEX_URL=new URL('index.html',self.location.href).href;
 const SHELL_FILES=['./','index.html','style.css','reader-fit.css','experience.css','mobile.css','reading.css','reading.js','audio.js','audio.css','offline-catalog.json','state.js','device.js','sync.js','offline.js','data.js','app.js','features.js','qibla.js','qibla.css','i18n.js','reader.js','reader-fit.js','experience.js','adhan.js','adhan.css','pwa.js','manifest.webmanifest','books.json','exports.json','assets/sakinah-emblem.png','assets/bhd-logo.svg','assets/app-icon-192.png','assets/app-icon-512.png','assets/shortcut-qibla.png','assets/shortcut-prayer.png','assets/shortcut-athkar.png','assets/shortcut-tasbih.png','assets/qaboos.jpg','assets/ameen.jpg','assets/nizwa.jpg','assets/uthmanic-hafs.woff2'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(SHELL).then(c=>c.addAll(SHELL_FILES.map(file=>new Request(new URL(file,self.location.href),{cache:'reload'})))).then(()=>self.skipWaiting())));

@@ -1,6 +1,13 @@
 /* Qibla compass + camera finder */
 .qibla-toolbar{
-  display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;margin:0 0 1rem;
+  display:flex;flex-wrap:wrap;gap:.55rem;align-items:center;margin:0 0 .65rem;
+}
+.qibla-calibrate{
+  display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;margin:0 0 1rem;
+  font-size:.86rem;color:var(--muted,#5a6b66);
+}
+.qibla-calibrate #qibla-offset-label{
+  min-width:3.2rem;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;color:var(--green,#173f35);
 }
 .qibla-toolbar .chip.active{
   background:var(--accent,#0d5c4d);color:#fff;border-color:transparent;
