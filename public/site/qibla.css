@@ -116,12 +116,10 @@ body.qibla-camera-on .qibla-camera-layer,
   border-color:#3ecf8e;
   box-shadow:0 0 0 6px rgba(62,207,142,.2),0 16px 34px rgba(0,0,0,.35);
 }
-.qibla-rotator{
+.qibla-rose{
   position:absolute;inset:0;border-radius:50%;
-  transition:transform .1s linear;will-change:transform;
+  transition:transform .08s linear;will-change:transform;pointer-events:none;
 }
-.qibla-ring{position:absolute;inset:0;transition:opacity .3s ease}
-.qibla-board[data-aligned="1"] .qibla-ring{opacity:0}
 .qibla-cardinal{
   position:absolute;font-weight:700;font-size:.95rem;color:#092D24;letter-spacing:.02em;
 }
@@ -131,31 +129,34 @@ body.qibla-camera-on .qibla-camera-layer,
 .qibla-cardinal.e{right:.7rem;top:50%;transform:translateY(-50%)}
 .qibla-cardinal.w{left:.7rem;top:50%;transform:translateY(-50%)}
 
-/* Kaaba on the rim at true Qibla bearing (origin = dial center) */
-.qibla-kaaba{
-  position:absolute;left:50%;top:50%;width:0;height:0;
-  transform:rotate(var(--qibla-bearing,0deg));
-  transform-origin:0 0;
-  transition:transform .1s linear;will-change:transform;
-  pointer-events:none;
+/* Needle: Kaaba at tip; rotate(qibla−heading). 0° = aligned with phone top. */
+.qibla-needle{
+  position:absolute;inset:0;border-radius:50%;
+  transition:transform .08s linear;will-change:transform;pointer-events:none;
+}
+.qibla-needle-shaft{
+  position:absolute;left:50%;top:18%;bottom:50%;width:3px;
+  transform:translateX(-50%);
+  background:linear-gradient(#c9a227,#ad925c);
+  border-radius:2px;opacity:.85;
 }
 .qibla-kaaba-icon{
-  position:absolute;left:0;top:0;width:44px;height:44px;
+  position:absolute;left:50%;top:6%;width:48px;height:48px;
+  transform:translate(-50%,0);
   display:grid;place-items:center;
-  /* Rim placement: % of zero-size parent is useless — use dial radius */
-  transform:translate(-50%,-50%) translateY(calc(-1 * var(--qibla-radius) + 26px));
   font-size:1.55rem;line-height:1;
   background:radial-gradient(circle at 50% 45%,#fff8e4,#e7d39a);
   border:2px solid #ad925c;border-radius:50%;
   box-shadow:0 4px 14px rgba(9,45,36,.28);
-  transition:background .35s ease,border-color .35s ease,box-shadow .35s ease,width .35s ease,height .35s ease,font-size .35s ease;
+  transition:background .35s ease,border-color .35s ease,box-shadow .35s ease,width .35s ease,height .35s ease,font-size .35s ease,top .35s ease;
 }
 .qibla-board[data-aligned="1"] .qibla-kaaba-icon{
-  width:64px;height:64px;font-size:2rem;
+  top:3%;width:64px;height:64px;font-size:2rem;
   background:radial-gradient(circle at 50% 40%,#ffffff,#c8f0d8);
   border-color:#0d5c4d;
   box-shadow:0 0 0 5px color-mix(in srgb,#0d5c4d 22%,transparent),0 8px 22px rgba(13,92,77,.35);
 }
+.qibla-board[data-aligned="1"] .qibla-needle-shaft{background:linear-gradient(#0d5c4d,#1f8f63)}
 
 .qibla-hub{
   position:absolute;inset:34%;border-radius:50%;
