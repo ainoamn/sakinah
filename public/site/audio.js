@@ -16,38 +16,38 @@ const TILAWAT_RECITERS=[
  {id:'ar.hanirifai',ar:'هاني الرفاعي',en:'Hani Rifai'}
 ];
 const TILAWAT_SPEEDS=[1,1.5,2];
+const TILAWAT_REPEAT_COUNTS=[1,2,3,5,10,0];
 
 const tilawa={
- audio:null,
- queue:[],
- index:0,
- playing:false,
- mode:'page',
- abort:0,
- sheet:'', // '', 'player', 'settings', 'reciters', 'range'
- progressTimer:null
+ a:null,b:null,using:'a',
+ queue:[],index:0,playing:false,mode:'page',abort:0,sheet:'',
+ progressTimer:null,repeatLeft:0
 };
 
 function tilawaSettings(){
  return {
   speed:Number(read('tilawaSpeed',1))||1,
-  repeatAyah:!!read('tilawaRepeatAyah',false),
-  repeatRange:!!read('tilawaRepeatRange',false),
+  repeatMode:read('tilawaRepeatMode',read('tilawaRepeatAyah',false)?'ayah':(read('tilawaRepeatRange',false)?'range':'off')),
+  repeatCount:Number(read('tilawaRepeatCount',1))||1,
   follow:read('tilawaFollow',true)!==false,
   continueOnEnd:read('tilawaContinueOnEnd',true)!==false,
-  range:read('tilawaRange',null)
+  range:read('tilawaRange',null),
+  rangeMode:read('tilawaRangeMode','ayah')
  };
 }
 function tilawaSaveSettings(patch){
  const next={...tilawaSettings(),...patch};
  write('tilawaSpeed',next.speed);
- write('tilawaRepeatAyah',next.repeatAyah);
- write('tilawaRepeatRange',next.repeatRange);
+ write('tilawaRepeatMode',next.repeatMode);
+ write('tilawaRepeatCount',next.repeatCount);
  write('tilawaFollow',next.follow);
  write('tilawaContinueOnEnd',next.continueOnEnd);
+ write('tilawaRangeMode',next.rangeMode);
  if(patch.range!==undefined)write('tilawaRange',patch.range);
  return next;
 }
+function tilawaPrimary(){return tilawa.using==='a'?tilawa.a:tilawa.b}
+function tilawaSecondary(){return tilawa.using==='a'?tilawa.b:tilawa.a}
 function tilawaReciter(){
  const id=read('tilawaReciter','ar.alafasy');
  return TILAWAT_RECITERS.find(r=>r.id===id)||TILAWAT_RECITERS[0];
@@ -66,33 +66,41 @@ function tilawaFmtTime(sec){
 function tilawaShortName(name=''){
  return String(name).replace(/^سُورَةُ\s*/,'').replace(/^سورة\s*/,'');
 }
-function tilawaEnsureAudio(){
- if(tilawa.audio)return tilawa.audio;
+function tilawaMakeAudio(slot){
  const el=new Audio();
  el.preload='auto';
- el.addEventListener('ended',()=>tilawaOnEnded());
+ el.dataset.slot=slot;
+ el.addEventListener('ended',()=>{if(tilawaPrimary()===el)tilawaOnEnded()});
  el.addEventListener('error',()=>{
-  tilawa.playing=false;
-  syncTilawaUi();
+  if(tilawaPrimary()!==el)return;
+  tilawa.playing=false;syncTilawaUi();
   toast(t('تعذر تشغيل التلاوة. تحقق من الاتصال.','Could not play the recitation. Check your connection.'));
  });
- el.addEventListener('play',()=>{tilawa.playing=true;tilawaStartProgress();syncTilawaUi();});
- el.addEventListener('pause',()=>{if(!el.ended){tilawa.playing=false;tilawaStopProgress();syncTilawaUi();}});
- el.addEventListener('timeupdate',()=>tilawaPaintProgress());
- el.addEventListener('loadedmetadata',()=>tilawaPaintProgress());
- tilawa.audio=el;
+ el.addEventListener('play',()=>{if(tilawaPrimary()===el){tilawa.playing=true;tilawaStartProgress();syncTilawaUi();tilawaPreloadNext()}});
+ el.addEventListener('pause',()=>{if(tilawaPrimary()===el&&!el.ended){tilawa.playing=false;tilawaStopProgress();syncTilawaUi()}});
+ el.addEventListener('timeupdate',()=>{
+  if(tilawaPrimary()!==el)return;
+  tilawaPaintProgress();
+  if(el.duration&&el.currentTime>el.duration-5)tilawaPreloadNext();
+ });
+ el.addEventListener('loadedmetadata',()=>{if(tilawaPrimary()===el)tilawaPaintProgress()});
  el.playbackRate=tilawaSettings().speed;
  return el;
 }
+function tilawaEnsureAudio(){
+ if(!tilawa.a)tilawa.a=tilawaMakeAudio('a');
+ if(!tilawa.b)tilawa.b=tilawaMakeAudio('b');
+ return tilawaPrimary();
+}
 function tilawaStartProgress(){
  tilawaStopProgress();
- tilawa.progressTimer=setInterval(tilawaPaintProgress,250);
+ tilawa.progressTimer=setInterval(tilawaPaintProgress,200);
 }
 function tilawaStopProgress(){
  if(tilawa.progressTimer){clearInterval(tilawa.progressTimer);tilawa.progressTimer=null}
 }
 function tilawaPaintProgress(){
- const el=tilawa.audio;
+ const el=tilawaPrimary();
  const cur=tilawaCurrent();
  const seek=$('#tilawa-seek');
  const now=$('#tilawa-time-now');
@@ -108,6 +116,57 @@ function tilawaPaintProgress(){
  if(dur)dur.textContent=tilawaFmtTime(duration);
  const dock=$('#tilawa-dock-sub');
  if(dock&&cur)dock.textContent=tilawaReciterLabel()+' · '+t('آية','Ayah')+' '+ar(cur.a);
+}
+function tilawaPreloadNext(){
+ const next=tilawa.queue[tilawa.index+1];
+ const el=tilawaSecondary();
+ if(!next||!el)return;
+ const url=tilawaAyahUrl(next.g);
+ if(el.dataset.url===url&&el.readyState>=2)return;
+ el.dataset.url=url;
+ el.preload='auto';
+ el.src=url;
+ el.playbackRate=tilawaSettings().speed;
+ try{el.load()}catch{}
+}
+async function tilawaArm(item,el){
+ const url=tilawaAyahUrl(item.g);
+ if(el.dataset.url===url&&el.readyState>=2){
+  el.playbackRate=tilawaSettings().speed;
+  try{el.currentTime=0}catch{}
+  return true;
+ }
+ el.dataset.url=url;
+ el.playbackRate=tilawaSettings().speed;
+ el.src=url;
+ await new Promise(resolve=>{
+  let done=false;
+  const finish=()=>{if(done)return;done=true;el.removeEventListener('canplaythrough',finish);el.removeEventListener('loadeddata',finish);el.removeEventListener('error',finish);resolve()};
+  el.addEventListener('canplaythrough',finish,{once:true});
+  el.addEventListener('loadeddata',finish,{once:true});
+  el.addEventListener('error',finish,{once:true});
+  try{el.load()}catch{finish()}
+  setTimeout(finish,2200);
+ });
+ try{el.currentTime=0}catch{}
+ return el.readyState>=2;
+}
+async function tilawaAdvanceSeamless(){
+ const next=tilawa.queue[tilawa.index+1];
+ if(!next)return false;
+ const ready=tilawaSecondary();
+ const url=tilawaAyahUrl(next.g);
+ if(ready.dataset.url!==url||ready.readyState<2)await tilawaArm(next,ready);
+ tilawa.index++;
+ tilawa.using=tilawa.using==='a'?'b':'a';
+ const el=tilawaPrimary();
+ el.playbackRate=tilawaSettings().speed;
+ try{el.currentTime=0}catch{}
+ try{await el.play();tilawa.playing=true}catch{tilawa.playing=false;return false}
+ tilawaPreloadNext();
+ syncTilawaUi();
+ tilawaFollowPage(tilawaCurrent());
+ return true;
 }
 function tilawaCurrent(){
  return tilawa.queue[tilawa.index]||null;
@@ -127,22 +186,36 @@ function tilawaQueueFromSurah(snum,from=1,to=null){
   s:s.number,a:a.numberInSurah,g:a.number,page:a.page,name:s.name,text:a.text
  }));
 }
-function tilawaQueueFromRange(range){
- if(!range)return [];
- return tilawaQueueFromSurah(range.s,range.from,range.to);
+function tilawaQueueFromCross(range){
+ if(!range||!QURAN)return [];
+ const s1=range.s1||range.s,a1=range.a1||range.from,s2=range.s2||range.s,a2=range.a2||range.to;
+ const out=[];
+ for(let s=s1;s<=s2;s++){
+  const surah=QURAN[s-1];if(!surah)continue;
+  const from=s===s1?a1:1,to=s===s2?a2:surah.ayahs.length;
+  out.push(...tilawaQueueFromSurah(s,from,to));
+ }
+ return out;
 }
+function tilawaQueueFromRange(range){return tilawaQueueFromCross(range)}
 function tilawaDefaultRange(){
  const cur=tilawaCurrent();
- if(cur)return {s:cur.s,from:cur.a,to:Math.min(cur.a+4,QURAN?.[cur.s-1]?.ayahs.length||cur.a)};
+ if(cur){
+  const to=Math.min(cur.a+4,QURAN?.[cur.s-1]?.ayahs.length||cur.a);
+  return {s1:cur.s,a1:cur.a,s2:cur.s,a2:to,s:cur.s,from:cur.a,to};
+ }
  const page=Number($('#book')?.dataset.page)||Number($('#visible-page')?.dataset?.page)||read('lastPage',1);
  const entries=pageEntries(page);
- if(!entries.length)return {s:1,from:1,to:7};
- return {s:entries[0].s.number,from:entries[0].a.numberInSurah,to:entries[entries.length-1].a.numberInSurah};
+ if(!entries.length)return {s1:1,a1:1,s2:1,a2:7,s:1,from:1,to:7};
+ const first=entries[0],last=entries[entries.length-1];
+ return {s1:first.s.number,a1:first.a.numberInSurah,s2:last.s.number,a2:last.a.numberInSurah,s:first.s.number,from:first.a.numberInSurah,to:last.a.numberInSurah};
 }
 function tilawaRangeLabel(range=tilawaSettings().range||tilawaDefaultRange()){
  if(!range||!QURAN)return t('حدد المقطع','Choose a range');
- const name=tilawaShortName(QURAN[range.s-1]?.name||'');
- return name+' '+ar(range.from)+'–'+ar(range.to);
+ const s1=range.s1||range.s,a1=range.a1||range.from,s2=range.s2||range.s,a2=range.a2||range.to;
+ const n1=tilawaShortName(QURAN[s1-1]?.name||''),n2=tilawaShortName(QURAN[s2-1]?.name||'');
+ if(s1===s2)return n1+' '+ar(a1)+'–'+ar(a2);
+ return n1+' '+ar(a1)+' ← '+n2+' '+ar(a2);
 }
 
 let ayahHighlightMap=null;
@@ -254,14 +327,16 @@ function syncTilawaUi(){
  }
  const speedBtn=$('#tilawa-feat-speed');
  if(speedBtn)speedBtn.innerHTML=`<span>⏱</span>${conf.speed}x ${t('السرعة','Speed')}`;
- $('#tilawa-feat-repeat')?.classList.toggle('is-on',conf.repeatAyah||conf.repeatRange);
+ $('#tilawa-feat-repeat')?.classList.toggle('is-on',conf.repeatMode!=='off');
  $('#tilawa-feat-follow')?.classList.toggle('is-on',conf.follow);
  $('#tilawa-feat-range')?.classList.toggle('is-on',!!conf.range);
  const rate=tilawaEnsureAudio();
  rate.playbackRate=conf.speed;
+ if(tilawa.a)tilawa.a.playbackRate=conf.speed;
+ if(tilawa.b)tilawa.b.playbackRate=conf.speed;
  tilawaPaintProgress();
  if(tilawa.sheet==='settings')fillTilawaSettings();
- if(tilawa.sheet==='player'||tilawa.sheet==='settings')$('#tilawa-sheet-root')?.classList.add('is-open');
+ if(['player','settings','reciters','range'].includes(tilawa.sheet))$('#tilawa-sheet-root')?.classList.add('is-open');
  highlightTilawaAyah(cur);
  if(navigator.mediaSession&&cur){
   navigator.mediaSession.metadata=new MediaMetadata({
@@ -277,12 +352,12 @@ async function tilawaLoadCurrent(){
  const el=tilawaEnsureAudio();
  if(!cur){el.pause();tilawa.playing=false;syncTilawaUi();return}
  const token=++tilawa.abort;
- el.src=tilawaAyahUrl(cur.g);
- el.playbackRate=tilawaSettings().speed;
- try{el.load()}catch{}
- syncTilawaUi();
+ await tilawaArm(cur,el);
  if(token!==tilawa.abort)return;
+ el.playbackRate=tilawaSettings().speed;
+ syncTilawaUi();
  tilawaFollowPage(cur);
+ tilawaPreloadNext();
 }
 async function tilawaPlay(){
  if(!tilawa.queue.length){
@@ -294,9 +369,11 @@ async function tilawaPlay(){
   }
  }
  if(!tilawa.queue.length){toast(t('لا تتوفر آيات للتشغيل.','No verses available to play.'));return}
+ const conf=tilawaSettings();
+ tilawa.repeatLeft=conf.repeatCount===0?Infinity:Math.max(1,conf.repeatCount);
  const el=tilawaEnsureAudio();
  await tilawaLoadCurrent();
- try{await el.play();tilawa.playing=true}catch{
+ try{await el.play();tilawa.playing=true;tilawaPreloadNext()}catch{
   tilawa.playing=false;
   toast(t('اضغط التشغيل مرة أخرى بعد اختيار القارئ.','Tap play again after choosing a reciter.'));
  }
@@ -304,15 +381,15 @@ async function tilawaPlay(){
  openTilawaPlayer();
 }
 function tilawaPause(){
- tilawaEnsureAudio().pause();
+ tilawaPrimary()?.pause();
  tilawa.playing=false;
  syncTilawaUi();
 }
 function tilawaToggle(){tilawa.playing?tilawaPause():tilawaPlay()}
 function tilawaStop(){
  tilawaPause();
- const el=tilawaEnsureAudio();
- try{el.currentTime=0}catch{}
+ const el=tilawaPrimary();
+ try{if(el)el.currentTime=0}catch{}
  tilawa.queue=[];tilawa.index=0;
  clearTilawaHighlights();
  syncTilawaUi();
@@ -320,19 +397,22 @@ function tilawaStop(){
 }
 async function tilawaOnEnded(){
  const conf=tilawaSettings();
- if(conf.repeatAyah){
-  const el=tilawaEnsureAudio();
-  try{el.currentTime=0;await el.play();tilawa.playing=true}catch{tilawa.playing=false}
-  syncTilawaUi();
-  return;
+ if(conf.repeatMode==='ayah'){
+  if(tilawa.repeatLeft===Infinity||tilawa.repeatLeft>1){
+   if(tilawa.repeatLeft!==Infinity)tilawa.repeatLeft--;
+   const el=tilawaPrimary();
+   try{el.currentTime=0;await el.play();tilawa.playing=true}catch{tilawa.playing=false}
+   syncTilawaUi();return;
+  }
  }
  if(tilawa.index>=tilawa.queue.length-1){
-  if(conf.repeatRange&&tilawa.queue.length){
+  const loop=['range','page','surah'].includes(conf.repeatMode)||(conf.repeatMode==='ayah'&&tilawa.queue.length===1);
+  if(loop&&tilawa.queue.length&&(tilawa.repeatLeft===Infinity||tilawa.repeatLeft>1)){
+   if(tilawa.repeatLeft!==Infinity)tilawa.repeatLeft--;
    tilawa.index=0;
    await tilawaLoadCurrent();
-   try{await tilawaEnsureAudio().play();tilawa.playing=true}catch{tilawa.playing=false}
-   syncTilawaUi();
-   return;
+   try{await tilawaPrimary().play();tilawa.playing=true;tilawaPreloadNext()}catch{tilawa.playing=false}
+   syncTilawaUi();return;
   }
   if(conf.continueOnEnd&&tilawa.mode!=='range'){
    const cur=tilawaCurrent();
@@ -344,7 +424,7 @@ async function tilawaOnEnded(){
      tilawa.index=0;
      if(tilawa.queue.length){
       await tilawaLoadCurrent();
-      try{await tilawaEnsureAudio().play();tilawa.playing=true}catch{tilawa.playing=false}
+      try{await tilawaPrimary().play();tilawa.playing=true;tilawaPreloadNext()}catch{tilawa.playing=false}
       syncTilawaUi();
       return;
      }
@@ -356,37 +436,38 @@ async function tilawaOnEnded(){
   toast(t('انتهت التلاوة.','Recitation finished.'));
   return;
  }
- tilawa.index++;
- await tilawaLoadCurrent();
- try{await tilawaEnsureAudio().play();tilawa.playing=true}catch{tilawa.playing=false}
- syncTilawaUi();
+ const ok=await tilawaAdvanceSeamless();
+ if(!ok){
+  tilawa.index++;
+  await tilawaLoadCurrent();
+  try{await tilawaPrimary().play();tilawa.playing=true}catch{tilawa.playing=false}
+  syncTilawaUi();
+ }
 }
-async function tilawaNext(auto=false){
+async function tilawaNext(){
  if(!tilawa.queue.length)return;
- if(tilawa.index>=tilawa.queue.length-1){
-  if(auto)return tilawaOnEnded();
-  tilawa.playing=false;syncTilawaUi();return;
+ if(tilawa.index>=tilawa.queue.length-1){tilawa.playing=false;syncTilawaUi();return}
+ const ok=await tilawaAdvanceSeamless();
+ if(!ok){
+  tilawa.index++;
+  await tilawaLoadCurrent();
+  if(tilawa.playing){try{await tilawaPrimary().play()}catch{tilawa.playing=false}}
+  syncTilawaUi();
  }
- tilawa.index++;
- await tilawaLoadCurrent();
- if(auto||tilawa.playing){
-  try{await tilawaEnsureAudio().play();tilawa.playing=true}catch{tilawa.playing=false}
- }
- syncTilawaUi();
 }
 async function tilawaPrev(){
  if(!tilawa.queue.length)return;
- const el=tilawaEnsureAudio();
- if(el.currentTime>2){el.currentTime=0;tilawaPaintProgress();return}
+ const el=tilawaPrimary();
+ if(el&&el.currentTime>1.2){el.currentTime=0;tilawaPaintProgress();return}
  tilawa.index=Math.max(0,tilawa.index-1);
  await tilawaLoadCurrent();
- if(tilawa.playing){try{await el.play()}catch{tilawa.playing=false}}
+ if(tilawa.playing){try{await tilawaPrimary().play();tilawaPreloadNext()}catch{tilawa.playing=false}}
  syncTilawaUi();
 }
 function tilawaSeekBy(delta){
  const el=tilawaEnsureAudio();
  if(!Number.isFinite(el.duration))return;
- el.currentTime=Math.max(0,Math.min(el.duration,el.currentTime+delta));
+ el.currentTime=Math.max(0,Math.min(el.duration||0,el.currentTime+delta));
  tilawaPaintProgress();
 }
 function tilawaSetReciter(id){
@@ -394,13 +475,16 @@ function tilawaSetReciter(id){
  write('tilawaReciter',id);
  const was=tilawa.playing;
  tilawaPause();
+ if(tilawa.a){tilawa.a.dataset.url='';tilawa.a.removeAttribute('src')}
+ if(tilawa.b){tilawa.b.dataset.url='';tilawa.b.removeAttribute('src')}
  tilawaLoadCurrent().then(()=>{if(was)tilawaPlay()});
  syncTilawaUi();
 }
 function tilawaSetSpeed(speed){
  const s=TILAWAT_SPEEDS.includes(Number(speed))?Number(speed):1;
  tilawaSaveSettings({speed:s});
- tilawaEnsureAudio().playbackRate=s;
+ if(tilawa.a)tilawa.a.playbackRate=s;
+ if(tilawa.b)tilawa.b.playbackRate=s;
  syncTilawaUi();
 }
 function tilawaStartPage(page,ayahInSurah=null){
@@ -489,7 +573,7 @@ function renderTilawaPlayerSheet(){
    <button type="button" id="tilawa-fwd10" aria-label="${t('تقديم ١٠ ثوان','Forward 10 seconds')}">10⟳</button>
   </div>
   <div class="tilawa-grid">
-   <button type="button" id="tilawa-feat-repeat" class="${conf.repeatAyah||conf.repeatRange?'is-on':''}"><span>🔁</span>${t('تكرار','Repeat')}</button>
+   <button type="button" id="tilawa-feat-repeat" class="${conf.repeatMode!=='off'?'is-on':''}"><span>🔁</span>${t('تكرار','Repeat')}</button>
    <button type="button" id="tilawa-feat-range" class="${conf.range?'is-on':''}"><span>⌖</span>${t('النطاق','Range')}</button>
    <button type="button" id="tilawa-feat-speed"><span>⏱</span>${conf.speed}x ${t('السرعة','Speed')}</button>
    <button type="button" id="tilawa-feat-reciter"><span>🎙</span>${t('القارئ','Reciter')}</button>
@@ -501,18 +585,13 @@ function renderTilawaPlayerSheet(){
  $('#tilawa-stop').onclick=()=>tilawaStop();
  $('#tilawa-main-play').onclick=()=>tilawaToggle();
  $('#tilawa-prev').onclick=()=>tilawaPrev();
- $('#tilawa-next').onclick=()=>tilawaNext(false);
+ $('#tilawa-next').onclick=()=>tilawaNext();
  $('#tilawa-back10').onclick=()=>tilawaSeekBy(-10);
  $('#tilawa-fwd10').onclick=()=>tilawaSeekBy(10);
  $('#tilawa-rew').onclick=()=>tilawaSeekBy(-5);
  $('#tilawa-ff').onclick=()=>tilawaSeekBy(5);
  $('#tilawa-seek').oninput=e=>{const el=tilawaEnsureAudio();el.currentTime=Number(e.target.value)||0;tilawaPaintProgress()};
- $('#tilawa-feat-repeat').onclick=()=>{
-  const conf=tilawaSettings();
-  if(conf.repeatAyah||conf.repeatRange)tilawaSaveSettings({repeatAyah:false,repeatRange:false});
-  else tilawaSaveSettings({repeatAyah:true,repeatRange:false});
-  syncTilawaUi();
- };
+ $('#tilawa-feat-repeat').onclick=()=>openTilawaSettings();
  $('#tilawa-feat-range').onclick=()=>openTilawaSheet('range');
  $('#tilawa-feat-speed').onclick=()=>{
   const conf=tilawaSettings();
@@ -534,32 +613,31 @@ function fillTilawaSettings(){
  if(recPick){
   recPick.querySelector('strong').textContent=tilawaReciterLabel();
   recPick.querySelector('small').textContent=lang()==='en'?tilawaReciter().ar:tilawaReciter().en;
+  const av=recPick.querySelector('.avatar');
+  if(av)av.textContent=tilawaReciterLabel().replace(/^ال/,'').charAt(0);
  }
  const rangeStrong=$('#tilawa-settings-range strong');
  if(rangeStrong)rangeStrong.textContent=tilawaRangeLabel(range);
- const repAyah=$('#tilawa-repeat-ayah');
- const repRange=$('#tilawa-repeat-range');
  const follow=$('#tilawa-follow');
  const cont=$('#tilawa-continue');
- if(repAyah)repAyah.checked=conf.repeatAyah;
- if(repRange)repRange.checked=conf.repeatRange;
  if(follow)follow.checked=conf.follow;
  if(cont)cont.checked=conf.continueOnEnd;
- document.querySelectorAll('[data-tilawa-speed]').forEach(btn=>{
-  btn.classList.toggle('is-on',Number(btn.dataset.tilawaSpeed)===conf.speed);
- });
+ document.querySelectorAll('[data-repeat-mode]').forEach(btn=>btn.classList.toggle('is-on',btn.dataset.repeatMode===conf.repeatMode));
+ document.querySelectorAll('[data-repeat-count]').forEach(btn=>btn.classList.toggle('is-on',Number(btn.dataset.repeatCount)===conf.repeatCount));
+ document.querySelectorAll('[data-tilawa-speed]').forEach(btn=>btn.classList.toggle('is-on',Number(btn.dataset.tilawaSpeed)===conf.speed));
 }
 function renderTilawaSettingsSheet(){
+ const counts=TILAWAT_REPEAT_COUNTS.map(n=>`<button type="button" data-repeat-count="${n}">${n===0?'∞':ar(n)}</button>`).join('');
  $('#tilawa-sheet-body').innerHTML=`
   <div class="tilawa-sheet-top">
    <button type="button" class="tilawa-icon-btn" id="tilawa-back-player" aria-label="${t('رجوع','Back')}">›</button>
-   <h3 style="flex:1;margin:0;text-align:center;color:var(--tilawa-gold)">${t('إعدادات الصوت','Audio settings')}</h3>
+   <h3 style="flex:1;margin:0;text-align:center;color:var(--gold)">${t('إعدادات الصوت','Audio settings')}</h3>
    <button type="button" class="tilawa-icon-btn" id="tilawa-close-sheet" aria-label="${t('إغلاق','Close')}">×</button>
   </div>
   <div class="tilawa-settings">
    <label class="tilawa-block-label">${t('اختر القارئ','Choose reciter')}</label>
    <button type="button" class="tilawa-reciter-pick" id="tilawa-settings-reciter">
-    <span class="avatar">🎙</span>
+    <span class="avatar">م</span>
     <span style="flex:1;min-width:0"><strong></strong><small></small></span>
     <span>‹</span>
    </button>
@@ -571,8 +649,16 @@ function renderTilawaSettingsSheet(){
     </div>
    </div>
    <div class="tilawa-block">
-    <div class="tilawa-toggle-row"><span>${t('تكرار الآية','Repeat ayah')}</span><label class="tilawa-switch"><input type="checkbox" id="tilawa-repeat-ayah"><span></span></label></div>
-    <div class="tilawa-toggle-row"><span>${t('تكرار المقطع','Repeat range')}</span><label class="tilawa-switch"><input type="checkbox" id="tilawa-repeat-range"><span></span></label></div>
+    <label class="tilawa-block-label">${t('التكرار','Repeat')}</label>
+    <div class="tilawa-seg">
+     <button type="button" data-repeat-mode="off">${t('إيقاف','Off')}</button>
+     <button type="button" data-repeat-mode="ayah">${t('آية','Ayah')}</button>
+     <button type="button" data-repeat-mode="page">${t('صفحة','Page')}</button>
+     <button type="button" data-repeat-mode="surah">${t('سورة','Surah')}</button>
+     <button type="button" data-repeat-mode="range">${t('مقطع','Range')}</button>
+    </div>
+    <label class="tilawa-block-label">${t('عدد التكرار','Repeat count')}</label>
+    <div class="tilawa-repeat-count">${counts}</div>
    </div>
    <div class="tilawa-block">
     <label class="tilawa-block-label">${t('سرعة التلاوة','Recitation speed')}</label>
@@ -589,14 +675,8 @@ function renderTilawaSettingsSheet(){
  $('#tilawa-back-player').onclick=()=>openTilawaPlayer();
  $('#tilawa-settings-reciter').onclick=()=>openTilawaReciters();
  $('#tilawa-edit-range').onclick=()=>openTilawaSheet('range');
- $('#tilawa-repeat-ayah').onchange=e=>{
-  tilawaSaveSettings({repeatAyah:e.target.checked,repeatRange:e.target.checked?false:tilawaSettings().repeatRange});
-  syncTilawaUi();
- };
- $('#tilawa-repeat-range').onchange=e=>{
-  tilawaSaveSettings({repeatRange:e.target.checked,repeatAyah:e.target.checked?false:tilawaSettings().repeatAyah});
-  syncTilawaUi();
- };
+ document.querySelectorAll('[data-repeat-mode]').forEach(btn=>btn.onclick=()=>{tilawaSaveSettings({repeatMode:btn.dataset.repeatMode});syncTilawaUi()});
+ document.querySelectorAll('[data-repeat-count]').forEach(btn=>btn.onclick=()=>{tilawaSaveSettings({repeatCount:Number(btn.dataset.repeatCount)});syncTilawaUi()});
  $('#tilawa-follow').onchange=e=>{tilawaSaveSettings({follow:e.target.checked});syncTilawaUi()};
  $('#tilawa-continue').onchange=e=>{tilawaSaveSettings({continueOnEnd:e.target.checked});syncTilawaUi()};
  document.querySelectorAll('[data-tilawa-speed]').forEach(btn=>btn.onclick=()=>tilawaSetSpeed(btn.dataset.tilawaSpeed));
@@ -608,51 +688,86 @@ function renderTilawaSettingsSheet(){
 }
 function renderTilawaRecitersSheet(){
  const current=tilawaReciter().id;
+ const paint=(q='')=>{
+  const query=q.trim().toLowerCase();
+  const items=TILAWAT_RECITERS.filter(r=>!query||r.ar.includes(q)||r.en.toLowerCase().includes(query));
+  return items.map(r=>`<button type="button" class="tilawa-reciter-card ${r.id===current?'active':''}" data-reciter="${r.id}" role="option" aria-selected="${r.id===current}"><span class="avatar">${esc((lang()==='en'?r.en:r.ar).replace(/^ال/,'').charAt(0))}</span><span><strong>${esc(lang()==='en'?r.en:r.ar)}</strong><small>${esc(lang()==='en'?r.ar:r.en)}</small></span><span class="check">✓</span></button>`).join('');
+ };
  $('#tilawa-sheet-body').innerHTML=`
   <div class="tilawa-sheet-top">
    <button type="button" class="tilawa-icon-btn" id="tilawa-back-settings" aria-label="${t('رجوع','Back')}">›</button>
-   <h3 style="flex:1;margin:0;text-align:center;color:var(--tilawa-gold)">${t('اختر القارئ','Choose reciter')}</h3>
+   <h3 style="flex:1;margin:0;text-align:center;color:var(--gold)">${t('اختر القارئ','Choose reciter')}</h3>
    <button type="button" class="tilawa-icon-btn" id="tilawa-close-sheet" aria-label="${t('إغلاق','Close')}">×</button>
   </div>
-  <div class="tilawa-reciters" role="listbox">${TILAWAT_RECITERS.map(r=>`<button type="button" class="tilawa-reciter-card ${r.id===current?'active':''}" data-reciter="${r.id}" role="option" aria-selected="${r.id===current}"><span class="avatar">🎙</span><span><strong>${esc(lang()==='en'?r.en:r.ar)}</strong><small>${esc(lang()==='en'?r.ar:r.en)}</small></span></button>`).join('')}</div>
-  <p class="hint" style="color:var(--tilawa-muted);font-size:12px;margin:10px 4px 0">${t('التلاوات عبر شبكة Islamic Network، وتحتاج اتصالًا بالإنترنت.','Recitations via Islamic Network; an internet connection is required.')}</p>`;
+  <input class="tilawa-search" id="tilawa-reciter-search" type="search" placeholder="${t('بحث','Search')}" dir="rtl">
+  <div class="tilawa-reciters" id="tilawa-reciter-list" role="listbox">${paint()}</div>`;
+ const bind=()=>document.querySelectorAll('[data-reciter]').forEach(btn=>btn.onclick=()=>{tilawaSetReciter(btn.dataset.reciter);openTilawaSettings()});
+ bind();
+ $('#tilawa-reciter-search').oninput=e=>{$('#tilawa-reciter-list').innerHTML=paint(e.target.value);bind()};
  $('#tilawa-close-sheet').onclick=()=>closeTilawaSheets();
  $('#tilawa-back-settings').onclick=()=>openTilawaSettings();
- document.querySelectorAll('[data-reciter]').forEach(btn=>btn.onclick=()=>{tilawaSetReciter(btn.dataset.reciter);openTilawaSettings()});
 }
 function renderTilawaRangeSheet(){
  const range=tilawaSettings().range||tilawaDefaultRange();
- const surahOpts=QURAN.map(s=>`<option value="${s.number}" ${s.number===range.s?'selected':''}>${ar(s.number)} — ${esc(s.name)}</option>`).join('');
+ const mode=tilawaSettings().rangeMode||'ayah';
+ const surahOpts=QURAN.map(s=>`<option value="${s.number}">${ar(s.number)} — ${esc(s.name)}</option>`).join('');
  $('#tilawa-sheet-body').innerHTML=`
   <div class="tilawa-sheet-top">
    <button type="button" class="tilawa-icon-btn" id="tilawa-back-settings" aria-label="${t('رجوع','Back')}">›</button>
-   <h3 style="flex:1;margin:0;text-align:center;color:var(--tilawa-gold)">${t('حدد المقطع','Choose range')}</h3>
+   <h3 style="flex:1;margin:0;text-align:center;color:var(--gold)">${t('حدد المقطع','Choose range')}</h3>
    <button type="button" class="tilawa-icon-btn" id="tilawa-close-sheet" aria-label="${t('إغلاق','Close')}">×</button>
   </div>
-  <form class="tilawa-range-form" id="tilawa-range-form">
-   <label>${t('السورة','Surah')}<select id="tilawa-range-surah">${surahOpts}</select></label>
-   <label>${t('من آية','From ayah')}<input id="tilawa-range-from" type="number" min="1" value="${range.from}"></label>
-   <label>${t('إلى آية','To ayah')}<input id="tilawa-range-to" type="number" min="1" value="${range.to}"></label>
-   <button type="submit" class="tilawa-play-wide">▶ ${t('تشغيل المقطع','Play range')}</button>
+  <div class="tilawa-seg" id="tilawa-range-mode">
+   <button type="button" data-mode="surah">${t('سورة','Surah')}</button>
+   <button type="button" data-mode="page">${t('الصفحة','Page')}</button>
+   <button type="button" data-mode="ayah">${t('الآية','Ayah')}</button>
+  </div>
+  <form class="tilawa-fromto" id="tilawa-range-form">
+   <div class="tilawa-fromto-row">
+    <label class="tilawa-field"><span>${t('من سورة','From surah')}</span><select id="tilawa-r-s1">${surahOpts}</select></label>
+    <label class="tilawa-field"><span>${t('من آية','From ayah')}</span><input id="tilawa-r-a1" type="number" min="1" value="${range.a1||range.from}"></label>
+   </div>
+   <div class="tilawa-fromto-row">
+    <label class="tilawa-field"><span>${t('إلى سورة','To surah')}</span><select id="tilawa-r-s2">${surahOpts}</select></label>
+    <label class="tilawa-field"><span>${t('إلى آية','To ayah')}</span><input id="tilawa-r-a2" type="number" min="1" value="${range.a2||range.to}"></label>
+   </div>
+   <button type="submit" class="tilawa-play-wide">▶ ${t('تشغيل','Play')}</button>
   </form>`;
- const syncMax=()=>{
-  const s=Number($('#tilawa-range-surah').value)||1;
-  const max=QURAN[s-1]?.ayahs.length||1;
-  $('#tilawa-range-from').max=String(max);
-  $('#tilawa-range-to').max=String(max);
- };
- syncMax();
- $('#tilawa-range-surah').onchange=syncMax;
+ $('#tilawa-r-s1').value=String(range.s1||range.s||1);
+ $('#tilawa-r-s2').value=String(range.s2||range.s||1);
+ document.querySelectorAll('#tilawa-range-mode [data-mode]').forEach(btn=>{
+  btn.classList.toggle('is-on',btn.dataset.mode===mode);
+  btn.onclick=()=>{
+   tilawaSaveSettings({rangeMode:btn.dataset.mode});
+   document.querySelectorAll('#tilawa-range-mode [data-mode]').forEach(b=>b.classList.toggle('is-on',b===btn));
+   if(btn.dataset.mode==='page'){
+    const page=Number($('#book')?.dataset.page)||Number($('#visible-page')?.dataset?.page)||read('lastPage',1);
+    const entries=pageEntries(page);
+    if(entries.length){
+     $('#tilawa-r-s1').value=String(entries[0].s.number);
+     $('#tilawa-r-a1').value=String(entries[0].a.numberInSurah);
+     $('#tilawa-r-s2').value=String(entries[entries.length-1].s.number);
+     $('#tilawa-r-a2').value=String(entries[entries.length-1].a.numberInSurah);
+    }
+   }
+   if(btn.dataset.mode==='surah'){
+    const s=Number($('#tilawa-r-s1').value)||1;
+    $('#tilawa-r-s2').value=String(s);
+    $('#tilawa-r-a1').value='1';
+    $('#tilawa-r-a2').value=String(QURAN[s-1]?.ayahs.length||1);
+   }
+  };
+ });
  $('#tilawa-close-sheet').onclick=()=>closeTilawaSheets();
  $('#tilawa-back-settings').onclick=()=>openTilawaSettings();
  $('#tilawa-range-form').onsubmit=e=>{
   e.preventDefault();
-  const s=Number($('#tilawa-range-surah').value)||1;
-  const max=QURAN[s-1]?.ayahs.length||1;
-  let from=Math.max(1,Math.min(max,Number($('#tilawa-range-from').value)||1));
-  let to=Math.max(1,Math.min(max,Number($('#tilawa-range-to').value)||from));
-  if(to<from)[from,to]=[to,from];
-  tilawaStartRange({s,from,to});
+  let s1=Number($('#tilawa-r-s1').value)||1,s2=Number($('#tilawa-r-s2').value)||s1;
+  let a1=Number($('#tilawa-r-a1').value)||1,a2=Number($('#tilawa-r-a2').value)||1;
+  if(s2<s1||(s2===s1&&a2<a1)){[s1,s2]=[s2,s1];[a1,a2]=[a2,a1]}
+  a1=Math.max(1,Math.min(QURAN[s1-1].ayahs.length,a1));
+  a2=Math.max(1,Math.min(QURAN[s2-1].ayahs.length,a2));
+  tilawaStartRange({s1,a1,s2,a2,s:s1,from:a1,to:s1===s2?a2:QURAN[s1-1].ayahs.length});
   openTilawaPlayer();
  };
 }
@@ -679,9 +794,70 @@ function bindTilawaDock(){
   navigator.mediaSession.setActionHandler('play',()=>tilawaPlay());
   navigator.mediaSession.setActionHandler('pause',()=>tilawaPause());
   navigator.mediaSession.setActionHandler('previoustrack',()=>tilawaPrev());
-  navigator.mediaSession.setActionHandler('nexttrack',()=>tilawaNext(false));
+  navigator.mediaSession.setActionHandler('nexttrack',()=>tilawaNext());
  }
  syncTilawaUi();
+}
+function measureLineRange(line,start,end){
+ const chars=line.getNumberOfChars?.()||0;if(!chars)return null;
+ let minX=Infinity,maxX=-Infinity;const y=Number(line.getAttribute('y'))||0;const size=Number(line.getAttribute('font-size'))||64;
+ for(let i=start;i<end&&i<chars;i++){if(line.textContent[i]===' ')continue;try{const p=line.getStartPositionOfChar(i),e=line.getEndPositionOfChar(i);minX=Math.min(minX,p.x,e.x);maxX=Math.max(maxX,p.x,e.x)}catch{}}
+ if(!Number.isFinite(minX)||maxX<=minX)return null;return {minX,maxX,y,size};
+}
+function closeTilawaAyahMenu(){$('#tilawa-ayah-menu')?.remove()}
+function openTilawaAyahMenu(s,a,page,evt){
+ closeTilawaAyahMenu();
+ const menu=document.createElement('div');
+ menu.id='tilawa-ayah-menu';menu.className='tilawa-ayah-menu';menu.setAttribute('role','menu');
+ menu.innerHTML=`<button type="button" data-act="from">▶ ${t('ابدأ من هذه الآية','Start from this ayah')}</button>
+  <button type="button" data-act="page">▣ ${t('اقرأ الصفحة','Play page')}</button>
+  <button type="button" data-act="surah">☰ ${t('اقرأ السورة','Play surah')}</button>
+  <button type="button" data-act="range">⌖ ${t('مقطع من هنا…','Range from here…')}</button>
+  <button type="button" data-act="repeat">🔁 ${t('كرر هذه الآية','Repeat this ayah')}</button>`;
+ document.body.append(menu);
+ const x=Math.min(window.innerWidth-240,Math.max(8,(evt?.clientX||40)-20));
+ const y=Math.min(window.innerHeight-220,Math.max(8,(evt?.clientY||80)+8));
+ menu.style.left=x+'px';menu.style.top=y+'px';
+ menu.querySelector('[data-act="from"]').onclick=()=>{tilawaStartSurah(s,a);closeTilawaAyahMenu();openTilawaPlayer()};
+ menu.querySelector('[data-act="page"]').onclick=()=>{tilawaStartPage(page);closeTilawaAyahMenu();openTilawaPlayer()};
+ menu.querySelector('[data-act="surah"]').onclick=()=>{tilawaStartSurah(s,1);closeTilawaAyahMenu();openTilawaPlayer()};
+ menu.querySelector('[data-act="range"]').onclick=()=>{
+  const max=QURAN[s-1]?.ayahs.length||a;
+  tilawaSaveSettings({range:{s1:s,a1:a,s2:s,a2:Math.min(max,a+4),s,from:a,to:Math.min(max,a+4)},rangeMode:'ayah'});
+  closeTilawaAyahMenu();openTilawaSheet('range');
+ };
+ menu.querySelector('[data-act="repeat"]').onclick=()=>{
+  tilawaSaveSettings({repeatMode:'ayah',repeatCount:tilawaSettings().repeatCount||3});
+  tilawaStartSurah(s,a);closeTilawaAyahMenu();openTilawaPlayer();
+ };
+ setTimeout(()=>document.addEventListener('click',closeTilawaAyahMenu,{once:true}),0);
+}
+function bindPageAyahHits(page){
+ if(!ayahHighlightMap){ayahHighlightPromise.then(()=>bindPageAyahHits(page));return}
+ const map=ayahHighlightMap.v2?.[page-1];if(!map)return;
+ const ns='http://www.w3.org/2000/svg';
+ document.querySelectorAll(`[data-vector-page="${page}"]`).forEach(host=>{
+  const svg=host.querySelector('svg.qpc-svg');if(!svg||svg.dataset.hits==='1')return;
+  let hits=svg.querySelector('.qpc-hit-layer');
+  if(!hits){hits=document.createElementNS(ns,'g');hits.setAttribute('class','qpc-hit-layer');svg.append(hits)}
+  hits.replaceChildren();
+  for(const [key,ranges] of Object.entries(map)){
+   const [s,a]=key.split(':').map(Number);
+   for(const [lineIdx,start,end] of ranges){
+    const line=svg.querySelector(`.qpc-ink[data-line="${lineIdx}"]`);if(!line)continue;
+    const box=measureLineRange(line,start,end);if(!box)continue;
+    const rect=document.createElementNS(ns,'rect');
+    rect.setAttribute('class','qpc-ayah-hit');
+    rect.setAttribute('x',String(box.minX-4));
+    rect.setAttribute('y',String(box.y-box.size*0.88));
+    rect.setAttribute('width',String(box.maxX-box.minX+8));
+    rect.setAttribute('height',String(box.size*1.2));
+    rect.addEventListener('click',e=>{e.stopPropagation();openTilawaAyahMenu(s,a,page,e)});
+    hits.append(rect);
+   }
+  }
+  svg.dataset.hits='1';
+ });
 }
 function mountTilawaBar(){
  $('#tilawa-bar')?.remove();
@@ -708,7 +884,8 @@ function enhanceQuranTextAudio(){
   const tools=el.querySelector('.ayah-tools');
   if(!tools||!n)return;
   tools.insertAdjacentHTML('afterbegin',`<button type="button" data-tilawa-ayah="${n}" aria-label="${t('استمع للآية','Listen to ayah')} ${ar(n)}">▶</button>`);
-  tools.querySelector('[data-tilawa-ayah]').onclick=()=>tilawaStartSurah(surah,n);
+  tools.querySelector('[data-tilawa-ayah]').onclick=e=>{e.stopPropagation();tilawaStartSurah(surah,n)};
+  el.addEventListener('click',e=>{if(e.target.closest('button,a'))return;openTilawaAyahMenu(surah,n,QURAN[surah-1]?.ayahs[n-1]?.page||1,e)});
  });
  mountTilawaBar();
 }
@@ -716,7 +893,8 @@ function enhanceMushafAudio(){
  mountTilawaBar();
  $('#tilawa-marks')?.remove();
  $('#tilawa-spotlight')?.remove();
- if(tilawaCurrent())requestAnimationFrame(()=>highlightTilawaAyah(tilawaCurrent()));
+ const page=Number($('#book')?.dataset.page)||Number($('#visible-page')?.dataset?.page)||read('lastPage',1);
+ requestAnimationFrame(()=>{bindPageAyahHits(page);if(tilawaCurrent())highlightTilawaAyah(tilawaCurrent())});
  if($('.book-navigation')&&!$('#tilawa-book-play')){
   $('.book-navigation').insertAdjacentHTML('beforeend',`<button class="chip" id="tilawa-book-play" type="button" aria-label="${t('تشغيل صفحة المصحف','Play mushaf page')}">▶ ${t('تلاوة','Tilawa')}</button>`);
   $('#tilawa-book-play').onclick=()=>{tilawaStartPage(Number($('#book')?.dataset.page)||read('lastPage',1));openTilawaPlayer()};
@@ -732,8 +910,11 @@ function enhanceMushafAudio(){
 }
 
 window.onQpcPageReady=function(page){
- const cur=tilawaCurrent();
- if(cur&&cur.page===page&&tilawaSettings().follow)requestAnimationFrame(()=>paintMushafAyah(cur));
+ requestAnimationFrame(()=>{
+  bindPageAyahHits(page);
+  const cur=tilawaCurrent();
+  if(cur&&cur.page===page&&tilawaSettings().follow)paintMushafAyah(cur);
+ });
 };
 window.SakinahTilawa={TILAWAT_RECITERS,tilawaStartPage,tilawaStartSurah,tilawaStartRange,tilawaSetReciter,tilawaSetSpeed,openTilawaReciters,openTilawaPlayer,openTilawaSettings,mountTilawaBar,enhanceQuranTextAudio,enhanceMushafAudio,syncTilawaUi};
 
@@ -760,6 +941,7 @@ window.SakinahTilawa={TILAWAT_RECITERS,tilawaStartPage,tilawaStartSurah,tilawaSt
    else if(!['quran','quran-scroll'].includes(currentRoute)){
     $('#tilawa-dock')?.remove();
     closeTilawaSheets();
+    closeTilawaAyahMenu();
     if(tilawa.playing)tilawaPause();
    }
   });
