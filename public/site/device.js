@@ -10,8 +10,23 @@ function restoreDeviceMemory(force=false){
  route()
 }
 SakinahState.ready.then(()=>{document.documentElement.dataset.persistenceReady='true';if(SakinahState.recovered)restoreDeviceMemory();SakinahState.rememberRoute(true,true)});
-function updateDeviceViewport(){const view=window.visualViewport;const height=view&&Math.abs(view.scale-1)<.01?view.height:innerHeight;document.documentElement.style.setProperty('--screen-vh',height+'px');document.documentElement.dataset.standalone=isStandalone()?'true':'false'}
-window.addEventListener('resize',updateDeviceViewport);window.addEventListener('pageshow',updateDeviceViewport);window.visualViewport?.addEventListener('resize',updateDeviceViewport);updateDeviceViewport();
+function updateDeviceViewport(){
+ const view=window.visualViewport;
+ const height=view&&Math.abs(view.scale-1)<.01?view.height:innerHeight;
+ const width=view&&Math.abs(view.scale-1)<.01?view.width:innerWidth;
+ const root=document.documentElement;
+ root.style.setProperty('--screen-vh',height+'px');
+ root.style.setProperty('--screen-vw',width+'px');
+ root.dataset.standalone=isStandalone()?'true':'false';
+ root.dataset.orientation=width>=height?'landscape':'portrait';
+ root.dataset.viewport=width<560?'phone':width<1024?'tablet':'desktop';
+ root.dataset.short=height<=520?'true':'false';
+}
+window.addEventListener('resize',updateDeviceViewport);
+window.addEventListener('orientationchange',()=>setTimeout(updateDeviceViewport,120));
+window.addEventListener('pageshow',updateDeviceViewport);
+window.visualViewport?.addEventListener('resize',updateDeviceViewport);
+updateDeviceViewport();
 if(isStandalone())SakinahState.protect();window.addEventListener('appinstalled',()=>SakinahState.protect());
 const progressKey=/^(?:counts|tasbih|tasbihDhikr|tasbihGoal|savedPage|lastPage|bookmark|lastRoute|autoAdvance|font|quranFlowFont|quranSelectedSurahs|mushafEdition|language|favorites|session-.{1,150}|deckPosition-.{1,150}|flowPart-\d{1,3}|bookPosition-[a-z-]+|bookPart-[a-z-]+|libraryMode|libraryFont)$/;
 function progressSnapshot(){const values=Object.fromEntries(SakinahState.entries().filter(([key])=>progressKey.test(key)));return {schema:'sakinah-progress',version:1,savedAt:new Date().toISOString(),values}}
