@@ -118,8 +118,9 @@ body.qibla-camera-on .qibla-camera-layer,
 }
 .qibla-rose{
   position:absolute;inset:0;border-radius:50%;
-  transition:transform .08s linear;will-change:transform;pointer-events:none;
+  pointer-events:none;
 }
+.qibla-rose-fixed{transform:none !important}
 .qibla-cardinal{
   position:absolute;font-weight:700;font-size:.95rem;color:#092D24;letter-spacing:.02em;
 }
@@ -132,8 +133,12 @@ body.qibla-camera-on .qibla-camera-layer,
 /* Needle: Kaaba at tip; rotate(qibla−heading). 0° = aligned with phone top. */
 .qibla-needle{
   position:absolute;inset:0;border-radius:50%;
-  transition:transform .08s linear;will-change:transform;pointer-events:none;
+  transition:transform .28s ease-out;
+  pointer-events:none;
 }
+.qibla-board[data-flat="0"] .qibla-needle{opacity:.55}
+.qibla-status[data-state="tilt"]{color:#a16207}
+.qibla-warn{color:#a16207;font-weight:700}
 .qibla-needle-shaft{
   position:absolute;left:50%;top:18%;bottom:50%;width:3px;
   transform:translateX(-50%);

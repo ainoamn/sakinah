@@ -1,29 +1,33 @@
-/* Qibla compass — great-circle bearing + live phone heading.
-   Model (Pillars / common web Qibla apps):
-   - Compute true Qibla bearing from GPS → Kaaba
-   - Convert to magnetic Qibla (bearing − declination) to match phone magnetometer
-   - Needle angle = magneticQibla − magneticHeading; 0° = Kaaba under the top aim */
+/* Stable Qibla compass.
+   - Bearing: great-circle to Kaaba (true), then magnetic target = true − declination
+   - Heading: iOS webkitCompassHeading | Android absolute (360−alpha) only — no tilt math
+   - Smooth: exponential low-pass on sin/cos + paint throttle
+   - UI: one needle only (cardinals fixed); hold phone flat */
 const KAABA={lat:21.4224779,lon:39.8251832};
 const QIBLA_CITY_COORDS={
  Muscat:[23.5880,58.3829],Nizwa:[22.9333,57.5333],Salalah:[17.0151,54.0924],
  Sohar:[24.3643,56.7468],Sur:[22.5667,59.5289],Ibri:[23.2257,56.5157],Rustaq:[23.3908,57.4244]
 };
-/* Declination ° East-positive (~WMM2025 samples) */
 const QIBLA_DECL_SAMPLES=[
  [23.59,58.38,-1.7],[17.02,54.09,-1.2],[24.45,54.37,-1.5],[25.20,55.27,-1.6],
  [25.29,51.53,-1.8],[29.38,47.99,-2.5],[24.71,46.68,-2.8],[21.42,39.83,3.6],
  [30.04,31.24,4.6],[33.51,36.29,5.0],[41.01,28.98,5.8],[51.51,-0.13,0.5],
- [40.71,-74.01,-12.8],[28.61,77.21,1.2],[24.86,67.00,1.0],[3.14,101.69,0.2],
- [-6.21,106.85,0.5],[-33.87,151.21,12.5],[35.68,139.69,-7.8],[55.76,37.62,11.5]
+ [40.71,-74.01,-12.8],[28.61,77.21,1.2],[24.86,67.00,1.0]
 ];
+const QIBLA_SMOOTH=0.12;      // lower = calmer
+const QIBLA_PAINT_MS=66;      // ~15 fps
+const QIBLA_DEAD=1.2;         // ignore tiny wobble (degrees)
+const QIBLA_FLAT_MAX=55;      // warn / freeze if tilted more than this
 
 const qibla={
  mode:'compass',lat:null,lon:null,source:'city',
- heading:null,rawHeading:null,declination:0,qibla:null,magneticQibla:null,
+ heading:null,rawHeading:null,displayHeading:null,
+ declination:0,qibla:null,magneticQibla:null,
  watchId:null,orientHandler:null,stream:null,
- aligned:false,wasAligned:false,samples:[],
+ aligned:false,wasAligned:false,
  accuracy:null,sensor:'—',invert:false,offset:0,
- raf:0
+ flat:true,smoothSin:null,smoothCos:null,
+ lastPaint:0,raf:0
 };
 
 function qiblaBearing(lat,lon){
@@ -45,10 +49,11 @@ function qiblaIsIOS(){
  return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 }
 function qiblaScreenAngle(){
+ // Only correct in landscape; portrait must stay 0 or the needle jumps
  const o=screen.orientation?.angle;
- if(typeof o==='number'&&Number.isFinite(o))return o;
- if(typeof window.orientation==='number'&&Number.isFinite(window.orientation))return window.orientation;
- return 0;
+ const angle=typeof o==='number'&&Number.isFinite(o)?o
+  :(typeof window.orientation==='number'?window.orientation:0);
+ return (angle===90||angle===-90||angle===270)?angle:0;
 }
 function qiblaDeclination(lat,lon){
  if(!Number.isFinite(lat)||!Number.isFinite(lon))return 0;
@@ -61,26 +66,18 @@ function qiblaDeclination(lat,lon){
  }
  return wSum?dSum/wSum:0;
 }
-function qiblaSmooth(heading){
- qibla.samples.push(heading);
- if(qibla.samples.length>8)qibla.samples.shift();
- let sx=0,sy=0;
- for(const h of qibla.samples){const r=h*Math.PI/180;sx+=Math.cos(r);sy+=Math.sin(r)}
- return qiblaNorm(Math.atan2(sy,sx)*180/Math.PI);
-}
 
-/** W3C compass heading from absolute alpha/beta/gamma (works when phone is tilted). */
-function qiblaHeadingFromAngles(alpha,beta,gamma){
- const degtorad=Math.PI/180;
- const _x=(beta||0)*degtorad,_y=(gamma||0)*degtorad,_z=(alpha||0)*degtorad;
- const cX=Math.cos(_x),cY=Math.cos(_y),cZ=Math.cos(_z);
- const sX=Math.sin(_x),sY=Math.sin(_y),sZ=Math.sin(_z);
- const Vx=-cZ*sY-sZ*sX*cY;
- const Vy=-sZ*sY+cZ*sX*cY;
- let heading=Math.atan(Vx/Vy);
- if(Vy<0)heading+=Math.PI;
- else if(Vx<0)heading+=2*Math.PI;
- return qiblaNorm(heading*(180/Math.PI));
+/** Exponential low-pass on unit circle — no 359↔0 spin. */
+function qiblaSmoothHeading(deg){
+ const r=deg*Math.PI/180;
+ const x=Math.cos(r),y=Math.sin(r);
+ if(qibla.smoothSin==null||qibla.smoothCos==null){
+  qibla.smoothSin=y;qibla.smoothCos=x;
+ }else{
+  qibla.smoothSin+=QIBLA_SMOOTH*(y-qibla.smoothSin);
+  qibla.smoothCos+=QIBLA_SMOOTH*(x-qibla.smoothCos);
+ }
+ return qiblaNorm(Math.atan2(qibla.smoothSin,qibla.smoothCos)*180/Math.PI);
 }
 
 function qiblaStopSensors(){
@@ -94,14 +91,14 @@ function qiblaStopSensors(){
  if(qibla.stream){qibla.stream.getTracks().forEach(t=>t.stop());qibla.stream=null}
  const video=$('#qibla-video');if(video)video.srcObject=null;
  if(qibla.raf){cancelAnimationFrame(qibla.raf);qibla.raf=0}
- qibla.samples=[];qibla.wasAligned=false;qibla.heading=null;qibla.rawHeading=null;qibla.sensor='—';
+ qibla.smoothSin=null;qibla.smoothCos=null;
+ qibla.wasAligned=false;qibla.heading=null;qibla.rawHeading=null;qibla.displayHeading=null;qibla.sensor='—';
 }
 
 function qiblaRefreshGeoMath(){
  if(qibla.lat==null||qibla.lon==null)return;
  qibla.qibla=qiblaBearing(qibla.lat,qibla.lon);
  qibla.declination=qiblaDeclination(qibla.lat,qibla.lon);
- // Magnetic Qibla matches phone magnetometers (true − declination; East-positive decl)
  qibla.magneticQibla=qiblaNorm(qibla.qibla-(Number(qibla.declination)||0));
 }
 
@@ -126,7 +123,7 @@ async function qiblaLocate(){
    qibla.watchId=navigator.geolocation.watchPosition(p=>{
     qibla.lat=p.coords.latitude;qibla.lon=p.coords.longitude;qibla.source='gps';
     qiblaRefreshGeoMath();qiblaPaintMeta();qiblaPaintDial();
-   },()=>{},{enableHighAccuracy:true,maximumAge:15000});
+   },()=>{},{enableHighAccuracy:true,maximumAge:20000});
   }
  }catch{
   qiblaPaintMeta();qiblaPaintDial();
@@ -135,11 +132,14 @@ async function qiblaLocate(){
 }
 
 /**
- * Magnetic heading of the top of the phone UI (0=N … 90=E), clockwise.
- * iOS: webkitCompassHeading only. Android: absolute orientation only.
+ * Stable magnetic heading of phone top. Flat-device formulas only.
+ * Tilt-compensated Euler math was causing wild spinning.
  */
 function qiblaReadMagneticHeading(e){
- const screen=qiblaScreenAngle();
+ // Flatness gate — freeze while heavily tilted
+ const beta=typeof e.beta==='number'?Math.abs(e.beta):0;
+ const gamma=typeof e.gamma==='number'?Math.abs(e.gamma):0;
+ qibla.flat=beta<=QIBLA_FLAT_MAX&&gamma<=QIBLA_FLAT_MAX;
 
  if(typeof e.webkitCompassHeading==='number'&&!Number.isNaN(e.webkitCompassHeading)){
   if(typeof e.webkitCompassAccuracy==='number'){
@@ -147,8 +147,7 @@ function qiblaReadMagneticHeading(e){
    if(e.webkitCompassAccuracy<0)return null;
   }
   qibla.sensor='iOS';
-  // webkitCompassHeading is already clockwise from magnetic north for the device top
-  return qiblaNorm(e.webkitCompassHeading+screen);
+  return qiblaNorm(e.webkitCompassHeading+qiblaScreenAngle());
  }
 
  if(typeof e.alpha!=='number'||Number.isNaN(e.alpha))return null;
@@ -156,30 +155,43 @@ function qiblaReadMagneticHeading(e){
  if(!absolute)return null;
 
  qibla.sensor='Android';
- // Prefer full tilt-compensated heading; fall back to flat-device formula
- let heading;
- if(typeof e.beta==='number'&&typeof e.gamma==='number'){
-  heading=qiblaHeadingFromAngles(e.alpha,e.beta,e.gamma);
- }else{
-  heading=qiblaNorm(360-e.alpha);
- }
- return qiblaNorm(heading+screen);
+ // W3C / Chrome: compass heading = 360 − alpha (flat). Do NOT use beta/gamma here.
+ return qiblaNorm(360-e.alpha+qiblaScreenAngle());
 }
 
 function qiblaOnHeading(magnetic){
  if(!Number.isFinite(magnetic))return;
+ // Keep last stable heading while phone is tilted (prevents spin)
+ if(!qibla.flat&&Number.isFinite(qibla.heading)){
+  qiblaPaintDial();
+  return;
+ }
+
  let h=magnetic;
  if(qibla.invert)h=qiblaNorm(h+180);
  h=qiblaNorm(h+(Number(qibla.offset)||0));
  qibla.rawHeading=magnetic;
- qibla.heading=qiblaSmooth(h);
- if(!qibla.raf){
-  qibla.raf=requestAnimationFrame(()=>{
-   qibla.raf=0;
-   qiblaPaintDial();
-   qiblaPaintMeta();
-  });
+ qibla.heading=qiblaSmoothHeading(h);
+
+ // Dead-zone against micro jitter after smoothing
+ if(Number.isFinite(qibla.displayHeading)&&Math.abs(qiblaDelta(qibla.displayHeading,qibla.heading))<QIBLA_DEAD){
+  return;
  }
+ qibla.displayHeading=qibla.heading;
+
+ const now=performance.now();
+ if(now-qibla.lastPaint<QIBLA_PAINT_MS){
+  if(!qibla.raf){
+   qibla.raf=requestAnimationFrame(()=>{
+    qibla.raf=0;qibla.lastPaint=performance.now();
+    qiblaPaintDial();qiblaPaintMeta();
+   });
+  }
+  return;
+ }
+ qibla.lastPaint=now;
+ qiblaPaintDial();
+ qiblaPaintMeta();
 }
 
 async function qiblaStartCompass(){
@@ -194,20 +206,19 @@ async function qiblaStartCompass(){
   return false;
  }
 
+ qibla.smoothSin=null;qibla.smoothCos=null;qibla.displayHeading=null;
  qibla.orientHandler=e=>{
   const h=qiblaReadMagneticHeading(e);
   if(h==null)return;
   qiblaOnHeading(h);
  };
 
- // One listener only — mixing absolute + relative causes wrong headings on Chrome
  if(qiblaIsIOS()){
   window.addEventListener('deviceorientation',qibla.orientHandler,true);
  }else if('ondeviceorientationabsolute'in window){
   window.addEventListener('deviceorientationabsolute',qibla.orientHandler,true);
  }else{
   window.addEventListener('deviceorientation',qibla.orientHandler,true);
-  toast?.(t('المتصفح قد لا يدعم بوصلة مطلقة؛ عاير بالشكل ٨.','Browser may lack absolute compass; figure-8 calibrate.'));
  }
  return true;
 }
@@ -229,7 +240,7 @@ async function qiblaStartCamera(){
 function qiblaSetOffset(delta){
  qibla.offset=Math.max(-90,Math.min(90,(Number(qibla.offset)||0)+delta));
  write('qiblaOffset',qibla.offset);
- qibla.samples=[];
+ qibla.smoothSin=null;qibla.smoothCos=null;qibla.displayHeading=null;
  if(Number.isFinite(qibla.rawHeading))qiblaOnHeading(qibla.rawHeading);
  else{qiblaPaintMeta();qiblaPaintDial()}
  const label=$('#qibla-offset-label');
@@ -238,7 +249,7 @@ function qiblaSetOffset(delta){
 function qiblaToggleInvert(){
  qibla.invert=!qibla.invert;
  write('qiblaInvert',qibla.invert);
- qibla.samples=[];
+ qibla.smoothSin=null;qibla.smoothCos=null;qibla.displayHeading=null;
  if(Number.isFinite(qibla.rawHeading))qiblaOnHeading(qibla.rawHeading);
  const btn=$('#qibla-invert');
  if(btn){btn.classList.toggle('active',qibla.invert);btn.setAttribute('aria-pressed',String(qibla.invert))}
@@ -251,63 +262,61 @@ function qiblaPaintMeta(){
  const cityLabel=(typeof PRAYER_CITIES!=='undefined'?PRAYER_CITIES.find(([en])=>en===city):null)?.[lang()==='en'?0:1]||city;
  const src=qibla.source==='gps'?t('موقع الجهاز','Device location'):t('مدينة','City')+' · '+cityLabel;
  const off=Number(qibla.offset)||0;
- const decl=Number(qibla.declination)||0;
  const dist=qibla.lat!=null?Math.round(qiblaDistanceKm(qibla.lat,qibla.lon)):'—';
- const acc=typeof qibla.accuracy==='number'&&qibla.accuracy>=0
-  ?`<span>${t('دقة','Accuracy')} <b dir="ltr">±${Math.round(qibla.accuracy)}°</b></span>`
-  :(qibla.accuracy!=null&&qibla.accuracy<0?`<span>${t('معايرة الشكل ٨ مطلوبة','Figure-8 calibration needed')}</span>`:'');
+ const heading=Number.isFinite(qibla.displayHeading)?qibla.displayHeading:qibla.heading;
  meta.innerHTML=`
-  <span>${t('القبلة','Qibla')} <b dir="ltr">${qiblaFmt(qibla.qibla)}</b> ${t('حقيقي','true')}</span>
-  <span>${t('الهدف المغناطيسي','Magnetic target')} <b dir="ltr">${qiblaFmt(qibla.magneticQibla)}</b></span>
-  <span>${t('اتجاهك','Facing')} <b dir="ltr">${qiblaFmt(qibla.heading)}</b></span>
+  <span>${t('زاوية القبلة','Qibla angle')} <b dir="ltr">${qiblaFmt(qibla.qibla)}</b></span>
+  <span>${t('اتجاهك','Facing')} <b dir="ltr">${qiblaFmt(heading)}</b></span>
   <span>${t('المسافة','Distance')} <b dir="ltr">${dist}</b> ${t('كم','km')}</span>
   <span>${t('من','from')} ${esc(src)}</span>
-  <span dir="ltr">${qibla.lat!=null?qibla.lat.toFixed(4)+', '+qibla.lon.toFixed(4):'—'}</span>
-  <span>${t('الانحراف','Decl.')} <b dir="ltr">${decl>=0?'+':''}${decl.toFixed(1)}°</b></span>
-  <span>${t('المستشعر','Sensor')} <b>${esc(qibla.sensor)}</b></span>
+  ${!qibla.flat?`<span class="qibla-warn">${t('أمسك الهاتف بشكل مسطح','Hold the phone flat')}</span>`:''}
   ${off?`<span>${t('معايرة','Cal.')} <b dir="ltr">${off>0?'+':''}${Math.round(off)}°</b></span>`:''}
-  ${qibla.invert?`<span>${t('معكوس','Flipped')}</span>`:''}
-  ${acc}`;
+  ${qibla.invert?`<span>${t('معكوس','Flipped')}</span>`:''}`;
 }
 
 function qiblaPaintDial(){
  const needle=$('#qibla-needle'),status=$('#qibla-status'),headingEl=$('#qibla-heading'),board=$('#qibla-stage');
- const dial=$('#qibla-dial'),rose=$('#qibla-rose');
  if(!Number.isFinite(qibla.qibla))return;
 
  const target=Number.isFinite(qibla.magneticQibla)?qibla.magneticQibla:qibla.qibla;
- const heading=Number.isFinite(qibla.heading)?qibla.heading:0;
- // Needle points to Kaaba relative to phone top. 0 = aligned.
- const needleAngle=qiblaNorm(target-heading);
+ const heading=Number.isFinite(qibla.displayHeading)?qibla.displayHeading
+  :(Number.isFinite(qibla.heading)?qibla.heading:null);
+ // Without a live heading, park needle at absolute bearing (north-up reference)
+ const needleAngle=heading==null?target:qiblaNorm(target-heading);
 
  if(needle)needle.style.transform=`rotate(${needleAngle}deg)`;
- // Optional rose: keep geographic north under phone heading
- if(rose)rose.style.transform=`rotate(${-heading}deg)`;
- if(dial)dial.style.setProperty('--qibla-turn',needleAngle+'deg');
 
- if(headingEl)headingEl.textContent=Number.isFinite(qibla.heading)
-  ?t('أدِر حتى يصل السهم للأعلى','Turn until the arrow points up')+' · '+qiblaFmt(needleAngle)
-  :t('فعّل البوصلة وحرّك الهاتف','Enable compass and move the phone');
+ if(headingEl){
+  headingEl.textContent=heading==null
+   ?t('فعّل البوصلة · أمسك الهاتف مسطحًا','Enable compass · hold phone flat')
+   :t('أدِر حتى يصعد السهم','Turn until arrow is up')+' · '+qiblaFmt(needleAngle);
+ }
 
- const err=Number.isFinite(qibla.heading)?Math.abs(qiblaDelta(heading,target)):null;
- const aligned=err!=null&&err<=8;
+ const err=heading==null?null:Math.abs(qiblaDelta(heading,target));
+ const aligned=err!=null&&err<=10;
  qibla.aligned=aligned;
- if(board)board.dataset.aligned=aligned?'1':'0';
+ if(board){
+  board.dataset.aligned=aligned?'1':'0';
+  board.dataset.flat=qibla.flat?'1':'0';
+ }
  if(status){
-  if(err==null){
-   status.textContent=t('فعّل البوصلة، أمسك الهاتف مسطحًا، وحرّكه بشكل ٨، ثم استدر حتى يشير السهم للأعلى.','Enable compass, hold flat, figure-8, then turn until the arrow points up.');
+  if(!qibla.flat){
+   status.textContent=t('أمسك الهاتف بشكل مسطح على راحة يدك، ثم استدر ببطء.','Hold the phone flat in your palm, then turn slowly.');
+   status.dataset.state='tilt';
+  }else if(err==null){
+   status.textContent=t('فعّل البوصلة، عاير بشكل ٨، ثم استدر ببطء حتى يصعد سهم الكعبة.','Enable compass, figure-8 calibrate, then turn slowly until the Kaaba arrow rises.');
    status.dataset.state='idle';
   }else if(aligned){
    status.textContent=t('القبلة أمامك — الله أكبر','The Qibla is ahead');
    status.dataset.state='aligned';
   }else{
    const side=qiblaDelta(heading,target)>0?t('يمينًا','right'):t('يسارًا','left');
-   status.textContent=t('أدِر','Turn')+' '+side+' · '+qiblaFmt(err);
+   status.textContent=t('أدِر ببطء','Turn slowly')+' '+side+' · '+qiblaFmt(err);
    status.dataset.state='seek';
   }
  }
- if(aligned&&!qibla.wasAligned){
-  if(navigator.vibrate)try{navigator.vibrate([40,40,80])}catch{}
+ if(aligned&&!qibla.wasAligned&&qibla.flat){
+  if(navigator.vibrate)try{navigator.vibrate([35,40,70])}catch{}
  }
  qibla.wasAligned=aligned;
 }
@@ -336,7 +345,7 @@ async function qiblaPage(){
  const cityOpts=(typeof PRAYER_CITIES!=='undefined'?PRAYER_CITIES:[['Muscat','مسقط']]).map(([en,arName])=>`<option value="${en}" ${city===en?'selected':''}>${lang()==='en'?en:arName}</option>`).join('');
  $('#main').innerHTML=heading(
   t('اتجاه القبلة','Qibla direction'),
-  t('استدر حتى يشير سهم الكعبة للأعلى (اتجاه أعلى هاتفك). من مسقط نحو ٢٦٦° غربًا.','Turn until the Kaaba arrow points up (phone top). From Muscat ~266° west.'),
+  t('أمسك الهاتف مسطحًا واستدر ببطء حتى يصعد سهم الكعبة للأعلى. من مسقط ≈ ٢٦٦°.','Hold the phone flat and turn slowly until the Kaaba arrow points up. From Muscat ≈ 266°.'),
   t('صلاة','Prayer')
  )+`
  <div class="qibla-toolbar">
@@ -353,14 +362,14 @@ async function qiblaPage(){
   <button class="chip ${qibla.invert?'active':''}" type="button" id="qibla-invert" aria-pressed="${qibla.invert}">⇄ ${t('عكس ١٨٠°','Flip 180°')}</button>
   <button class="chip" type="button" id="qibla-off-reset">${t('تصفير','Reset')}</button>
  </div>
- <section class="qibla-board" id="qibla-stage" data-mode="compass" data-aligned="0">
+ <section class="qibla-board" id="qibla-stage" data-mode="compass" data-aligned="0" data-flat="1">
   <div class="qibla-camera-layer" aria-hidden="true"><video id="qibla-video" playsinline muted autoplay></video></div>
   <div class="qibla-aim" aria-hidden="true">
    <span class="qibla-aim-arrow"></span>
    <span class="qibla-aim-label">${t('أمامك','Ahead')}</span>
   </div>
   <div class="qibla-dial" id="qibla-dial" dir="ltr">
-   <div class="qibla-rose" id="qibla-rose" aria-hidden="true">
+   <div class="qibla-rose qibla-rose-fixed" id="qibla-rose" aria-hidden="true">
     <span class="qibla-cardinal n">${t('ش','N')}</span>
     <span class="qibla-cardinal e">${t('ق','E')}</span>
     <span class="qibla-cardinal s">${t('ج','S')}</span>
@@ -372,15 +381,15 @@ async function qiblaPage(){
    </div>
    <div class="qibla-hub"><strong>${t('القبلة','Qibla')}</strong><small id="qibla-heading">${t('فعّل البوصلة للبدء','Enable the compass to begin')}</small></div>
   </div>
-  <p class="qibla-status" id="qibla-status" data-state="idle">${t('فعّل البوصلة، ثم استدر حتى يشير سهم الكعبة للأعلى.','Enable the compass, then turn until the Kaaba arrow points up.')}</p>
-  <p class="qibla-guide">${t('إذا كان الاتجاه مقلوبًا اضغط «عكس ١٨٠°». أبعد الأغطية المغناطيسية وحرّك الهاتف بشكل ٨. يمكنك مطابقة زاوية القبلة ببوصلة عادية.','If inverted, tap “Flip 180°”. Keep magnetic cases away and figure-8 calibrate. You can also match the bearing with a normal compass.')}</p>
+  <p class="qibla-status" id="qibla-status" data-state="idle">${t('فعّل البوصلة، أمسك الهاتف مسطحًا، واستدر ببطء.','Enable the compass, hold flat, and turn slowly.')}</p>
+  <p class="qibla-guide">${t('الثبات أهم من السرعة: أبعد المغناطيس، عاير بشكل ٨، ولا تُمل الهاتف. إن كان الاتجاه مقلوبًا استخدم «عكس ١٨٠°».','Stability matters: keep magnets away, figure-8 calibrate, and do not tilt. If inverted, use “Flip 180°”.')}</p>
   <div class="qibla-meta" id="qibla-meta"></div>
  </section>`;
 
  qiblaPaintMeta();qiblaPaintDial();
  $('#qibla-enable').onclick=async()=>{
   const ok=await qiblaStartCompass();
-  if(ok)toast?.(t('البوصلة جاهزة. استدر حتى يصعد سهم الكعبة للأعلى.','Compass ready. Turn until the Kaaba arrow points up.'));
+  if(ok)toast?.(t('جاهز. أمسك مسطحًا واستدر ببطء.','Ready. Hold flat and turn slowly.'));
  };
  $('#qibla-locate').onclick=()=>qiblaLocate();
  $('#qibla-city').onchange=e=>{
@@ -408,7 +417,6 @@ async function qiblaPage(){
   }
  });
  qiblaLocate();
- qiblaStartCompass().catch(()=>{});
 }
 
 window.addEventListener('hashchange',()=>{
