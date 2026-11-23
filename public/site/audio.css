@@ -24,9 +24,9 @@ body.scroll-focus .tilawa-bar{z-index:130}
 .ayah.is-playing{background:#c9a35a33!important;border-radius:12px;box-shadow:inset 0 0 0 2px #c9a35acc;padding:8px 10px;transition:background .2s,box-shadow .2s}
 
 /* On-page QPC highlight */
-.qpc-ayah-hl{fill:#c9a35a55;stroke:#c9a35a99;stroke-width:1.5;pointer-events:none}
-.qpc-ink.is-playing{fill:#6d5422}
-body.dark .qpc-ayah-hl{fill:#c9a35a44;stroke:#e8d5a899}
+.qpc-ayah-hl{fill:#d4a84a66;stroke:#b8892f;stroke-width:2;pointer-events:none;filter:drop-shadow(0 0 6px #c9a35a55)}
+.qpc-ink.is-playing{fill:#5a4318}
+body.dark .qpc-ayah-hl{fill:#d4a84a55;stroke:#e8d5a8}
 body.dark .qpc-ink.is-playing{fill:#f0d78a}
 .vertical-page.is-playing .vertical-vector,.paper-leaf.is-playing .vector-scan{box-shadow:0 0 0 2px #c9a35a66}
 
