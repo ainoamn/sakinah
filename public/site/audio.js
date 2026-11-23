@@ -119,10 +119,9 @@ function paintMushafAyah(cur){
     if(line.textContent[i]===' ')continue;
     try{
      const p=line.getStartPositionOfChar(i);
-     const w=line.getExtentOfChar(i);
      const endP=line.getEndPositionOfChar(i);
-     minX=Math.min(minX,p.x,endP.x,p.x-w,endP.x-w);
-     maxX=Math.max(maxX,p.x,endP.x,p.x+w,endP.x+w);
+     minX=Math.min(minX,p.x,endP.x);
+     maxX=Math.max(maxX,p.x,endP.x);
     }catch{}
    }
    if(!Number.isFinite(minX)||maxX<=minX)continue;
