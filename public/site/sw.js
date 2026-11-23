@@ -1,5 +1,5 @@
 /* Public reading resources only. Account APIs and user activity are never cached. */
-const VERSION='sakinah-v66-ayah-highlight',SHELL=VERSION+'-shell',MEDIA=VERSION+'-media';
+const VERSION='sakinah-v67-page-ayah-hl',SHELL=VERSION+'-shell',MEDIA=VERSION+'-media';
 const INDEX_URL=new URL('index.html',self.location.href).href;
 const SHELL_FILES=['./','index.html','style.css','reader-fit.css','experience.css','mobile.css','reading.css','reading.js','audio.js','audio.css','offline-catalog.json','state.js','device.js','sync.js','offline.js','data.js','app.js','features.js','i18n.js','reader.js','reader-fit.js','experience.js','pwa.js','manifest.webmanifest','books.json','exports.json','assets/sakinah-emblem.png','assets/bhd-logo.svg','assets/app-icon-192.png','assets/app-icon-512.png','assets/qaboos.jpg','assets/ameen.jpg','assets/nizwa.jpg','assets/uthmanic-hafs.woff2'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(SHELL).then(c=>c.addAll(SHELL_FILES.map(file=>new Request(new URL(file,self.location.href),{cache:'reload'})))).then(()=>self.skipWaiting())));
@@ -7,7 +7,7 @@ self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise
 async function trim(cache,max){const keys=await cache.keys();await Promise.all(keys.slice(0,Math.max(0,keys.length-max)).map(k=>cache.delete(k)))}
 self.addEventListener('fetch',e=>{
  const r=e.request,u=new URL(r.url);if(r.method!=='GET'||u.pathname.startsWith('/api/')||u.pathname.includes('/auth/')||u.pathname.includes('/__sites'))return;
- const optional=/\/(quran-source|quran-layout|tafsir-source|books-text|prayer-library|original-text-books)\.json$/.test(u.pathname);
+ const optional=/\/(quran-source|quran-layout|ayah-highlight|tafsir-source|books-text|prayer-library|original-text-books)\.json$/.test(u.pathname);
  const own=u.origin===self.location.origin&&u.pathname.startsWith(new URL('./',self.location.href).pathname);
  const font=['verses.quran.foundation','verses.quran.com','fonts.gstatic.com','fonts.googleapis.com'].includes(u.hostname);
  const prayer=u.hostname==='api.aladhan.com'&&u.pathname.startsWith('/v1/calendarByCity');if(!own&&!font&&!prayer)return;if(prayer){e.respondWith(fetch(r).then(async response=>{if(response.ok){const c=await caches.open(MEDIA);await c.put(r,response.clone()).catch(()=>{})}return response}).catch(()=>caches.match(r).then(hit=>hit||Response.error())));return}

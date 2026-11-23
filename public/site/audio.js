@@ -77,67 +77,79 @@ function tilawaQueueFromSurah(snum){
   text:a.text
  }));
 }
+let ayahHighlightMap=null;
+const ayahHighlightPromise=fetch('ayah-highlight.json').then(r=>{if(!r.ok)throw Error('ayah-highlight');return r.json()}).then(d=>{ayahHighlightMap=d;return d}).catch(()=>null);
+
 function clearTilawaHighlights(){
- document.querySelectorAll('.ayah.is-playing,.tilawa-mark.is-playing,.flow-ayah.is-playing,.tilawa-leaf.is-playing').forEach(el=>el.classList.remove('is-playing'));
- const spot=$('#tilawa-spotlight');
- if(spot)spot.classList.remove('is-on');
+ document.querySelectorAll('.qpc-ayah-hl').forEach(el=>el.remove());
+ document.querySelectorAll('.ayah.is-playing,.qpc-ink.is-playing,.flow-ayah.is-playing,.tilawa-leaf.is-playing,.vertical-page.is-playing,.paper-leaf.is-playing').forEach(el=>el.classList.remove('is-playing'));
+ $('#tilawa-marks')?.remove();
+ $('#tilawa-spotlight')?.remove();
 }
-function ensureTilawaSpotlight(){
- let spot=$('#tilawa-spotlight');
- if(spot)return spot;
- const host=$('.book-stage')||$('#scroll-pages')||$('#main')||document.body;
- host.insertAdjacentHTML('beforeend',`<aside id="tilawa-spotlight" class="tilawa-spotlight" aria-live="polite"><small id="tilawa-spot-label"></small><p id="tilawa-spot-text" lang="ar" dir="rtl"></p></aside>`);
- return $('#tilawa-spotlight');
-}
-function ensureTilawaMarks(page){
- if(!page||!QURAN)return null;
- let rail=$('#tilawa-marks');
- const entries=pageEntries(page);
- if(!entries.length)return null;
- if(!rail){
-  const host=$('.book-navigation')||$('.scroll-reader-bar')||$('#tilawa-bar')||$('#main');
-  host.insertAdjacentHTML(host.id==='tilawa-bar'?'beforebegin':'beforeend',`<div id="tilawa-marks" class="tilawa-marks" role="list" aria-label="${t('آيات الصفحة','Page verses')}"></div>`);
-  rail=$('#tilawa-marks');
+function paintMushafAyah(cur){
+ if(!cur?.page)return;
+ const key=cur.s+':'+cur.a;
+ const ranges=ayahHighlightMap?.v2?.[cur.page-1]?.[key];
+ if(!ranges){
+  if(!ayahHighlightMap)ayahHighlightPromise.then(()=>{if(tilawaCurrent()===cur)paintMushafAyah(cur)});
+  return;
  }
- const key=entries.map(e=>e.s.number+':'+e.a.numberInSurah).join(',');
- if(rail.dataset.key===key)return rail;
- rail.dataset.key=key;
- rail.dataset.page=String(page);
- rail.innerHTML=entries.map(({s,a})=>`<button type="button" class="tilawa-mark" role="listitem" data-tilawa-mark="${s.number}:${a.numberInSurah}" data-page="${a.page}" aria-label="${t('آية','Ayah')} ${ar(a.numberInSurah)}">${ar(a.numberInSurah)}</button>`).join('');
- rail.querySelectorAll('[data-tilawa-mark]').forEach(btn=>btn.onclick=()=>{
-  const [s,a]=btn.dataset.tilawaMark.split(':').map(Number);
-  const pageNo=Number(btn.dataset.page)||page;
-  if(tilawa.mode==='surah')tilawaStartSurah(s,a);
-  else tilawaStartPage(pageNo,a);
+ const ns='http://www.w3.org/2000/svg';
+ document.querySelectorAll(`[data-vector-page="${cur.page}"]`).forEach(host=>{
+  const svg=host.querySelector('svg.qpc-svg');
+  if(!svg)return;
+  let layer=svg.querySelector('.qpc-hl-layer');
+  if(!layer){
+   layer=document.createElementNS(ns,'g');
+   layer.setAttribute('class','qpc-hl-layer');
+   const firstInk=svg.querySelector('.qpc-ink');
+   if(firstInk)svg.insertBefore(layer,firstInk);
+   else svg.append(layer);
+  }
+  layer.replaceChildren();
+  for(const [lineIdx,start,end] of ranges){
+   const line=svg.querySelector(`.qpc-ink[data-line="${lineIdx}"]`);
+   if(!line||!line.textContent)continue;
+   const chars=line.getNumberOfChars?.()||0;
+   if(!chars)continue;
+   let minX=Infinity,maxX=-Infinity;
+   const y=Number(line.getAttribute('y'))||0;
+   const size=Number(line.getAttribute('font-size'))||64;
+   for(let i=start;i<end&&i<chars;i++){
+    if(line.textContent[i]===' ')continue;
+    try{
+     const p=line.getStartPositionOfChar(i);
+     const w=line.getExtentOfChar(i);
+     const endP=line.getEndPositionOfChar(i);
+     minX=Math.min(minX,p.x,endP.x,p.x-w,endP.x-w);
+     maxX=Math.max(maxX,p.x,endP.x,p.x+w,endP.x+w);
+    }catch{}
+   }
+   if(!Number.isFinite(minX)||maxX<=minX)continue;
+   const pad=6;
+   const rect=document.createElementNS(ns,'rect');
+   rect.setAttribute('class','qpc-ayah-hl');
+   rect.setAttribute('x',String(minX-pad));
+   rect.setAttribute('y',String(y-size*0.88));
+   rect.setAttribute('width',String(maxX-minX+pad*2));
+   rect.setAttribute('height',String(size*1.2));
+   rect.setAttribute('rx','8');
+   layer.append(rect);
+   line.classList.add('is-playing');
+  }
  });
- return rail;
 }
 function highlightTilawaAyah(cur){
  clearTilawaHighlights();
  if(!cur)return;
- // Text mushaf view
  const textHit=document.getElementById('ayah-'+cur.a);
  if(textHit&&Number(document.querySelector('#ayahs')?.dataset?.surah||cur.s)===cur.s){
   textHit.classList.add('is-playing');
   if(tilawa.playing)textHit.scrollIntoView({block:'center',behavior:'smooth'});
  }
- // Page verse chips
- const page=cur.page||Number($('#book')?.dataset.page)||read('lastPage',1);
- const rail=ensureTilawaMarks(page);
- rail?.querySelectorAll('.tilawa-mark').forEach(btn=>{
-  const on=btn.dataset.tilawaMark===cur.s+':'+cur.a;
-  btn.classList.toggle('is-playing',on);
-  if(on&&tilawa.playing)btn.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
- });
- // Spotlight card over mushaf
- const spot=ensureTilawaSpotlight();
- $('#tilawa-spot-label').textContent=cur.name+' · '+t('الآية','Verse')+' '+ar(cur.a);
- $('#tilawa-spot-text').textContent=cur.text+' ﴿'+ar(cur.a)+'﴾';
- spot.classList.add('is-on');
- spot.dataset.ayah=cur.s+':'+cur.a;
- // Mark current leaf in continuous view
+ paintMushafAyah(cur);
  document.querySelector(`.vertical-page[data-vertical-page="${cur.page}"]`)?.classList.add('tilawa-leaf','is-playing');
- document.querySelector(`.paper-leaf[data-page="${cur.page}"], .paper-leaf[data-page='${cur.page}']`)?.classList.add('is-playing');
+ document.querySelector(`.paper-leaf[data-page="${cur.page}"]`)?.classList.add('is-playing');
 }
 function syncTilawaUi(){
  const bar=$('#tilawa-bar');
@@ -155,8 +167,7 @@ function syncTilawaUi(){
   if(rec)rec.textContent='♫ '+tilawaReciterLabel();
   if(meta&&cur)meta.textContent=cur.name+' · '+t('آية','Ayah')+' '+ar(cur.a);
   else if(meta)meta.textContent=t('اختر صفحة أو سورة للاستماع','Choose a page or surah to listen');
-  if(ayah&&cur)ayah.textContent=cur.text;
-  else if(ayah)ayah.textContent='';
+  if(ayah)ayah.textContent='';
  }
  highlightTilawaAyah(cur);
  if(navigator.mediaSession&&cur){
@@ -177,7 +188,7 @@ async function tilawaLoadCurrent(){
  syncTilawaUi();
  if(token!==tilawa.abort)return;
  // Follow the mushaf page of the recited ayah
- if(cur.page){
+  if(cur.page){
   if(currentRoute==='quran'&&$('#book')){
    const page=Number($('#book').dataset.page);
    if(page&&page!==cur.page)location.hash='quran/page/'+cur.page;
@@ -185,7 +196,6 @@ async function tilawaLoadCurrent(){
    const leaf=document.querySelector(`.vertical-page[data-vertical-page="${cur.page}"]`);
    leaf?.scrollIntoView({block:'center',behavior:'smooth'});
   }
-  ensureTilawaMarks(cur.page);
  }
 }
 async function tilawaPlay(){
@@ -280,7 +290,7 @@ function tilawaBarHtml(){
   <button type="button" class="chip" id="tilawa-reciter" aria-label="${t('اختيار القارئ','Choose reciter')}">♫ ${esc(tilawaReciterLabel())}</button>
   <div class="tilawa-now">
    <strong id="tilawa-meta">${t('التلاوة جاهزة','Recitation ready')}</strong>
-   <span id="tilawa-ayah" class="tilawa-ayah-line" lang="ar" dir="rtl"></span>
+   <span id="tilawa-ayah" class="sr-only" lang="ar" dir="rtl"></span>
   </div>
   <div class="tilawa-controls">
    <button type="button" class="chip" id="tilawa-prev" aria-label="${t('الآية السابقة','Previous ayah')}">→</button>
@@ -342,10 +352,12 @@ function enhanceQuranTextAudio(){
 }
 function enhanceMushafAudio(){
  mountTilawaBar();
- const page=Number($('#book')?.dataset.page)||Number($('#visible-page')?.dataset?.page)||read('lastPage',1);
- ensureTilawaMarks(page);
- if(tilawaCurrent())highlightTilawaAyah(tilawaCurrent());
- // page play chip near navigation if present
+ $('#tilawa-marks')?.remove();
+ $('#tilawa-spotlight')?.remove();
+ if(tilawaCurrent()){
+  // Wait a frame so QPC lines finish measuring after remount
+  requestAnimationFrame(()=>highlightTilawaAyah(tilawaCurrent()));
+ }
  if($('.book-navigation')&&!$('#tilawa-book-play')){
   $('.book-navigation').insertAdjacentHTML('beforeend',`<button class="chip" id="tilawa-book-play" type="button" aria-label="${t('تشغيل صفحة المصحف','Play mushaf page')}">▶ ${t('تلاوة','Tilawa')}</button>`);
   $('#tilawa-book-play').onclick=()=>tilawaStartPage(Number($('#book')?.dataset.page)||read('lastPage',1));
@@ -360,6 +372,10 @@ function enhanceMushafAudio(){
  }
 }
 
+window.onQpcPageReady=function(page){
+ const cur=tilawaCurrent();
+ if(cur&&cur.page===page)requestAnimationFrame(()=>paintMushafAyah(cur));
+};
 window.SakinahTilawa={TILAWAT_RECITERS,tilawaStartPage,tilawaStartSurah,tilawaSetReciter,openTilawaReciters,mountTilawaBar,enhanceQuranTextAudio,enhanceMushafAudio,syncTilawaUi};
 
 (function wireTilawa(){
