@@ -238,6 +238,32 @@ body.library-reader-view .library-text{
 }
 .library-measure .library-para{margin:0 0 .55em;padding:0;line-height:1.85;font-family:Amiri,'Noto Naskh Arabic',serif}
 
+/* Arabic book spread: isolate from page RTL so left/right leaves stay correct */
+.library-stage.library-spread .library-spread-frame,
+body.library-reader-view .library-spread-frame{
+  direction:ltr!important;
+  display:flex!important;
+  flex-direction:row!important; /* DOM: left leaf, then right leaf */
+  align-items:stretch;
+  justify-content:center;
+  height:100%;
+  max-height:100%;
+  gap:0;
+  filter:drop-shadow(0 14px 28px #0005);
+}
+.library-spread-frame .library-paper{
+  direction:rtl;
+}
+.library-paper.is-blank{
+  background:#f3ecd8!important;
+  border-style:dashed!important;
+  opacity:.55;
+  box-shadow:none!important;
+}
+.library-paper.is-blank .library-leaf-head,
+.library-paper.is-blank .library-leaf-foot,
+.library-paper.is-blank .library-paper-body{visibility:hidden}
+
 /* Book body typography: dense flowing Arabic, not spaced OCR lines */
 body.library-reader-view .library-paper-body{
   display:flex!important;
