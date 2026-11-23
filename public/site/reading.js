@@ -113,8 +113,36 @@ function bindLibraryCardOpens(grid){if(!grid)return;grid.querySelectorAll('.book
 function libraryMode(){return 'spread'}
 function librarySpread(){const w=document.documentElement.clientWidth||innerWidth,h=document.documentElement.clientHeight||innerHeight;return w>=720&&w>=h*0.85}
 function libraryPageHeader(book,page){return `<div class="library-leaf-head"><span>${esc(lang()==='en'?book.titleEn||book.title:book.title)}</span><span>سَكِينَة</span></div>`}
-function normalizeLibraryText(text=''){return String(text).replace(/\u06DD/g,'\n').replace(/\u06DE/g,'').replace(/\.(?=\s|$)/g,'.\n').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()}
-function libraryTextHtml(text){const parts=normalizeLibraryText(text).split(/\n+/).map(part=>part.replace(/\s+/g,' ').trim()).filter(Boolean);return parts.map(part=>`<p class="library-para">${esc(part)}</p>`).join('')||`<p class="library-para"></p>`}
+function normalizeLibraryText(text=''){
+ return String(text||'')
+  .replace(/\u06DD/g,' ')
+  .replace(/\u06DE/g,'')
+  .replace(/\s*\._\)\s*:?/g,'. ')
+  .replace(/\s*[_\)]+\s*:/g,' ')
+  .replace(/\r\n?/g,'\n')
+  /* Soft PDF/OCR wraps become spaces; only blank lines stay paragraph breaks. */
+  .replace(/[ \t]*\n[ \t]*(?!\n)/g,' ')
+  .replace(/\n{2,}/g,'\n\n')
+  .replace(/[ \t]{2,}/g,' ')
+  .replace(/\s+([،؛:!؟.])/g,'$1')
+  .replace(/([«\(\[])\s+/g,'$1')
+  .replace(/\s+([»\)\]])/g,'$1')
+  .replace(/\s{2,}/g,' ')
+  .trim()
+}
+function libraryParagraphs(text){
+ const clean=normalizeLibraryText(text);
+ if(!clean)return [];
+ /* Prefer real blank-line paragraphs; otherwise keep one flowing block per slide. */
+ const parts=clean.includes('\n\n')
+  ?clean.split(/\n\n+/).map(p=>p.replace(/\s+/g,' ').trim()).filter(Boolean)
+  :[clean.replace(/\s+/g,' ').trim()];
+ return parts;
+}
+function libraryTextHtml(text){
+ const parts=libraryParagraphs(text);
+ return parts.map(part=>`<p class="library-para">${esc(part)}</p>`).join('')||`<p class="library-para"></p>`
+}
 function libraryPaper(book,page,side=''){const showTitle=book.textEdition&&page.title&&!page.part;return `<section class="library-paper book-leaf ${book.textEdition?'text-edition':'image-edition'} ${side}" data-library-page="${page.number}" draggable="false">${libraryPageHeader(book,page)}<div class="library-paper-body" lang="ar" dir="rtl">${book.textEdition?`${showTitle?`<h2>${esc(page.title)}</h2>`:''}<div class="library-text" contenteditable="false">${libraryTextHtml(page.text)}</div>${page.reference?`<small class="library-reference">${esc(page.reference)}</small>`:''}`:`<img src="${esc(page.image)}" alt="${esc(book.title)} — ${t('الصفحة','Page')} ${ar(page.source+1)}" loading="lazy" draggable="false">`}</div><div class="library-leaf-foot"><span>${t('الصفحة','Page')} ${ar(page.number)}</span><span>${page.part?t('تتمة','continued'):''}</span></div></section>`}
 function libraryMeasureHeight(measure,paras){
  measure.replaceChildren();
@@ -148,19 +176,19 @@ function paginateLibrary(book){
  const stage=$('#library-stage');
  const pageW=Math.max(200,parseFloat(stage?getComputedStyle(stage).getPropertyValue('--library-page-width'):'')||Math.min(420,(stage?.clientWidth||800)*0.42));
  const pageH=pageW*1.4142;
- const baseAvail=Math.max(140,pageH-100);
- const font=read('libraryFont',28);
+ const baseAvail=Math.max(160,pageH-88);
+ const font=read('libraryFont',24);
  const measure=document.createElement('div');
  measure.className='library-measure';
- measure.style.cssText=`position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none;width:${Math.floor(pageW-44)}px;font-family:Amiri,'Noto Naskh Arabic',serif;font-size:${font}px;line-height:2.05;direction:rtl;text-align:justify;`;
+ measure.style.cssText=`position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none;width:${Math.floor(pageW-48)}px;font-family:Amiri,'Noto Naskh Arabic',serif;font-size:${font}px;line-height:1.85;direction:rtl;text-align:justify;text-align-last:right;`;
  document.body.append(measure);
  const pages=[];let number=1;
  try{
   book.slides.forEach((slide,source)=>{
-   const paras=normalizeLibraryText(slide.text||'').split(/\n+/).map(p=>p.replace(/\s+/g,' ').trim()).filter(Boolean);
+   const paras=libraryParagraphs(slide.text||'');
    if(!paras.length){pages.push({title:slide.title||'',text:'',reference:slide.reference||'',source,number:number++,part:0});return}
    let buf=[],part=0;
-   const room=()=>part===0&&slide.title?Math.max(120,baseAvail-Math.round(font*1.7)):baseAvail;
+   const room=()=>part===0&&slide.title?Math.max(140,baseAvail-Math.round(font*1.55)):baseAvail;
    const flush=()=>{
     if(!buf.length)return;
     pages.push({title:slide.title||'',text:buf.join('\n\n'),reference:slide.reference||'',source,number:number++,part:part});
@@ -191,7 +219,7 @@ function drawLibraryPages(){const state=libraryViewState;if(!state||!$('#library
  bindLibraryGestures(stage);
  state.observer?.disconnect();
 }
-function fitLibrary(){const state=libraryViewState,stage=$('#library-stage');if(!state||!stage)return;if(!state.book?.slides?.length){state.pages=[];drawLibraryPages();return}const count=librarySpread()?2:1,room=stage.clientWidth-(count===2?18:8),h=stage.clientHeight-10;const width=Math.min(room/count,Math.max(240,(h-4)*(count===2?0.72:0.707)));stage.style.setProperty('--library-page-width',Math.floor(width)+'px');stage.style.setProperty('--library-font',read('libraryFont',28)+'px');const old=state.pages?.[state.cursor],source=old?.source??state.source;state.pages=paginateLibrary(state.book);const same=state.pages.findIndex(p=>p.source===source&&p.part===(old?.part||0));state.cursor=same>=0?same:Math.max(0,state.pages.findIndex(p=>p.source===source));if(!old){const saved=read('bookPart-'+state.book.id,0);if(Number.isFinite(saved)&&state.pages[saved]?.source===source)state.cursor=saved}drawLibraryPages()}
+function fitLibrary(){const state=libraryViewState,stage=$('#library-stage');if(!state||!stage)return;if(!state.book?.slides?.length){state.pages=[];drawLibraryPages();return}const count=librarySpread()?2:1,room=stage.clientWidth-(count===2?18:8),h=stage.clientHeight-10;const width=Math.min(room/count,Math.max(260,(h-4)*(count===2?0.72:0.707)));stage.style.setProperty('--library-page-width',Math.floor(width)+'px');stage.style.setProperty('--library-font',read('libraryFont',24)+'px');const old=state.pages?.[state.cursor],source=old?.source??state.source;state.pages=paginateLibrary(state.book);const same=state.pages.findIndex(p=>p.source===source&&p.part===(old?.part||0));state.cursor=same>=0?same:Math.max(0,state.pages.findIndex(p=>p.source===source));if(!old){const saved=read('bookPart-'+state.book.id,0);if(Number.isFinite(saved)&&state.pages[saved]?.source===source)state.cursor=saved}drawLibraryPages()}
 async function setLibraryFocus(enabled){document.body.classList.toggle('library-focus',enabled);$('#library-focus')?.setAttribute('aria-pressed',enabled);if($('#library-focus'))$('#library-focus').textContent=enabled?'✕ '+t('خروج','Exit'):'⛶ '+t('وضع التركيز','Focus');if(enabled){try{const request=document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen;await request?.call(document.documentElement)}catch{}}else if(document.fullscreenElement)await document.exitFullscreen().catch(()=>{});requestAnimationFrame(fitLibrary)}
 libraryPage=async function(id,index=0){
  const token=location.hash;let libraryBooks;try{libraryBooks=await loadLibraryData()}catch{$('#main').innerHTML=heading(t('مكتبة سكينة','Sakinah Library'),t('تعذر تحميل المكتبة. أعد المحاولة.','Could not load the library. Please retry.'));return}if(location.hash!==token||currentRoute!=='library')return;
@@ -210,10 +238,10 @@ libraryPage=async function(id,index=0){
  $('#library-night').onclick=()=>$('#theme').click();
  $('#library-options').onclick=()=>{const dialog=openReaderDialog(t('عن هذا الإصدار','About this edition'),`<p>${esc(book.sourceLabel||'')}</p>${book.vocalizationNote?`<p class="library-edition-note">${esc(book.vocalizationNote)}</p>`:''}${book.sourceURL?`<a class="library-source-link" target="_blank" rel="noopener" href="${esc(book.sourceURL)}">${t('النص في المصدر','Source text')} ↗</a>`:''}${book.originalPdf?`<a class="chip" download href="${esc(book.originalPdf)}">↓ ${t('ملف الأصل قبل التفريغ','Original source PDF')}</a>`:''}<p>${book.textEdition?t('يُعرض النص كصفحات كتاب بخط موحّد، دون تمرير داخل الصفحة.','Text is shown as fixed book pages with a unified typeface, without scrolling inside a page.'):t('هذه صفحات أصلية مصوّرة تُعرض كورق كتاب.','These are original page images shown as book leaves.')}</p>${book.pdf?`<a class="btn" href="${esc(book.pdf)}" download>↓ PDF</a><button class="chip" id="library-share">${t('مشاركة الملف','Share file')}</button>`:''}`);dialog.querySelector('#library-share')?.addEventListener('click',()=>shareFile(book.pdf,book.title));};
  if($('#library-original'))$('#library-original').onclick=()=>{const page=libraryViewState.pages[libraryViewState.cursor],original=book.originalSlides.find(s=>s.sourcePage===page.sourcePage)||book.originalSlides[page.source];openReaderDialog(t('الصفحة الأصلية للمقارنة','Original page for comparison'),`<p>${t('الصفحة الأصلية','Original page')} ${ar(original.sourcePage)}</p><img style="width:100%;height:auto" src="${esc(original.image)}" alt="${esc(book.title)}">`)};
- for(const [btnId,delta]of [['library-smaller',-2],['library-larger',2]])if($('#'+btnId))$('#'+btnId).onclick=()=>{write('libraryFont',Math.max(20,Math.min(40,read('libraryFont',28)+delta)));fitLibrary()};
+ for(const [btnId,delta]of [['library-smaller',-2],['library-larger',2]])if($('#'+btnId))$('#'+btnId).onclick=()=>{write('libraryFont',Math.max(18,Math.min(36,read('libraryFont',24)+delta)));fitLibrary()};
  window.scrollTo(0,0);
- try{await document.fonts.load(`${read('libraryFont',28)}px Amiri`)}catch{}
- try{await document.fonts.load(`${read('libraryFont',28)}px "Noto Naskh Arabic"`)}catch{}
+ try{await document.fonts.load(`${read('libraryFont',24)}px Amiri`)}catch{}
+ try{await document.fonts.load(`${read('libraryFont',24)}px "Noto Naskh Arabic"`)}catch{}
  if(libraryViewState?.book===book)requestAnimationFrame(()=>requestAnimationFrame(fitLibrary));
 };
 window.addEventListener('resize',()=>{clearTimeout(libraryLayoutTimer);libraryLayoutTimer=setTimeout(fitLibrary,180)});document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.body.classList.contains('scroll-focus'))setContinuousFocus(false);if(document.body.classList.contains('library-focus'))setLibraryFocus(false)}if(document.body.classList.contains('library-reader-view')&&!e.target.closest('input,textarea,select,[contenteditable]')){if(e.key==='ArrowLeft'){e.preventDefault();libraryTurn(1)}if(e.key==='ArrowRight'){e.preventDefault();libraryTurn(-1)}}});window.addEventListener('hashchange',()=>{if(currentRoute!=='quran-scroll'){document.body.classList.remove('scroll-focus','scroll-bar-hidden');bindScrollFocusHide(false)}if(currentRoute!=='library'||!location.hash.split('/')[1]){document.body.classList.remove('library-reader-view','library-focus');$('#main').classList.remove('library-reader');libraryViewState?.observer?.disconnect();libraryViewState=null}});document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&!document.webkitFullscreenElement){if(document.body.classList.contains('library-focus')){document.body.classList.remove('library-focus');requestAnimationFrame(fitLibrary)}/* keep scroll-focus CSS fill even if native fullscreen is denied/exited */}});

@@ -236,4 +236,61 @@ body.library-reader-view .library-paper.image-edition img{
 body.library-reader-view .library-text{
   overflow:hidden!important;flex:1;min-height:0;
 }
-.library-measure .library-para{margin:0 0 .85em;padding:0}
+.library-measure .library-para{margin:0 0 .55em;padding:0;line-height:1.85;font-family:Amiri,'Noto Naskh Arabic',serif}
+
+/* Book body typography: dense flowing Arabic, not spaced OCR lines */
+body.library-reader-view .library-paper-body{
+  display:flex!important;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-start!important;
+  padding:12px 16px 8px!important;
+  place-items:unset!important;
+}
+body.library-reader-view .library-paper-body h2{
+  font:600 calc(var(--library-font,24px) * 1.05)/1.45 Amiri,'Noto Naskh Arabic',serif!important;
+  margin:0 0 10px!important;
+  text-align:center;
+  color:#7a6434;
+}
+body.library-reader-view .library-text{
+  display:block!important;
+  flex:0 1 auto!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  margin:0!important;
+  padding:0!important;
+  font-family:Amiri,'Noto Naskh Arabic',serif!important;
+  font-size:var(--library-font,24px)!important;
+  line-height:1.85!important;
+  text-align:justify!important;
+  text-justify:inter-word!important;
+  text-align-last:right!important;
+  direction:rtl!important;
+  color:#172b25;
+  font-feature-settings:"liga" 1,"calt" 1;
+}
+body.library-reader-view .library-para{
+  margin:0 0 .55em!important;
+  padding:0!important;
+  font:inherit!important;
+  line-height:inherit!important;
+  text-align:justify!important;
+  text-justify:inter-word!important;
+  text-align-last:right!important;
+  white-space:normal!important;
+  word-spacing:normal!important;
+  letter-spacing:normal!important;
+}
+body.library-reader-view .library-para:last-child{margin-bottom:0!important}
+body.library-reader-view .library-reference{
+  margin-top:8px!important;
+  font:12px/1.5 'IBM Plex Sans Arabic',sans-serif!important;
+  text-align:center;
+}
+body.dark .library-reader-view .library-text,
+body.dark.library-reader-view .library-text{color:#ede7d6}
+@media(max-width:700px){
+  body.library-reader-view .library-paper-body{padding:10px 12px 6px!important}
+  body.library-reader-view .library-text{line-height:1.8!important}
+}
