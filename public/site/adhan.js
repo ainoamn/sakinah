@@ -1,11 +1,13 @@
-/* Adhan alerts, muadhin cue styles, iqamah countdown + dhikr screen. */
+/* Adhan alerts: real muadhin MP3s (AlAdhan CDN) + short iqamah beep + countdown. */
 const ADHAN_PRAYERS=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+const ADHAN_CDN='https://cdn.aladhan.com/audio/adhans/';
 const ADHAN_VOICES=[
- {id:'classic',ar:'نغمة كلاسيكية',en:'Classic tone',base:392,wave:'sine',pace:.40},
- {id:'makkah',ar:'نغمة مكية هادئة',en:'Quiet Makkah tone',base:349,wave:'triangle',pace:.48},
- {id:'madinah',ar:'نغمة مدنية عميقة',en:'Deep Madinah tone',base:330,wave:'sine',pace:.52},
- {id:'bright',ar:'نغمة مشرقة',en:'Bright tone',base:440,wave:'triangle',pace:.36},
- {id:'soft',ar:'نغمة خفيفة',en:'Soft tone',base:294,wave:'sine',pace:.44}
+ {id:'alafasy',ar:'مشاري راشد العفاسي',en:'Mishary Rashid Alafasy',url:ADHAN_CDN+'a9.mp3'},
+ {id:'alafasy2',ar:'العفاسي (أذان آخر)',en:'Alafasy (another Adhan)',url:ADHAN_CDN+'a7.mp3'},
+ {id:'dubai',ar:'العفاسي — دبي One TV',en:'Alafasy — Dubai One TV',url:ADHAN_CDN+'a4.mp3'},
+ {id:'nafees',ar:'أحمد النفيس',en:'Ahmad Al-Nafees',url:ADHAN_CDN+'a1.mp3'},
+ {id:'ozcan',ar:'حافظ مصطفى أوزجان',en:'Hafiz Mustafa Özcan',url:ADHAN_CDN+'a2.mp3'},
+ {id:'zahrani',ar:'منصور الزهراني',en:'Mansour Al-Zahrani',url:ADHAN_CDN+'a11-mansour-al-zahrani.mp3'}
 ];
 const ADHAN_DHIKR=[
  'سبحان الله','الحمد لله','الله أكبر','لا إله إلا الله',
@@ -13,9 +15,10 @@ const ADHAN_DHIKR=[
  'لا حول ولا قوة إلا بالله','حسبي الله ونعم الوكيل'
 ];
 const DEFAULT_IQAMAH={Fajr:20,Dhuhr:15,Asr:15,Maghrib:10,Isha:15};
+const ADHAN_TAKBIR_MS=12000; // first takbirat from the selected recording
 
 const adhanState={
- timer:null,audioCtx:null,unlocked:false,playing:false,stopTone:null,
+ timer:null,audioCtx:null,player:null,unlocked:false,playing:false,stopTone:null,
  overlay:null,iqamahTimer:null,wakeLock:null,dhikrTimer:null
 };
 
@@ -40,7 +43,7 @@ function adhanSettings(){
   advanceMin:Math.max(0,Math.min(60,Number(saved.advanceMin)||10)),
   advanceTakbir:saved.advanceTakbir!==false,
   adhanMode:saved.adhanMode==='takbir'?'takbir':'full',
-  voice:ADHAN_VOICES.some(v=>v.id===saved.voice)?saved.voice:'classic',
+  voice:ADHAN_VOICES.some(v=>v.id===saved.voice)?saved.voice:'alafasy',
   iqamah:saved.iqamah!==false,
   iqamahMin,
   prayers:Array.isArray(saved.prayers)&&saved.prayers.length?saved.prayers.filter(p=>ADHAN_PRAYERS.includes(p)):defaults.prayers
@@ -63,9 +66,15 @@ async function adhanRequestPermission(){
 function adhanUnlockAudio(){
  try{
   const Ctx=window.AudioContext||window.webkitAudioContext;
-  if(!Ctx)return false;
-  if(!adhanState.audioCtx)adhanState.audioCtx=new Ctx();
-  if(adhanState.audioCtx.state==='suspended')adhanState.audioCtx.resume();
+  if(Ctx){
+   if(!adhanState.audioCtx)adhanState.audioCtx=new Ctx();
+   if(adhanState.audioCtx.state==='suspended')adhanState.audioCtx.resume();
+  }
+  if(!adhanState.player){
+   adhanState.player=new Audio();
+   adhanState.player.preload='auto';
+   adhanState.player.setAttribute('playsinline','');
+  }
   adhanState.unlocked=true;
   return true;
  }catch{return false}
@@ -79,58 +88,85 @@ function adhanStopTone(){
  if(typeof adhanState.stopTone==='function'){try{adhanState.stopTone()}catch{}}
  adhanState.stopTone=null;
  adhanState.playing=false;
+ if(adhanState.player){
+  try{adhanState.player.pause();adhanState.player.currentTime=0}catch{}
+ }
 }
 
-function adhanPlayNotes(notes,opts={}){
+/** Real Adhan MP3 from the selected muadhin (AlAdhan public CDN). */
+function adhanPlayMp3(opts={}){
+ if(!adhanUnlockAudio()||!adhanState.player)return 0;
+ adhanStopTone();
+ const voice=adhanVoice();
+ const url=opts.url||voice.url;
+ const maxMs=opts.maxMs||0;
+ const player=adhanState.player;
+ player.loop=false;
+ player.volume=1;
+ player.src=url;
+ adhanState.playing=true;
+ let ended=false;
+ const finish=()=>{
+  if(ended)return;ended=true;
+  adhanState.playing=false;adhanState.stopTone=null;
+ };
+ const onEnded=()=>finish();
+ player.addEventListener('ended',onEnded,{once:true});
+ player.addEventListener('error',()=>{
+  finish();
+  toast?.(t('تعذر تشغيل ملف الأذان. تحقق من الاتصال.','Could not play the Adhan file. Check your connection.'));
+ },{once:true});
+ const start=player.play();
+ if(start&&typeof start.then==='function'){
+  start.catch(()=>{
+   finish();
+   toast?.(t('اسمح بتشغيل الصوت من المتصفح ثم أعد التجربة.','Allow audio playback in the browser, then try again.'));
+  });
+ }
+ let timer=null;
+ if(maxMs>0){
+  timer=setTimeout(()=>{try{player.pause();player.currentTime=0}catch{}finish()},maxMs);
+ }
+ adhanState.stopTone=()=>{
+  if(timer)clearTimeout(timer);
+  try{player.pause();player.currentTime=0}catch{}
+  player.removeEventListener('ended',onEnded);
+  finish();
+ };
+ return maxMs||1;
+}
+
+function adhanPlayFull(){return adhanPlayMp3()}
+/** Takbir alert: opening of the same Adhan recording (Allahu Akbar). */
+function adhanPlayTakbir(){return adhanPlayMp3({maxMs:ADHAN_TAKBIR_MS})}
+
+/** Soft toot / beep for iqamah only — not Adhan melody. */
+function adhanPlayBeep(){
  if(!adhanUnlockAudio()||!adhanState.audioCtx)return 0;
  adhanStopTone();
  const ctx=adhanState.audioCtx;
- const voice=adhanVoice();
- const pace=opts.pace||voice.pace;
- const gainMax=opts.gain||0.17;
- const now=ctx.currentTime+0.04;
+ const notes=[880,660];
+ const pace=.18,gainMax=.12;
+ const now=ctx.currentTime+0.02;
  const nodes=[];
  notes.forEach((freq,i)=>{
   const osc=ctx.createOscillator();
   const gain=ctx.createGain();
-  osc.type=opts.wave||voice.wave;
+  osc.type='sine';
   osc.frequency.value=freq;
   const t0=now+i*pace;
   gain.gain.setValueAtTime(0.0001,t0);
-  gain.gain.exponentialRampToValueAtTime(gainMax,t0+0.04);
-  gain.gain.exponentialRampToValueAtTime(0.0001,t0+pace*0.9);
+  gain.gain.exponentialRampToValueAtTime(gainMax,t0+0.03);
+  gain.gain.exponentialRampToValueAtTime(0.0001,t0+pace*0.85);
   osc.connect(gain);gain.connect(ctx.destination);
   osc.start(t0);osc.stop(t0+pace);
-  nodes.push(osc,gain);
+  nodes.push(osc);
  });
  adhanState.playing=true;
- const ms=notes.length*pace*1000+180;
+ const ms=notes.length*pace*1000+120;
  const timer=setTimeout(()=>{adhanState.playing=false;adhanState.stopTone=null},ms);
- adhanState.stopTone=()=>{clearTimeout(timer);nodes.forEach(n=>{try{n.stop?.()}catch{}});adhanState.playing=false};
+ adhanState.stopTone=()=>{clearTimeout(timer);nodes.forEach(n=>{try{n.stop()}catch{}});adhanState.playing=false};
  return ms;
-}
-
-/** Takbir-like cue: Allahu Akbar motif */
-function adhanPlayTakbir(){
- const base=adhanVoice().base;
- return adhanPlayNotes([base,base*1.12,base*1.25,base*1.5,base*1.25,base],{pace:.34,gain:.2});
-}
-
-/** Longer stylized adhan phrase */
-function adhanPlayFull(){
- const base=adhanVoice().base;
- const phrase=[
-  base,base*1.12,base*1.25,base*1.33,base*1.5,
-  base*1.33,base*1.25,base*1.12,base,
-  base*.84,base,base*1.12,base*1.25,base*1.5,base*1.68,
-  base*1.5,base*1.25,base*1.12,base,base*.75
- ];
- return adhanPlayNotes(phrase,{gain:.18});
-}
-
-/** Soft toot / beep for iqamah */
-function adhanPlayBeep(){
- return adhanPlayNotes([660,880,660],{wave:'sine',pace:.22,gain:.14});
 }
 
 function adhanPlayCue(kind){
@@ -139,6 +175,7 @@ function adhanPlayCue(kind){
  adhanUnlockAudio();
  if(kind==='beep')return adhanPlayBeep();
  if(kind==='takbir')return adhanPlayTakbir();
+ if(kind==='full')return adhanPlayFull();
  return s.adhanMode==='takbir'?adhanPlayTakbir():adhanPlayFull();
 }
 
@@ -415,12 +452,13 @@ function adhanPanelHTML(){
    <strong>${t('الأذان والإقامة والتقويم','Adhan, Iqamah & calendar')}</strong>
    <span>${s.enabled?t('مفعّل','On'):t('متوقف','Off')}</span>
   </div>
-  <p class="hint">${t('قبل الأذان: تكبير. عند الأذان: أذان كامل أو تكبير. عند الإقامة: نغمة قصيرة مع عدّ تنازلي وذكر على الشاشة.','Before Adhan: Takbir. At Adhan: full tone or Takbir. At Iqamah: a short beep with on-screen countdown and dhikr.')}</p>
+  <p class="hint">${t('أصوات أذان حقيقية للمؤذنين (عبر AlAdhan). قبل الأذان: تكبير من بداية التسجيل. عند الأذان: التسجيل كاملًا أو التكبير فقط. عند الإقامة: نغمة قصيرة مع عدّ تنازلي وذكر.','Real muadhin Adhan recordings (via AlAdhan). Before Adhan: takbir from the start of the recording. At Adhan: full recording or takbir only. At Iqamah: a short beep with countdown and dhikr.')}</p>
   <div class="adhan-actions">
    <button class="btn" type="button" id="adhan-toggle">${s.enabled?t('إيقاف الأذان','Stop Adhan'):t('تفعيل الأذان','Enable Adhan')}</button>
    <button class="chip" type="button" id="adhan-test-full">${t('تجربة الأذان','Test Adhan')}</button>
    <button class="chip" type="button" id="adhan-test-takbir">${t('تجربة التكبير','Test Takbir')}</button>
    <button class="chip" type="button" id="adhan-test-beep">${t('تجربة الإقامة','Test Iqamah tone')}</button>
+   <button class="chip" type="button" id="adhan-stop">${t('إيقاف الصوت','Stop sound')}</button>
    <button class="chip" type="button" id="adhan-test-screen">${t('تجربة شاشة الإقامة','Test Iqamah screen')}</button>
    <button class="chip" type="button" id="adhan-export-ics">↓ ${t('إضافة للتقويم (.ics)','Add to calendar (.ics)')}</button>
   </div>
@@ -436,11 +474,11 @@ function adhanPanelHTML(){
    </label>
    <label class="adhan-advance">${t('صوت الأذان','Adhan sound')}
     <select id="adhan-mode">
-     <option value="full" ${s.adhanMode==='full'?'selected':''}>${t('أذان كامل (نغمة)','Full Adhan tone')}</option>
+     <option value="full" ${s.adhanMode==='full'?'selected':''}>${t('أذان كامل','Full Adhan')}</option>
      <option value="takbir" ${s.adhanMode==='takbir'?'selected':''}>${t('تكبيرة الإحرام فقط','Takbir only')}</option>
     </select>
    </label>
-   <label class="adhan-advance">${t('نغمة المؤذن','Muadhin tone')}
+   <label class="adhan-advance">${t('المؤذن','Muadhin')}
     <select id="adhan-voice">${voices}</select>
    </label>
   </div>
@@ -463,9 +501,14 @@ function bindAdhanPanel(root=document){
   panel.querySelector('.adhan-panel-head span').textContent=t('مفعّل','On');
   $('#adhan-toggle',panel).textContent=t('إيقاف الأذان','Stop Adhan');
  };
- $('#adhan-test-full',panel).onclick=()=>{adhanUnlockAudio();adhanPlayCue('full');toast?.(t('تجربة الأذان','Adhan test'))};
- $('#adhan-test-takbir',panel).onclick=()=>{adhanUnlockAudio();adhanPlayCue('takbir');toast?.(t('تجربة التكبير','Takbir test'))};
- $('#adhan-test-beep',panel).onclick=()=>{adhanUnlockAudio();adhanPlayCue('beep');toast?.(t('نغمة الإقامة','Iqamah tone'))};
+ $('#adhan-test-full',panel).onclick=()=>{
+  adhanUnlockAudio();adhanPlayCue('full');
+  const name=lang()==='en'?adhanVoice().en:adhanVoice().ar;
+  toast?.(t('تشغيل الأذان','Playing Adhan')+' · '+name);
+ };
+ $('#adhan-test-takbir',panel).onclick=()=>{adhanUnlockAudio();adhanPlayCue('takbir');toast?.(t('تشغيل التكبير من بداية الأذان','Playing takbir from the Adhan opening'))};
+ $('#adhan-test-beep',panel).onclick=()=>{adhanUnlockAudio();adhanPlayCue('beep');toast?.(t('نغمة الإقامة القصيرة','Short Iqamah tone'))};
+ $('#adhan-stop',panel).onclick=()=>{adhanStopTone();toast?.(t('توقف الصوت','Sound stopped'))};
  $('#adhan-test-screen',panel).onclick=()=>{
   const key=ADHAN_PRAYERS.find(k=>adhanSettings().prayers.includes(k))||'Dhuhr';
   adhanOpenIqamah(key,adhanSettings().iqamahMin[key]||10);
