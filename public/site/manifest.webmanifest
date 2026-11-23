@@ -15,9 +15,34 @@
     {"src":"assets/app-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ],
   "shortcuts": [
-    {"name":"المصحف الكريم","url":"./?launch=app#quran"},
-    {"name":"الأذكار اليومية","url":"./?launch=app#athkar"},
-    {"name":"السبحة الإلكترونية","url":"./?launch=app#tasbih"}
+    {
+      "name": "اتجاه القبلة",
+      "short_name": "القبلة",
+      "description": "تحديد اتجاه القبلة بالبوصلة أو الكاميرا",
+      "url": "./?launch=app#qibla",
+      "icons": [{"src":"assets/shortcut-qibla.png","sizes":"192x192","type":"image/png"}]
+    },
+    {
+      "name": "أوقات الصلاة",
+      "short_name": "الصلاة",
+      "description": "التقويم ومواقيت الصلاة",
+      "url": "./?launch=app#calendar",
+      "icons": [{"src":"assets/shortcut-prayer.png","sizes":"192x192","type":"image/png"}]
+    },
+    {
+      "name": "الأذكار اليومية",
+      "short_name": "الأذكار",
+      "description": "أذكار الصباح والمساء وسائر اليوم",
+      "url": "./?launch=app#athkar",
+      "icons": [{"src":"assets/shortcut-athkar.png","sizes":"192x192","type":"image/png"}]
+    },
+    {
+      "name": "المسبحة",
+      "short_name": "المسبحة",
+      "description": "السبحة الإلكترونية للتسبيح",
+      "url": "./?launch=app#tasbih",
+      "icons": [{"src":"assets/shortcut-tasbih.png","sizes":"192x192","type":"image/png"}]
+    }
   ],
   "categories": ["books", "education", "lifestyle"]
 }
