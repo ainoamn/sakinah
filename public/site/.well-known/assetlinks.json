@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "om.bhd.sakinah",
+      "sha256_cert_fingerprints": [
+        "41:7F:7D:AD:42:2F:04:A9:21:40:A3:1C:F5:0C:89:ED:32:56:91:59:12:68:42:94:73:3B:D0:A7:C7:00:BF:3A"
+      ]
+    }
+  }
+]

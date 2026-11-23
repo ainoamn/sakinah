@@ -7,4 +7,6 @@
 *.jpg  filter=lfs diff=lfs merge=lfs -text
 *.jpeg filter=lfs diff=lfs merge=lfs -text
 *.png  filter=lfs diff=lfs merge=lfs -text
+# Small shortcut icons must stay as real PNGs so Vercel (no LFS smudge) can serve them.
+public/site/assets/shortcut-*.png -filter -diff -merge binary
 *.woff2 filter=lfs diff=lfs merge=lfs -text

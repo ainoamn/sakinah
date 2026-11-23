@@ -1,0 +1,80 @@
+{
+  "packageId": "om.bhd.sakinah",
+  "host": "sakinah-swart.vercel.app",
+  "name": "سكينة",
+  "launcherName": "سكينة",
+  "display": "standalone",
+  "themeColor": "#092D24",
+  "themeColorDark": "#000000",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#FBFAF7",
+  "enableNotifications": false,
+  "startUrl": "/?launch=app",
+  "iconUrl": "https://sakinah-swart.vercel.app/assets/app-icon-512.png",
+  "maskableIconUrl": "https://sakinah-swart.vercel.app/assets/app-icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "C:\\Users\\ahami\\AppData\\Local\\sakinah-android-twa\\android.keystore",
+    "alias": "sakinah"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "اتجاه القبلة",
+      "shortName": "القبلة",
+      "url": "https://sakinah-swart.vercel.app/?launch=app#qibla",
+      "chosenIconUrl": "https://sakinah-swart.vercel.app/assets/app-icon-512.png",
+      "iconUrl": "https://sakinah-swart.vercel.app/assets/app-icon-512.png"
+    },
+    {
+      "name": "أوقات الصلاة",
+      "shortName": "الصلاة",
+      "url": "https://sakinah-swart.vercel.app/?launch=app#calendar",
+      "chosenIconUrl": "https://sakinah-swart.vercel.app/assets/app-icon-512.png",
+      "iconUrl": "https://sakinah-swart.vercel.app/assets/app-icon-512.png"
+    },
+    {
+      "name": "الأذكار اليومية",
+      "shortName": "الأذكار",
+      "url": "https://sakinah-swart.vercel.app/?launch=app#athkar",
+      "chosenIconUrl": "https://sakinah-swart.vercel.app/assets/app-icon-512.png",
+      "iconUrl": "https://sakinah-swart.vercel.app/assets/app-icon-512.png"
+    },
+    {
+      "name": "المسبحة",
+      "shortName": "المسبحة",
+      "url": "https://sakinah-swart.vercel.app/?launch=app#tasbih",
+      "chosenIconUrl": "https://sakinah-swart.vercel.app/assets/app-icon-512.png",
+      "iconUrl": "https://sakinah-swart.vercel.app/assets/app-icon-512.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://sakinah-swart.vercel.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": true
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://sakinah-swart.vercel.app/",
+  "minSdkVersion": 24,
+  "orientation": "default",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "",
+  "displayOverride": [],
+  "appVersion": "1.0.0"
+}

@@ -50,3 +50,9 @@ yarn-error.log*
 /tmp/
 scripts/__pycache__/
 scripts/work-supplications/
+
+# Android TWA signing (keep local; fingerprint is in assetlinks.json)
+android-twa/android.keystore
+android-twa/*.jks
+*.apk.idsig
+
